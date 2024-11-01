@@ -9,7 +9,7 @@ makeDataObj <- function(gene_expression_matrix = NULL,
                         ...)
 {
   # warn in the docs that user makes their own cict_data_obj at their own risk
-  # see if passing in ... to the data obj makes sense
+  # TODO: see if passing in ... to the data obj makes sense
   out_data_obj <- list(gene_expression_matrix = NULL,
                        ground_truth = NULL,
                        gene_association_matrix = NULL,
@@ -26,28 +26,32 @@ makeDataObj <- function(gene_expression_matrix = NULL,
   return(out_data_obj)
 }
 
+# decide on which object will be used as input and verify it
 getInput <- function(passed_in, obj_in, name) {
-  # possibly print some indicators of which is being used
+  # decide which object
+  input <- obj_in
   if(!is.null(passed_in)) {
+    if(!is.null(input)) {
+      print(paste("A", name, "was passed in as input, but the input cict_data_obj already contains a", name))
+      askUserProceed()
+    }
     input <- passed_in
   }
-  else {
-    input <- obj_in
-  }
 
-  if(!is.null(obj_in) & !is.null(passed_in)) {
-    print(paste("A", name, "was passed in as input, but the input cict_data_obj already contains a", name))
+  # data validation
+  if(!is.null(input)) {
+    if(validateInput(input, name)) {
+      print(paste("The", name, "is valid"))
+    }
+    else {
+      print(paste("The", name, "is invalid"))
+      askUserProceed()
+    }
+  }
+  else {
+    print(paste(name, "is null"))
     askUserProceed()
   }
-
-  if(validateInput(input, name)) {
-    print(paste("The", name, "is valid"))
-  }
-  else {
-    print(paste("The", name, "is invalid. Set anyway?"))
-    askUserProceed()
-  }
-
   return(input)
 }
 
@@ -74,6 +78,9 @@ validateInput <- function(input, name) {
 }
 
 validateGEM <- function(gem) {
+  if(!is.data.frame(gem)) {
+    return(FALSE)
+  }
   return(TRUE)
 }
 
