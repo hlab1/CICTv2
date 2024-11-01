@@ -4,9 +4,12 @@ runCICT <- function(gene_expression_matrix = NULL, ground_truth = NULL, in_data_
                                    in_data_obj = in_data_obj,
                                    suppress_warnings = suppress_warnings,
                                    ...)
-  # validated object is fed through below functions
+  # above function takes inputs, verifies them, and puts them in an object
+  # resulting object is fed through below functions
 
   # calculateRawEdges
   # prepareEdgeFeatures
   # trainTestReport
+
+  return(cict_data_obj)
 }
