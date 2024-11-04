@@ -7,7 +7,6 @@ makeDataObj <- function(gene_expression_matrix = NULL,
                         gene_regulatory_network = NULL,
                         in_data_obj = NULL,
                         in_format = "separate",
-                        suppress_warnings = FALSE,
                         ...) {
   # TODO: see if passing in ... to the data obj makes sense
   if(in_format == "separate") {
@@ -54,14 +53,27 @@ makeDataObj <- function(gene_expression_matrix = NULL,
 
 validateGEM <- function(gem) {
   tryCatch({
+    # TODO: check if this is necessary or if dims are all that matter
     if(!is.data.frame(gem) & !is.matrix(gem)) {
       stop("Gene expression matrix must be a matrix or DataFrame")
     }
 
-    gem_length <- dim(gem)
-    if(length(dim(gem)) != 2) {
-      stop("Gene expression matrix must have 2 dimensions")
+    # TODO: use this instead if any data type with 2 dims can be used
+    # if(length(dim(gem)) != 2) {
+    #   stop("Gene expression matrix must have 2 dimensions")
+    # }
+
+    if(is.data.frame(gem)) {
+      if(!all(sapply(gem, is.numeric))) {
+        stop("Gene expression matrix must have numeric data")
+      }
     }
+    else {
+      if(!is.numeric(gem)) {
+        stop("Gene expression matrix must have numeric data")
+      }
+    }
+
     return(TRUE)
   }, error = function(e) {
     message(e$message)
