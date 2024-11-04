@@ -46,7 +46,7 @@ makeDataObj <- function(gene_expression_matrix = NULL,
     }
     return(out_data_obj)
   }, error = function(e) {
-    message(e$message)
+    message("Error: ", e$message)
   })
   return(NULL)
 }
@@ -97,16 +97,17 @@ validateGT <- function(gt) {
 
     return(TRUE)
   }, error = function(e) {
-    message(e$message)
+    message("Error: ", e$message)
     return(FALSE)
   }, warning = function(w) {
-    message(w$message)
+    message("Warning: ", w$message)
     return(TRUE)
   })
 }
 
+# TODO: validation of other inputs so makeDataObj can be used for general input checking before running other user-facing functions
+
 validateGAM <- function(gam) {
-  print("Gene association matrix is valid")
   return(TRUE)
 }
 
