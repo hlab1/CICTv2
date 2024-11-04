@@ -1,3 +1,4 @@
+# chooses how to put inputs together, verifies data
 makeDataObj <- function(gene_expression_matrix = NULL,
                         ground_truth = NULL,
                         gene_association_matrix = NULL,
@@ -5,56 +6,54 @@ makeDataObj <- function(gene_expression_matrix = NULL,
                         rf_outputs = NULL,
                         gene_regulatory_network = NULL,
                         in_data_obj = NULL,
+                        in_format = "separate",
                         suppress_warnings = FALSE,
-                        ...)
-{
-  # warn in the docs that user makes their own cict_data_obj at their own risk
+                        ...) {
   # TODO: see if passing in ... to the data obj makes sense
-  out_data_obj <- list(gene_expression_matrix = NULL,
-                       ground_truth = NULL,
-                       gene_association_matrix = NULL,
-                       rf_features = NULL,
-                       rf_outputs = NULL,
-                       gene_regulatory_network = NULL)
+  if(in_format == "separate") {
+    out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
+                         ground_truth = ground_truth,
+                         gene_association_matrix = gene_association_matrix,
+                         rf_features = rf_features,
+                         rf_outputs = rf_outputs,
+                         gene_regulatory_network = gene_regulatory_network)
+  }
+  else if(in_format == "data_obj") {
+    # warn in the docs that user makes their own cict_data_obj at their own risk
+    out_data_obj <- in_data_obj
+  }
+  else if(in_format == config) {
+    # TODO: pass in using config
+    out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
+                         ground_truth = ground_truth,
+                         gene_association_matrix = gene_association_matrix,
+                         rf_features = rf_features,
+                         rf_outputs = rf_outputs,
+                         gene_regulatory_network = gene_regulatory_network)
+  }
 
   names = c("gene_expression_matrix", "ground_truth","gene_association_matrix", "rf_features", "rf_outputs", "gene_regulatory_network")
-  for (name in names) {
-    # TODO: prevent nulls from getting taken out of the list in this step
-    out_data_obj[[name]] <- getInput(passed_in = get(name), obj_in = in_data_obj[[name]], name = name)
-  }
 
-  return(out_data_obj)
+  tryCatch({
+    for(name in names) {
+      if(!switch(name, "gene_expression_matrix" = validateGEM(out_data_obj$gene_expression_matrix),
+                          "ground_truth" = validateGT(out_data_obj$gene_expression_matrix),
+                          "gene_association_matrix" = validateGAM(out_data_obj$gene_association_matrix),
+                          "rf_features" = validateRFFeatures(out_data_obj$rf_features),
+                          "rf_outputs" = validateRFOut(out_data_obj$rf_outputs),
+                          "gene_regulatory_network" = validateGRN(out_data_obj$gene_regulatory_network))) {
+        stop(name, " is invalid")
+      }
+    }
+    return(out_data_obj)
+  }, error = function(e) {
+    message(e$message)
+    return()
+  })
 }
 
-# decide on which object will be used as input and verify it
-getInput <- function(passed_in, obj_in, name) {
-  # decide which object
-  input <- obj_in
-  if(!is.null(passed_in)) {
-    if(!is.null(input)) {
-      print(paste("A", name, "was passed in as input, but the input cict_data_obj already contains a", name))
-      askUserProceed()
-    }
-    input <- passed_in
-  }
-
-  # data validation
-  if(!is.null(input)) {
-    if(validateInput(input, name)) {
-      print(paste("The", name, "is valid"))
-    }
-    else {
-      print(paste("The", name, "is invalid"))
-      askUserProceed()
-    }
-  }
-  else {
-    print(paste(name, "is null"))
-    askUserProceed()
-  }
-  return(input)
-}
-
+# for readability
+# redirects to input-specific validation functions
 validateInput <- function(input, name) {
   if(name == "gene_expression_matrix") {
     return(validateGEM(input))
@@ -74,17 +73,24 @@ validateInput <- function(input, name) {
   if(name == "gene_regulatory_network") {
     return(validateGRN(input))
   }
-  return(FALSE)
 }
 
 validateGEM <- function(gem) {
-  if(!is.data.frame(gem)) {
+  if(!is.data.frame(gem) & !is.matrix(gem)) {
+    print("Gene expression matrix must be a matrix or DataFrame")
+    return(FALSE)
+  }
+
+  gem_length <- dim(gem)
+  if(length(dim(gem)) != 2) {
+    print("Gene expression matrix must have 2 dimensions")
     return(FALSE)
   }
   return(TRUE)
 }
 
 validateGAM <- function(gem) {
+  print("Gene association matrix is valid")
   return(TRUE)
 }
 
@@ -101,7 +107,7 @@ validateRFOut <- function(gem) {
 }
 
 validateGRN <- function(gem) {
-  # only useful if we want to make the data creation function an overall validation function
+  # only useful for overall validation
   return(TRUE)
 }
 
