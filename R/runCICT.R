@@ -2,6 +2,7 @@ runCICT <- function(gene_expression_matrix = NULL, ground_truth = NULL, in_data_
   cict_data_obj <- makeDataObj(gene_expression_matrix = gene_expression_matrix,
                                ground_truth = ground_truth,
                                in_data_obj = in_data_obj,
+                               suppress_warnings,
                                ...)
   # above function takes inputs, verifies them, and puts them in an object
   # resulting object is fed through below functions

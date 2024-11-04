@@ -7,6 +7,7 @@ makeDataObj <- function(gene_expression_matrix = NULL,
                         gene_regulatory_network = NULL,
                         in_data_obj = NULL,
                         in_format = "separate",
+                        suppress_warnings = FALSE,
                         ...) {
   # TODO: see if passing in ... to the data obj makes sense
   if(in_format == "separate") {
@@ -51,11 +52,13 @@ makeDataObj <- function(gene_expression_matrix = NULL,
   return(NULL)
 }
 
-validateGEM <- function(gem) {
+validateGEM <- function(gem, suppress_warnings = FALSE) {
   tryCatch({
     # TODO: See if we want to require gene expression matrix
     if(is.null(gem)) {
-      warning("Gene expression matrix was not given. The CICT pipeline will not work.")
+      if(!suppress_warnings) {
+        warning("Gene expression matrix was not given. The CICT pipeline will not work.")
+      }
     }
 
     # TODO: check if this is necessary or if dims are all that matter
@@ -85,14 +88,19 @@ validateGEM <- function(gem) {
     return(FALSE)
   }, warning = function(w) {
     message("Warning: ", w$message)
-    return(TRUE)
+    if(askUserProceed()) {
+      return(TRUE)
+    }
+    return(FALSE)
   })
 }
 
-validateGT <- function(gt) {
+validateGT <- function(gt, suppress_warnings = FALSE) {
   tryCatch({
     if(is.null(gt)) {
-      warning("Ground truth table was not given. trainTestReport will not work.")
+      if(!suppress_warnings) {
+        warning("Ground truth table was not given. trainTestReport will not work.")
+      }
     }
 
     return(TRUE)
@@ -101,31 +109,40 @@ validateGT <- function(gt) {
     return(FALSE)
   }, warning = function(w) {
     message("Warning: ", w$message)
-    return(TRUE)
+    if(askUserProceed()) {
+      return(TRUE)
+    }
+    return(FALSE)
   })
 }
 
 # TODO: validation of other inputs so makeDataObj can be used for general input checking before running other user-facing functions
 
-validateGAM <- function(gam) {
+validateGAM <- function(gam, suppress_warnings = FALSE) {
   return(TRUE)
 }
 
-validateRFFeatures <- function(rf_features) {
+validateRFFeatures <- function(rf_features, suppress_warnings = FALSE) {
   return(TRUE)
 }
 
-validateRFOut <- function(rf_out) {
+validateRFOut <- function(rf_out, suppress_warnings = FALSE) {
   return(TRUE)
 }
 
-validateGRN <- function(grn) {
+validateGRN <- function(grn, suppress_warnings = FALSE) {
   # only useful for overall validation
   return(TRUE)
 }
 
 # TODO: put this in the warning catches
 askUserProceed <- function() {
-  print("Do you want to proceed? (y/n)")
-  print("Proceed")
+  input <- ""
+  while(input != "y" && input != "n") {
+    input = readline(prompt = "Do you want to proceed? (y/n)")
+  }
+  if(input == "y") {
+    return(TRUE)
+  }
+  return(FALSE)
 }
