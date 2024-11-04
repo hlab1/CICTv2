@@ -81,24 +81,24 @@ validateGEM <- function(gem) {
   return(FALSE)
 }
 
-validateGAM <- function(gem) {
+validateGT <- function(gt) {
+  return(TRUE)
+}
+
+validateGAM <- function(gam) {
   print("Gene association matrix is valid")
   return(TRUE)
 }
 
-validateGT <- function(gem) {
+validateRFFeatures <- function(rf_features) {
   return(TRUE)
 }
 
-validateRFFeatures <- function(gem) {
+validateRFOut <- function(rf_out) {
   return(TRUE)
 }
 
-validateRFOut <- function(gem) {
-  return(TRUE)
-}
-
-validateGRN <- function(gem) {
+validateGRN <- function(grn) {
   # only useful for overall validation
   return(TRUE)
 }
