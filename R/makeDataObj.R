@@ -48,45 +48,25 @@ makeDataObj <- function(gene_expression_matrix = NULL,
     return(out_data_obj)
   }, error = function(e) {
     message(e$message)
-    return()
   })
-}
-
-# for readability
-# redirects to input-specific validation functions
-validateInput <- function(input, name) {
-  if(name == "gene_expression_matrix") {
-    return(validateGEM(input))
-  }
-  if(name == "ground_truth") {
-    return(validateGT(input))
-  }
-  if(name == "gene_association_matrix") {
-    return(validateGAM(input))
-  }
-  if(name == "rf_outputs") {
-    return(validateRFOut(input))
-  }
-  if(name == "rf_features") {
-    return(validateRFFeatures(input))
-  }
-  if(name == "gene_regulatory_network") {
-    return(validateGRN(input))
-  }
+  return(NULL)
 }
 
 validateGEM <- function(gem) {
-  if(!is.data.frame(gem) & !is.matrix(gem)) {
-    print("Gene expression matrix must be a matrix or DataFrame")
-    return(FALSE)
-  }
+  tryCatch({
+    if(!is.data.frame(gem) & !is.matrix(gem)) {
+      stop("Gene expression matrix must be a matrix or DataFrame")
+    }
 
-  gem_length <- dim(gem)
-  if(length(dim(gem)) != 2) {
-    print("Gene expression matrix must have 2 dimensions")
-    return(FALSE)
-  }
-  return(TRUE)
+    gem_length <- dim(gem)
+    if(length(dim(gem)) != 2) {
+      stop("Gene expression matrix must have 2 dimensions")
+    }
+    return(TRUE)
+  }, error = function(e) {
+    message(e$message)
+  })
+  return(FALSE)
 }
 
 validateGAM <- function(gem) {

@@ -4,16 +4,22 @@ runCICT <- function(gene_expression_matrix = NULL, ground_truth = NULL, in_data_
                                in_data_obj = in_data_obj,
                                suppress_warnings = suppress_warnings,
                                ...)
-  if(is.null(cict_data_obj)) {
-    stop("Failed to create data object")
-  }
-
   # above function takes inputs, verifies them, and puts them in an object
   # resulting object is fed through below functions
 
-  # calculateRawEdges
-  # prepareEdgeFeatures
-  # trainTestReport
+  tryCatch({
+    if(is.null(cict_data_obj)) {
+      stop("Failed to create data object")
+    }
 
-  return(cict_data_obj)
+    print("continued driver")
+    # calculateRawEdges
+    # prepareEdgeFeatures
+    # trainTestReport
+
+    return(cict_data_obj)
+  }, error = function(e) {
+    message(e$message)
+  })
+  return(NULL)
 }
