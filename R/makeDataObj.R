@@ -36,7 +36,7 @@ makeDataObj <- function(gene_expression_matrix = NULL,
   tryCatch({
     for(name in names) {
       if(!switch(name, "gene_expression_matrix" = validateGEM(out_data_obj$gene_expression_matrix),
-                          "ground_truth" = validateGT(out_data_obj$gene_expression_matrix),
+                          "ground_truth" = validateGT(out_data_obj$ground_truth),
                           "gene_association_matrix" = validateGAM(out_data_obj$gene_association_matrix),
                           "rf_features" = validateRFFeatures(out_data_obj$rf_features),
                           "rf_outputs" = validateRFOut(out_data_obj$rf_outputs),
@@ -53,6 +53,11 @@ makeDataObj <- function(gene_expression_matrix = NULL,
 
 validateGEM <- function(gem) {
   tryCatch({
+    # TODO: See if we want to require gene expression matrix
+    if(is.null(gem)) {
+      warning("Gene expression matrix was not given. The CICT pipeline will not work.")
+    }
+
     # TODO: check if this is necessary or if dims are all that matter
     if(!is.data.frame(gem) & !is.matrix(gem)) {
       stop("Gene expression matrix must be a matrix or DataFrame")
@@ -76,13 +81,28 @@ validateGEM <- function(gem) {
 
     return(TRUE)
   }, error = function(e) {
-    message(e$message)
+    message("Error: ", e$message)
+    return(FALSE)
+  }, warning = function(w) {
+    message("Warning: ", w$message)
+    return(TRUE)
   })
-  return(FALSE)
 }
 
 validateGT <- function(gt) {
-  return(TRUE)
+  tryCatch({
+    if(is.null(gt)) {
+      warning("Ground truth table was not given. trainTestReport will not work.")
+    }
+
+    return(TRUE)
+  }, error = function(e) {
+    message(e$message)
+    return(FALSE)
+  }, warning = function(w) {
+    message(w$message)
+    return(TRUE)
+  })
 }
 
 validateGAM <- function(gam) {
@@ -103,6 +123,7 @@ validateGRN <- function(grn) {
   return(TRUE)
 }
 
+# TODO: put this in the warning catches
 askUserProceed <- function() {
   print("Do you want to proceed? (y/n)")
   print("Proceed")
