@@ -1,4 +1,6 @@
-# chooses how to put inputs together, verifies data
+# verifies data
+# if some data is not valid, print the issue and return null
+# otherwise, return the data in a list object
 checkData <- function(gene_expression_matrix = NULL,
                         ground_truth = NULL,
                         gene_association_matrix = NULL,
@@ -10,9 +12,8 @@ checkData <- function(gene_expression_matrix = NULL,
                         in_format = "separate",
                         suppress_warnings = FALSE,
                         ...) {
-  # TODO: warnings are not actually suppressed
+  # TODO: see if passing in ... to the data obj makes sense
   tryCatch({
-    # TODO: see if passing in ... to the data obj makes sense
     if(in_format == "separate") {
       out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
                            ground_truth = ground_truth,
@@ -41,85 +42,107 @@ checkData <- function(gene_expression_matrix = NULL,
     names = c("gene_expression_matrix", "ground_truth","gene_association_matrix", "rf_features", "rf_outputs", "gene_regulatory_network")
 
     for(name in names) {
-      if(!switch(name, "gene_expression_matrix" = validateGEM(out_data_obj$gene_expression_matrix, suppress_warnings = suppress_warnings),
-                          "ground_truth" = validateGT(out_data_obj$ground_truth, suppress_warnings = suppress_warnings),
-                          "gene_association_matrix" = validateGAM(out_data_obj$gene_association_matrix, suppress_warnings = suppress_warnings),
-                          "rf_features" = validateRFFeatures(out_data_obj$rf_features, suppress_warnings = suppress_warnings),
-                          "rf_outputs" = validateRFOut(out_data_obj$rf_outputs, suppress_warnings = suppress_warnings),
-                          "gene_regulatory_network" = validateGRN(out_data_obj$gene_regulatory_network, suppress_warnings = suppress_warnings))) {
-        stop(name, " is invalid")
+      check_result <- switch(name, "gene_expression_matrix" = validateGEM(out_data_obj$gene_expression_matrix),
+                             "ground_truth" = validateGT(out_data_obj$ground_truth),
+                             "gene_association_matrix" = validateGAM(out_data_obj$gene_association_matrix),
+                             "rf_features" = validateRFFeatures(out_data_obj$rf_features),
+                             "rf_outputs" = validateRFOut(out_data_obj$rf_outputs),
+                             "gene_regulatory_network" = validateGRN(out_data_obj$gene_regulatory_network))
+      if(!check_result$valid) {
+        print(paste0("Invalid input: ", check_result$message))
+        return(NULL)
+      }
+      if(!suppress_warnings & check_result$warning) {
+        print(paste0("Warning: ", check_result$message))
+        if(!askUserProceed()) {
+          stop()
+        }
       }
     }
     return(out_data_obj)
   }, error = function(e) {
-    message("Error: ", e$message)
+    message(e$message)
     return(NULL)
   })
 }
 
-validateGEM <- function(gem, suppress_warnings = FALSE) {
-  tryCatch({
-    if(!is.data.frame(gem) & !is.matrix(gem)) {
-      stop("Gene expression matrix must be a matrix or DataFrame")
-    }
+validateGEM <- function(gem) {
+  valid <- TRUE
+  warning <- FALSE
+  message <- "Gene expression matrix is valid"
 
-    if(is.data.frame(gem)) {
-      if(!all(sapply(gem, is.numeric))) {
-        stop("Gene expression matrix must have numeric data")
-      }
-    }
-    else {
-      if(!is.numeric(gem)) {
-        stop("Gene expression matrix must have numeric data")
-      }
-    }
+  if(!is.data.frame(gem) & !is.matrix(gem)) {
+    valid <- FALSE
+    message <- "Gene expression matrix must be a matrix or DataFrame"
+    return(list(valid = valid, warning = warning, message = message))
+  }
 
-    return(TRUE)
-  }, error = function(e) {
-    message("Error: ", e$message)
-    return(FALSE)
-  })
+  if(is.data.frame(gem)) {
+    if(!all(sapply(gem, is.numeric))) {
+      valid <- FALSE
+      message <- "Gene expression matrix must have numeric data"
+      return(list(valid = valid, warning = warning, message = message))
+    }
+  }
+  else {
+    if(!is.numeric(gem)) {
+      valid <- FALSE
+      message <- "Gene expression matrix must have numeric data"
+      return(list(valid = valid, warning = warning, message = message))
+    }
+  }
+
+  return(list(valid = valid, warning = warning, message = message))
 }
 
-validateGT <- function(gt, suppress_warnings = FALSE) {
+validateGT <- function(gt) {
   # TODO: migrate traintestreport ground truth-gene expression matrix gene name checking here
   # TODO: can have extra columns but check that there exist cols labeled with the names specified in the gc
-  tryCatch({
-    if(is.null(gt)) {
-      if(!suppress_warnings) {
-        warning("Ground truth table was not given. trainTestReport will not work.")
-      }
-    }
 
-    return(TRUE)
-  }, error = function(e) {
-    message("Error: ", e$message)
-    return(FALSE)
-  }, warning = function(w) {
-    message("Warning: ", w$message)
-    if(askUserProceed()) {
-      return(TRUE)
-    }
-    return(FALSE)
-  })
+  valid <- TRUE
+  warning <- FALSE
+  message <- "Ground truth table is valid"
+
+  if(is.null(gt)) {
+    warning <- TRUE
+    message <- "Ground truth table was not given. trainTestReport will not work."
+  }
+
+  return(list(valid = valid, warning = warning, message = message))
 }
 
 # TODO: validation of other inputs so checkData can be used for general data checking
 
-validateGAM <- function(gam, suppress_warnings = FALSE) {
-  return(TRUE)
+validateGAM <- function(gam) {
+  valid <- TRUE
+  warning <- FALSE
+  message <- "Gene association matrix is valid"
+
+  return(list(valid = valid, warning = warning, message = message))
 }
 
-validateRFFeatures <- function(rf_features, suppress_warnings = FALSE) {
-  return(TRUE)
+validateRFFeatures <- function(rf_features) {
+  valid <- TRUE
+  warning <- FALSE
+  message <- "Random forest features are valid"
+
+  return(list(valid = valid, warning = warning, message = message))
 }
 
-validateRFOut <- function(rf_out, suppress_warnings = FALSE) {
-  return(TRUE)
+validateRFOut <- function(rf_out) {
+  valid <- TRUE
+  warning <- FALSE
+  message <- "Random forest outputs are valid"
+
+  return(list(valid = valid, warning = warning, message = message))
 }
 
-validateGRN <- function(grn, suppress_warnings = FALSE) {
-  return(TRUE)
+validateGRN <- function(grn) {
+  valid <- TRUE
+  warning <- FALSE
+  message <- "Gene regulatory network is valid"
+
+  return(list(valid = valid, warning = warning, message = message))
 }
 
 askUserProceed <- function() {
