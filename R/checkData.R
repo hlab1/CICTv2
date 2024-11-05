@@ -1,5 +1,5 @@
 # chooses how to put inputs together, verifies data
-makeDataObj <- function(gene_expression_matrix = NULL,
+checkData <- function(gene_expression_matrix = NULL,
                         ground_truth = NULL,
                         gene_association_matrix = NULL,
                         rf_features = NULL,
@@ -59,16 +59,6 @@ makeDataObj <- function(gene_expression_matrix = NULL,
 
 validateGEM <- function(gem, suppress_warnings = FALSE) {
   tryCatch({
-    # TODO: we do want to require gene expression matrix
-    if(is.null(gem)) {
-      if(!suppress_warnings) {
-        warning("Gene expression matrix was not given. The CICT pipeline will not work.")
-      }
-      return(TRUE)
-    }
-
-    # TODO: check if this is necessary or if dims are all that matter
-    # ans: use this not the other
     if(!is.data.frame(gem) & !is.matrix(gem)) {
       stop("Gene expression matrix must be a matrix or DataFrame")
     }
@@ -88,18 +78,12 @@ validateGEM <- function(gem, suppress_warnings = FALSE) {
   }, error = function(e) {
     message("Error: ", e$message)
     return(FALSE)
-  }, warning = function(w) {
-    message("Warning: ", w$message)
-    if(askUserProceed()) {
-      return(TRUE)
-    }
-    return(FALSE)
   })
 }
 
 validateGT <- function(gt, suppress_warnings = FALSE) {
-  # TODO: migrate traintestreport ground truth matching percentage capability here
-  # TODO: can have extra columns but must have the ones labeled with the ones specified in the gc
+  # TODO: migrate traintestreport ground truth-gene expression matrix gene name checking here
+  # TODO: can have extra columns but check that there exist cols labeled with the names specified in the gc
   tryCatch({
     if(is.null(gt)) {
       if(!suppress_warnings) {
@@ -120,7 +104,7 @@ validateGT <- function(gt, suppress_warnings = FALSE) {
   })
 }
 
-# TODO: validation of other inputs so makeDataObj can be used for general data checking
+# TODO: validation of other inputs so checkData can be used for general data checking
 
 validateGAM <- function(gam, suppress_warnings = FALSE) {
   return(TRUE)

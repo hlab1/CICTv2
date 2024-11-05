@@ -9,7 +9,7 @@ runCICT <- function(gene_expression_matrix = NULL,
                     in_format = "separate",
                     suppress_warnings = FALSE,
                     ...) {
-  cict_data_obj <- makeDataObj(gene_expression_matrix = gene_expression_matrix,
+  cict_data_obj <- checkData(gene_expression_matrix = gene_expression_matrix,
                                ground_truth = ground_truth,
                                gene_association_matrix = gene_association_matrix,
                                rf_features = rf_features,
