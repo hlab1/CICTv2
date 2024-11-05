@@ -6,70 +6,72 @@ makeDataObj <- function(gene_expression_matrix = NULL,
                         rf_outputs = NULL,
                         gene_regulatory_network = NULL,
                         in_data_obj = NULL,
+                        config_path = NULL,
                         in_format = "separate",
                         suppress_warnings = FALSE,
                         ...) {
-  # TODO: see if passing in ... to the data obj makes sense
-  if(in_format == "separate") {
-    out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
-                         ground_truth = ground_truth,
-                         gene_association_matrix = gene_association_matrix,
-                         rf_features = rf_features,
-                         rf_outputs = rf_outputs,
-                         gene_regulatory_network = gene_regulatory_network)
-  }
-  else if(in_format == "data_obj") {
-    # warn in the docs that user makes their own cict_data_obj at their own risk
-    out_data_obj <- in_data_obj
-  }
-  else if(in_format == config) {
-    # TODO: pass in using config
-    out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
-                         ground_truth = ground_truth,
-                         gene_association_matrix = gene_association_matrix,
-                         rf_features = rf_features,
-                         rf_outputs = rf_outputs,
-                         gene_regulatory_network = gene_regulatory_network)
-  }
-
-  names = c("gene_expression_matrix", "ground_truth","gene_association_matrix", "rf_features", "rf_outputs", "gene_regulatory_network")
-
+  # TODO: warnings are not actually suppressed
   tryCatch({
+    # TODO: see if passing in ... to the data obj makes sense
+    if(in_format == "separate") {
+      out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
+                           ground_truth = ground_truth,
+                           gene_association_matrix = gene_association_matrix,
+                           rf_features = rf_features,
+                           rf_outputs = rf_outputs,
+                           gene_regulatory_network = gene_regulatory_network)
+    }
+    else if(in_format == "data_obj") {
+      # warn in the docs that user makes their own cict_data_obj at their own risk
+      out_data_obj <- in_data_obj
+    }
+    else if(in_format == "config_file") {
+      # TODO: pass in using config
+      out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
+                           ground_truth = ground_truth,
+                           gene_association_matrix = gene_association_matrix,
+                           rf_features = rf_features,
+                           rf_outputs = rf_outputs,
+                           gene_regulatory_network = gene_regulatory_network)
+    }
+    else {
+      stop("Invalid input format specified")
+    }
+
+    names = c("gene_expression_matrix", "ground_truth","gene_association_matrix", "rf_features", "rf_outputs", "gene_regulatory_network")
+
     for(name in names) {
-      if(!switch(name, "gene_expression_matrix" = validateGEM(out_data_obj$gene_expression_matrix),
-                          "ground_truth" = validateGT(out_data_obj$ground_truth),
-                          "gene_association_matrix" = validateGAM(out_data_obj$gene_association_matrix),
-                          "rf_features" = validateRFFeatures(out_data_obj$rf_features),
-                          "rf_outputs" = validateRFOut(out_data_obj$rf_outputs),
-                          "gene_regulatory_network" = validateGRN(out_data_obj$gene_regulatory_network))) {
+      if(!switch(name, "gene_expression_matrix" = validateGEM(out_data_obj$gene_expression_matrix, suppress_warnings = suppress_warnings),
+                          "ground_truth" = validateGT(out_data_obj$ground_truth, suppress_warnings = suppress_warnings),
+                          "gene_association_matrix" = validateGAM(out_data_obj$gene_association_matrix, suppress_warnings = suppress_warnings),
+                          "rf_features" = validateRFFeatures(out_data_obj$rf_features, suppress_warnings = suppress_warnings),
+                          "rf_outputs" = validateRFOut(out_data_obj$rf_outputs, suppress_warnings = suppress_warnings),
+                          "gene_regulatory_network" = validateGRN(out_data_obj$gene_regulatory_network, suppress_warnings = suppress_warnings))) {
         stop(name, " is invalid")
       }
     }
     return(out_data_obj)
   }, error = function(e) {
     message("Error: ", e$message)
+    return(NULL)
   })
-  return(NULL)
 }
 
 validateGEM <- function(gem, suppress_warnings = FALSE) {
   tryCatch({
-    # TODO: See if we want to require gene expression matrix
+    # TODO: we do want to require gene expression matrix
     if(is.null(gem)) {
       if(!suppress_warnings) {
         warning("Gene expression matrix was not given. The CICT pipeline will not work.")
       }
+      return(TRUE)
     }
 
     # TODO: check if this is necessary or if dims are all that matter
+    # ans: use this not the other
     if(!is.data.frame(gem) & !is.matrix(gem)) {
       stop("Gene expression matrix must be a matrix or DataFrame")
     }
-
-    # TODO: use this instead if any data type with 2 dims can be used
-    # if(length(dim(gem)) != 2) {
-    #   stop("Gene expression matrix must have 2 dimensions")
-    # }
 
     if(is.data.frame(gem)) {
       if(!all(sapply(gem, is.numeric))) {
@@ -96,6 +98,8 @@ validateGEM <- function(gem, suppress_warnings = FALSE) {
 }
 
 validateGT <- function(gt, suppress_warnings = FALSE) {
+  # TODO: migrate traintestreport ground truth matching percentage capability here
+  # TODO: can have extra columns but must have the ones labeled with the ones specified in the gc
   tryCatch({
     if(is.null(gt)) {
       if(!suppress_warnings) {
@@ -116,7 +120,7 @@ validateGT <- function(gt, suppress_warnings = FALSE) {
   })
 }
 
-# TODO: validation of other inputs so makeDataObj can be used for general input checking before running other user-facing functions
+# TODO: validation of other inputs so makeDataObj can be used for general data checking
 
 validateGAM <- function(gam, suppress_warnings = FALSE) {
   return(TRUE)
@@ -131,11 +135,9 @@ validateRFOut <- function(rf_out, suppress_warnings = FALSE) {
 }
 
 validateGRN <- function(grn, suppress_warnings = FALSE) {
-  # only useful for overall validation
   return(TRUE)
 }
 
-# TODO: put this in the warning catches
 askUserProceed <- function() {
   input <- ""
   while(input != "y" && input != "n") {
