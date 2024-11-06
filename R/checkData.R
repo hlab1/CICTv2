@@ -42,12 +42,12 @@ checkData <- function(gene_expression_matrix = NULL,
     names = c("gene_expression_matrix", "ground_truth","gene_association_matrix", "rf_features", "rf_outputs", "gene_regulatory_network")
 
     for(name in names) {
-      check_result <- switch(name, "gene_expression_matrix" = validateGEM(out_data_obj$gene_expression_matrix),
-                             "ground_truth" = validateGT(out_data_obj$ground_truth),
-                             "gene_association_matrix" = validateGAM(out_data_obj$gene_association_matrix),
-                             "rf_features" = validateRFFeatures(out_data_obj$rf_features),
-                             "rf_outputs" = validateRFOut(out_data_obj$rf_outputs),
-                             "gene_regulatory_network" = validateGRN(out_data_obj$gene_regulatory_network))
+      check_result <- switch(name, "gene_expression_matrix" = checkGEM(out_data_obj$gene_expression_matrix),
+                             "ground_truth" = checkGT(out_data_obj$ground_truth),
+                             "gene_association_matrix" = checkGAM(out_data_obj$gene_association_matrix),
+                             "rf_features" = checkRFFeatures(out_data_obj$rf_features),
+                             "rf_outputs" = checkRFOut(out_data_obj$rf_outputs),
+                             "gene_regulatory_network" = checkGRN(out_data_obj$gene_regulatory_network))
       if(!check_result$valid) {
         print(paste0("Invalid input: ", check_result$message))
         out_data_obj[name] <- NULL
@@ -63,7 +63,7 @@ checkData <- function(gene_expression_matrix = NULL,
   })
 }
 
-validateGEM <- function(gem) {
+checkGEM <- function(gem) {
   valid <- TRUE
   warning <- FALSE
   message <- "Gene expression matrix is valid"
@@ -99,7 +99,7 @@ validateGEM <- function(gem) {
   return(list(valid = valid, warning = warning, message = message))
 }
 
-validateGT <- function(gt) {
+checkGT <- function(gt) {
   # TODO: migrate traintestreport ground truth-gene expression matrix gene name checking here
   # TODO: can have extra columns but check that there exist cols labeled with the names specified in the gc
 
@@ -124,7 +124,7 @@ validateGT <- function(gt) {
 
 # TODO: validation of other inputs so checkData can be used for general data checking
 
-validateGAM <- function(gam) {
+checkGAM <- function(gam) {
   valid <- TRUE
   warning <- FALSE
   message <- "Gene association matrix is valid"
@@ -132,7 +132,7 @@ validateGAM <- function(gam) {
   return(list(valid = valid, warning = warning, message = message))
 }
 
-validateRFFeatures <- function(rf_features) {
+checkRFFeatures <- function(rf_features) {
   valid <- TRUE
   warning <- FALSE
   message <- "Random forest features are valid"
@@ -140,7 +140,7 @@ validateRFFeatures <- function(rf_features) {
   return(list(valid = valid, warning = warning, message = message))
 }
 
-validateRFOut <- function(rf_out) {
+checkRFOut <- function(rf_out) {
   valid <- TRUE
   warning <- FALSE
   message <- "Random forest outputs are valid"
@@ -148,21 +148,10 @@ validateRFOut <- function(rf_out) {
   return(list(valid = valid, warning = warning, message = message))
 }
 
-validateGRN <- function(grn) {
+checkGRN <- function(grn) {
   valid <- TRUE
   warning <- FALSE
   message <- "Gene regulatory network is valid"
 
   return(list(valid = valid, warning = warning, message = message))
-}
-
-askUserProceed <- function() {
-  input <- ""
-  while(input != "y" && input != "n") {
-    input = readline(prompt = "Do you want to proceed? (y/n)")
-  }
-  if(input == "y") {
-    return(TRUE)
-  }
-  return(FALSE)
 }
