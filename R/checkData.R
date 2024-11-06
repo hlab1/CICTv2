@@ -110,6 +110,13 @@ validateGT <- function(gt) {
   if(is.null(gt)) {
     warning <- TRUE
     message <- "Ground truth table was not given. trainTestReport will not work."
+    return(list(valid = valid, warning = warning, message = message))
+  }
+
+  if(!("src" %in% colnames(gt) & "trgt" %in% colnames(gt))) {
+    valid <- FALSE
+    message <- "Ground truth table must contain 'src' and 'trgt' columns"
+    return(list(valid = valid, warning = warning, message = message))
   }
 
   return(list(valid = valid, warning = warning, message = message))
