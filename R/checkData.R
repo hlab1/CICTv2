@@ -1,6 +1,48 @@
-# verifies data
-# data that is valid is returned in the object
-# data that is not valid is null in the object and the reason it is not valid is printed
+# TODO: may be better to change from valid-warning-message system with updated error handling
+
+# TODO: confirm type of grn and add to docs
+# TODO: use example data to write usage examples with recommended practices (from wickham r packages book)
+# TODO: more in-depth description of rf_features
+# TODO: more in-depth explanation for other options parameters
+# can be quickly changed to an internal helper function if there is only time to implement verification for required driver inputs
+
+#' Check validity of data
+#'
+#' Checks if inputted data is either valid for use in CICT functions or is a
+#' valid output of a CICT function. Valid data is returned in the CICT data
+#' list. Invalid data has a null field in the list. Does not currently verify
+#' `gene_association_matrix`, `rf_features`, `rf_outputs`, or
+#' `gene_regulatory_network`. Does not currently work in config mode.
+#'
+#' @param gene_expression_matrix The gene expression matrix, where each row
+#'   represents a gene and each column represents a sample. A matrix or
+#'   DataFrame with numeric data.
+#' @param ground_truth A DataFrame representing the ground-truth gene regulatory
+#'   network for model training and evaluation. Each row represents a
+#'   source-target relationship, with the source gene in the column labeled
+#'   `"src"` and the target gene in the column labeled `"trgt"`
+#' @param gene_association_matrix The gene association matrix. A symmetric
+#'   matrix or DataFrame where each element is numeric and represents the raw
+#'   edge weight between two genes.
+#' @param rf_features A tibble with features calculated from raw edge weights,
+#'   to be used in random forest training.
+#' @param rf_outputs A DataFrame containing outputs from random forest training
+#'   and evaluation using CICT edge features.
+#' @param gene_regulatory_network A gene regulatory network.
+#' @param in_data_obj A list in the CICT data object format. Produced by a CICT
+#'   function.
+#' @param config_path Path to the YAML config file.
+#' @param in_format String indicating expected input format. `"separate"` if
+#'   passing inputs as separate arguments, `"data_obj"` if passing inputs
+#'   through `in_data_obj`, `"config"` if passing inputs through `config_path`.
+#' @param ... Other options
+#'
+#' @return A list in the CICT data object format, where fields for which valid
+#'   data were provided contain the input data and fields for which data
+#'   provided was invalid are null.
+#' @export
+#'
+#' @examples TODO
 checkData <- function(gene_expression_matrix = NULL,
                         ground_truth = NULL,
                         gene_association_matrix = NULL,
@@ -12,7 +54,7 @@ checkData <- function(gene_expression_matrix = NULL,
                         in_format = "separate",
                         suppress_warnings = FALSE,
                         ...) {
-  # TODO: see if passing in ... to the data obj makes sense
+  # TODO: decide how to pass in ... to the data obj
   tryCatch({
     if(in_format == "separate") {
       out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
@@ -23,7 +65,6 @@ checkData <- function(gene_expression_matrix = NULL,
                            gene_regulatory_network = gene_regulatory_network)
     }
     else if(in_format == "data_obj") {
-      # warn in the docs that user makes their own cict_data_obj at their own risk
       out_data_obj <- in_data_obj
     }
     else if(in_format == "config_file") {
@@ -43,11 +84,7 @@ checkData <- function(gene_expression_matrix = NULL,
 
     for(name in names) {
       check_result <- switch(name, "gene_expression_matrix" = checkGEM(out_data_obj$gene_expression_matrix),
-                             "ground_truth" = checkGT(out_data_obj$ground_truth),
-                             "gene_association_matrix" = checkGAM(out_data_obj$gene_association_matrix),
-                             "rf_features" = checkRFFeatures(out_data_obj$rf_features),
-                             "rf_outputs" = checkRFOut(out_data_obj$rf_outputs),
-                             "gene_regulatory_network" = checkGRN(out_data_obj$gene_regulatory_network))
+                             "ground_truth" = checkGT(out_data_obj$ground_truth))
       if(!check_result$valid) {
         print(paste0("Invalid input: ", check_result$message))
         out_data_obj[name] <- NULL
@@ -63,6 +100,22 @@ checkData <- function(gene_expression_matrix = NULL,
   })
 }
 
+#' Check validity of gene expression matrix
+#'
+#' Checks if the gene expression matrix exists, is a matrix or DataFrame, and
+#' has numeric data.
+#'
+#' @param gem The object that will be checked to determine whether it is a valid
+#'   gene expression matrix.
+#'
+#' @return A list with fields `valid`, `warning`, and `error`. `valid` is a
+#'   boolean that is `TRUE` if the input exists, is a matrix or DataFrame, and
+#'   has numeric data; it is otherwise `FALSE`. `warning` is a boolean with
+#'   value `FALSE`. `message` is a string that contains an explanation of why
+#'   the input triggered a warning, was valid, or was invalid.
+#' @export
+#'
+#' @examples TODO
 checkGEM <- function(gem) {
   valid <- TRUE
   warning <- FALSE
@@ -99,10 +152,26 @@ checkGEM <- function(gem) {
   return(list(valid = valid, warning = warning, message = message))
 }
 
+#' Check validity of ground truth table
+#'
+#' Checks if the ground truth table exists and contains the columns needed for
+#' model training and evaluation.
+#'
+#' @param gt The object that will be checked to determine whether it is a valid
+#'   ground truth table.
+#'
+#' @return A list with fields `valid`, `warning`, and `error`. `valid` is a
+#'   boolean that is `TRUE` if the input exists, and contains the columns "src"
+#'   and "trgt"; it is otherwise `FALSE`. `warning` is a boolean that is `TRUE`
+#'   if the ground truth table does not exists, and otherwise `FALSE`. `message`
+#'   is a string that contains an explanation of why the input triggered a
+#'   warning, was valid, or was invalid.
+#' @export
+#'
+#' @examples TODO
 checkGT <- function(gt) {
-  # TODO: migrate traintestreport ground truth-gene expression matrix gene name checking here
-  # TODO: can have extra columns but check that there exist cols labeled with the names specified in the gc
-
+  # TODO: migrate ground truth-gene expression matrix gene name checking from traintestreport to here
+  # TODO: check for gene and sample names that exist and are unique
   valid <- TRUE
   warning <- FALSE
   message <- "Ground truth table is valid"
