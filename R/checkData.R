@@ -1,6 +1,6 @@
 # verifies data
-# if some data is not valid, print the issue and return null
-# otherwise, return the data in a list object
+# data that is valid is returned in the object
+# data that is not valid is null in the object and the reason it is not valid is printed
 checkData <- function(gene_expression_matrix = NULL,
                         ground_truth = NULL,
                         gene_association_matrix = NULL,
@@ -50,13 +50,10 @@ checkData <- function(gene_expression_matrix = NULL,
                              "gene_regulatory_network" = validateGRN(out_data_obj$gene_regulatory_network))
       if(!check_result$valid) {
         print(paste0("Invalid input: ", check_result$message))
-        return(NULL)
+        out_data_obj[name] <- NULL
       }
       if(!suppress_warnings & check_result$warning) {
-        print(paste0("Warning: ", check_result$message))
-        if(!askUserProceed()) {
-          stop()
-        }
+        print(paste0(check_result$message))
       }
     }
     return(out_data_obj)
@@ -70,6 +67,13 @@ validateGEM <- function(gem) {
   valid <- TRUE
   warning <- FALSE
   message <- "Gene expression matrix is valid"
+
+  if(is.null(gem)) {
+    valid <- FALSE
+    message <- "Gene expression matrix was not given"
+    return(list(valid = valid, warning = warning, message = message))
+  }
+
 
   if(!is.data.frame(gem) & !is.matrix(gem)) {
     valid <- FALSE

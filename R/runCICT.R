@@ -20,11 +20,11 @@ runCICT <- function(gene_expression_matrix = NULL,
                                in_format = in_format,
                                suppress_warnings = suppress_warnings,
                                ...)
-  # above function takes inputs, verifies them, and puts them in an object
-  # resulting object is fed through below functions
+  # above function takes inputs, verifies them, and puts valid inputs in an object
 
   tryCatch({
-    if(is.null(cict_data_obj)) {
+    # gene expression matrix and ground truth are required for driver to complete correctly
+    if(is.null(cict_data_obj) | is.null(cict_data_obj$gene_expression_matrix) | is.null(cict_data_obj$ground_truth)) {
       stop("Failed to create data object")
     }
 
