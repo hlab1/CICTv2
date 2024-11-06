@@ -39,3 +39,15 @@ runCICT <- function(gene_expression_matrix = NULL,
   })
   return(NULL)
 }
+
+# TODO: move to internal functions
+askUserProceed <- function() {
+  input <- ""
+  while(input != "y" && input != "n") {
+    input = readline(prompt = "Do you want to proceed? (y/n)")
+  }
+  if(input == "y") {
+    return(TRUE)
+  }
+  return(FALSE)
+}
