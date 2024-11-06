@@ -39,7 +39,7 @@ checkData <- function(gene_expression_matrix = NULL,
       stop("Invalid input format specified")
     }
 
-    names = c("gene_expression_matrix", "ground_truth","gene_association_matrix", "rf_features", "rf_outputs", "gene_regulatory_network")
+    names = c("gene_expression_matrix", "ground_truth")
 
     for(name in names) {
       check_result <- switch(name, "gene_expression_matrix" = checkGEM(out_data_obj$gene_expression_matrix),
@@ -118,40 +118,6 @@ checkGT <- function(gt) {
     message <- "Ground truth table must contain 'src' and 'trgt' columns"
     return(list(valid = valid, warning = warning, message = message))
   }
-
-  return(list(valid = valid, warning = warning, message = message))
-}
-
-# TODO: validation of other inputs so checkData can be used for general data checking
-
-checkGAM <- function(gam) {
-  valid <- TRUE
-  warning <- FALSE
-  message <- "Gene association matrix is valid"
-
-  return(list(valid = valid, warning = warning, message = message))
-}
-
-checkRFFeatures <- function(rf_features) {
-  valid <- TRUE
-  warning <- FALSE
-  message <- "Random forest features are valid"
-
-  return(list(valid = valid, warning = warning, message = message))
-}
-
-checkRFOut <- function(rf_out) {
-  valid <- TRUE
-  warning <- FALSE
-  message <- "Random forest outputs are valid"
-
-  return(list(valid = valid, warning = warning, message = message))
-}
-
-checkGRN <- function(grn) {
-  valid <- TRUE
-  warning <- FALSE
-  message <- "Gene regulatory network is valid"
 
   return(list(valid = valid, warning = warning, message = message))
 }
