@@ -1,10 +1,10 @@
-# TODO: may be better to change from valid-warning-message system with updated error handling
+# TODO: may be better to change from valid-warning-message system now that error handling has been updated
+# can be quickly changed to internal helper functions if there is only time to implement verification for required driver inputs
 
 # TODO: confirm type of grn and add to docs
 # TODO: use example data to write usage examples with recommended practices (from wickham r packages book)
 # TODO: more in-depth description of rf_features
 # TODO: more in-depth explanation for other options parameters
-# can be quickly changed to an internal helper function if there is only time to implement verification for required driver inputs
 
 #' Check validity of data
 #'
@@ -117,6 +117,7 @@ checkData <- function(gene_expression_matrix = NULL,
 #'
 #' @examples TODO
 checkGEM <- function(gem) {
+  # TODO: check for gene and sample names that exist and are unique
   valid <- TRUE
   warning <- FALSE
   message <- "Gene expression matrix is valid"
@@ -149,6 +150,20 @@ checkGEM <- function(gem) {
     }
   }
 
+  gene_names = rownames(gem)
+  if(is.null(gene_names) | !identical(unique(gene_names), gene_names)) {
+    valid <- FALSE
+    message <- "Gene expression matrix must have unique gene names"
+    return(list(valid = valid, warning = warning, message = message))
+  }
+
+  sample_names = colnames(gem)
+  if(is.null(sample_names) | !identical(unique(sample_names), sample_names)) {
+    valid <- FALSE
+    message <- "Gene expression matrix must have unique sample names"
+    return(list(valid = valid, warning = warning, message = message))
+  }
+
   return(list(valid = valid, warning = warning, message = message))
 }
 
@@ -171,7 +186,6 @@ checkGEM <- function(gem) {
 #' @examples TODO
 checkGT <- function(gt) {
   # TODO: migrate ground truth-gene expression matrix gene name checking from traintestreport to here
-  # TODO: check for gene and sample names that exist and are unique
   valid <- TRUE
   warning <- FALSE
   message <- "Ground truth table is valid"
