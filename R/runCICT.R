@@ -75,7 +75,6 @@ runCICT <- function(gene_expression_matrix = NULL,
 #' `FALSE`; if the user enters an invalid input, prompt again.
 #'
 #' @return A boolean value based on the user's input.
-#' @export
 #'
 #' @examples TODO
 askUserProceed <- function() {
