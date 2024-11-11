@@ -33,7 +33,7 @@
 #'   `gene_regulatory_network`, and potentially other data.
 #' @export
 #'
-#' @examples TODO
+#' @examples print("TODO")
 runCICT <- function(gene_expression_matrix = NULL,
                     ground_truth = NULL,
                     in_data_obj = NULL,

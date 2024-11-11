@@ -48,5 +48,5 @@ edges, prepares edge features, and uses a random forest model to predict a
 gene regulatory network. Does not currently work in config mode.
 }
 \examples{
-TODO
+print("TODO")
 }
