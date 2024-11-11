@@ -1,4 +1,5 @@
 # TODO: should we specify the source?
+# TODO: document example data files
 # TODO: meaning of net0 and net1
 
 #' SERGIO DS4 gene expression matrix
