@@ -61,9 +61,25 @@ Checks if inputted data is either valid for use in CICT functions or is a
 valid output of a CICT function. Valid data is returned in the CICT data
 list. Invalid data has a null field in the list. Does not currently verify
 \code{gene_association_matrix}, \code{rf_features}, \code{rf_outputs}, or
-\code{gene_regulatory_network}. Does not currently work in config mode.
+\code{gene_regulatory_network}.
 }
 \examples{
-checked_data <- checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix, ground_truth = SERGIO_DS4_ground_truth)
-checked_data_2 <- checkData(in_data_obj = checked_data, in_format = "data_obj")
+# separate inputs
+checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix, ground_truth = SERGIO_DS4_ground_truth)
+
+# input a data list
+checkData(in_data_obj = checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
+                        ground_truth = SERGIO_DS4_ground_truth),
+          in_format = "data_obj")
+
+# inputs from a config file
+# create a config YAML file with absolute paths to data
+write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
+                ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
+                gene_association_matrix = NULL,
+                rf_features = NULL,
+                rf_outputs = NULL,
+                gene_regulatory_network = NULL),
+           "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
+checkData(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
 }

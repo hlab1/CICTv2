@@ -43,7 +43,7 @@ runCICT <- function(gene_expression_matrix = NULL,
   cict_data_obj <- checkData(gene_expression_matrix = gene_expression_matrix,
                                ground_truth = ground_truth,
                                in_data_obj = in_data_obj,
-                               config_path = "",
+                               config_path = config_path,
                                in_format = in_format,
                                ...)
   # above function takes inputs, verifies them, and puts valid inputs in an object

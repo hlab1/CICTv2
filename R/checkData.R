@@ -2,7 +2,7 @@
 # can be quickly changed to internal helper functions if there is only time to implement verification for required driver inputs
 
 # TODO: confirm type of grn and add to docs
-# TODO: use example data to write usage examples with recommended practices (from wickham r packages book)
+# TODO: see where vignettes are more appropriate than function docs
 # TODO: more in-depth description of rf_features
 # TODO: more in-depth explanation for other options parameters
 
@@ -12,7 +12,7 @@
 #' valid output of a CICT function. Valid data is returned in the CICT data
 #' list. Invalid data has a null field in the list. Does not currently verify
 #' `gene_association_matrix`, `rf_features`, `rf_outputs`, or
-#' `gene_regulatory_network`. Does not currently work in config mode.
+#' `gene_regulatory_network`.
 #'
 #' @param gene_expression_matrix The gene expression matrix, where each row
 #'   represents a gene and each column represents a sample. A matrix or
@@ -43,8 +43,24 @@
 #' @export
 #'
 #' @examples
-#' checked_data <- checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix, ground_truth = SERGIO_DS4_ground_truth)
-#' checked_data_2 <- checkData(in_data_obj = checked_data, in_format = "data_obj")
+#' # separate inputs
+#' checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix, ground_truth = SERGIO_DS4_ground_truth)
+#'
+#' # input a data list
+#' checkData(in_data_obj = checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
+#'                         ground_truth = SERGIO_DS4_ground_truth),
+#'           in_format = "data_obj")
+#'
+#' # inputs from a config file
+#' # create a config YAML file with absolute paths to data
+#' write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
+#'                 ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
+#'                 gene_association_matrix = NULL,
+#'                 rf_features = NULL,
+#'                 rf_outputs = NULL,
+#'                 gene_regulatory_network = NULL),
+#'            "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
+#' checkData(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
 checkData <- function(gene_expression_matrix = NULL,
                         ground_truth = NULL,
                         gene_association_matrix = NULL,
@@ -70,13 +86,15 @@ checkData <- function(gene_expression_matrix = NULL,
       out_data_obj <- in_data_obj
     }
     else if(in_format == "config_file") {
-      # TODO: pass in using config
-      out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
-                           ground_truth = ground_truth,
-                           gene_association_matrix = gene_association_matrix,
-                           rf_features = rf_features,
-                           rf_outputs = rf_outputs,
-                           gene_regulatory_network = gene_regulatory_network)
+      # TODO: check if config path is a string
+      config <- yaml::yaml.load_file(config_path)
+      # TODO: allow passing in of read.csv arguments for more flexibility
+      out_data_obj <- list(gene_expression_matrix = (if(!is.null(config$gene_expression_matrix)) read.csv(config$gene_expression_matrix, row.names = 1) else NULL),
+                          ground_truth = (if(!is.null(config$ground_truth)) read.csv(config$ground_truth) else NULL),
+                          gene_association_matrix = (if(!is.null(config$gene_association_matrix)) read.csv(config$gene_association_matrix) else NULL),
+                          rf_features = (if(!is.null(config$rf_features)) read.csv(config$rf_features) else NULL),
+                          rf_outputs = (if(!is.null(config$rf_outputs)) read.csv(config$rf_outputs) else NULL),
+                          gene_regulatory_network = (if(!is.null(config$gene_regulatory_network)) read.csv(config$gene_regulatory_network) else NULL))
     }
     else {
       stop("Invalid input format specified")
