@@ -23,5 +23,5 @@ Checks if the ground truth table exists and contains the columns needed for
 model training and evaluation.
 }
 \examples{
-TODO
+checkGT(SERGIO_DS4_ground_truth)
 }

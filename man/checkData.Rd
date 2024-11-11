@@ -64,5 +64,6 @@ list. Invalid data has a null field in the list. Does not currently verify
 \code{gene_regulatory_network}. Does not currently work in config mode.
 }
 \examples{
-TODO
+checked_data <- checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix, ground_truth = SERGIO_DS4_ground_truth)
+checked_data_2 <- checkData(in_data_obj = checked_data, in_format = "data_obj")
 }

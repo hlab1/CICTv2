@@ -42,7 +42,9 @@
 #'   provided was invalid are null.
 #' @export
 #'
-#' @examples TODO
+#' @examples
+#' checked_data <- checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix, ground_truth = SERGIO_DS4_ground_truth)
+#' checked_data_2 <- checkData(in_data_obj = checked_data, in_format = "data_obj")
 checkData <- function(gene_expression_matrix = NULL,
                         ground_truth = NULL,
                         gene_association_matrix = NULL,
@@ -115,7 +117,8 @@ checkData <- function(gene_expression_matrix = NULL,
 #'   the input triggered a warning, was valid, or was invalid.
 #' @export
 #'
-#' @examples TODO
+#' @examples
+#' checkGEM(SERGIO_DS4_gene_expression_matrix)
 checkGEM <- function(gem) {
   # TODO: check for gene and sample names that exist and are unique
   valid <- TRUE
@@ -183,7 +186,8 @@ checkGEM <- function(gem) {
 #'   warning, was valid, or was invalid.
 #' @export
 #'
-#' @examples TODO
+#' @examples
+#' checkGT(SERGIO_DS4_ground_truth)
 checkGT <- function(gt) {
   # TODO: migrate ground truth-gene expression matrix gene name checking from traintestreport to here
   # TODO: do we want to enforce tibble?

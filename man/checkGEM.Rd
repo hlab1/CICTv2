@@ -22,5 +22,5 @@ Checks if the gene expression matrix exists, is a matrix or DataFrame, and
 has numeric data.
 }
 \examples{
-TODO
+checkGEM(SERGIO_DS4_gene_expression_matrix)
 }
