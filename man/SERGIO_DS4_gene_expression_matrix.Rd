@@ -16,7 +16,7 @@ A gzipped data frame with 100 rows and 900 columns:
 }
 }
 \source{
-\url{https://github.com/hlab1/scRNAseqWithCICT/tree/main/inputs/SERGIO_DS4/net0}
+\url{https://github.com/hlab1/scRNAseqWithCICT/blob/main/inputs/SERGIO_DS4/net0/ExpressionData.csv}
 }
 \usage{
 SERGIO_DS4_gene_expression_matrix
