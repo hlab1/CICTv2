@@ -15,5 +15,5 @@ If the user enters \code{y}, return \code{TRUE}; if the user enters \code{n}, re
 \code{FALSE}; if the user enters an invalid input, prompt again.
 }
 \examples{
-TODO
+print("TODO")
 }
