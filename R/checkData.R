@@ -186,6 +186,7 @@ checkGEM <- function(gem) {
 #' @examples TODO
 checkGT <- function(gt) {
   # TODO: migrate ground truth-gene expression matrix gene name checking from traintestreport to here
+  # TODO: do we want to enforce tibble?
   valid <- TRUE
   warning <- FALSE
   message <- "Ground truth table is valid"

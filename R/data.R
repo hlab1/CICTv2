@@ -11,5 +11,18 @@
 #'   \item{Columns}{Unique sample names}
 #'   \item{Values}{Expression levels of each gene in each sample}
 #' }
-#' @source <https://github.com/hlab1/scRNAseqWithCICT/tree/main/inputs/SERGIO_DS4/net0>
+#' @source <https://github.com/hlab1/scRNAseqWithCICT/blob/main/inputs/SERGIO_DS4/net0/ExpressionData.csv>
 "SERGIO_DS4_gene_expression_matrix"
+
+#' SERGIO DS4 ground truth
+#'
+#' A ground truth gene regulatory network for the SERGIO DS4 generated gene expression data
+#'
+#' @format ## `SERGIO_DS4_ground_truth`
+#' A data frame with 137 rows and 2 columns:
+#' \describe{
+#'   \item{src}{Source gene}
+#'   \item{trgt}{Target gene}
+#' }
+#' @source <https://github.com/hlab1/scRNAseqWithCICT/blob/main/inputs/SERGIO_DS4/net0/refNetwork.csv>
+"SERGIO_DS4_ground_truth"
