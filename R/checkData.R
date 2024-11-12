@@ -1,10 +1,14 @@
 # TODO: may be better to change from valid-warning-message system now that error handling has been updated
 # can be quickly changed to internal helper functions if there is only time to implement verification for required driver inputs
 
+# TODO: pass in cict_raw_edge_col arg to PEF
+# TODO: file and function name cases
 # TODO: confirm type of grn and add to docs
 # TODO: see where vignettes are more appropriate than function docs
 # TODO: more in-depth description of rf_features
 # TODO: more in-depth explanation for other options parameters
+
+# TODO: import yaml package with roxygen
 
 #' Check validity of data
 #'
