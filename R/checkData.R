@@ -15,7 +15,7 @@
 #' Checks if inputted data is either valid for use in CICT functions or is a
 #' valid output of a CICT function. Valid data is returned in the CICT data
 #' list. Invalid data has a null field in the list. Does not currently verify
-#' `gene_association_matrix`, `rf_features`, `model`, or
+#' `gene_association_matrix`, `rf_features`, `model`, `model_assessment`, or
 #' `predicted_edges`.
 #'
 #' @param gene_expression_matrix The gene expression matrix, where each row
@@ -31,6 +31,7 @@
 #' @param rf_features A tibble with features calculated from raw edge weights,
 #'   to be used in random forest training.
 #' @param model The model used in predictEdges
+#' @param model_assessment Evaluation of the model used in predictEdges
 #' @param predicted_edges A predicted gene regulatory network.
 #' @param in_data_obj A list in the CICT data object format. Produced by a CICT
 #'   function.
@@ -61,6 +62,7 @@
 #'                 gene_association_matrix = NULL,
 #'                 rf_features = NULL,
 #'                 model = NULL,
+#'                 model_assessment = NULL,
 #'                 predicted_edges = NULL),
 #'            "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
 #' checkData(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
@@ -69,6 +71,7 @@ checkData <- function(gene_expression_matrix = NULL,
                         gene_association_matrix = NULL,
                         rf_features = NULL,
                         model = NULL,
+                        model_assessment = NULL,
                         predicted_edges = NULL,
                         in_data_obj = NULL,
                         config_path = NULL,
@@ -83,6 +86,7 @@ checkData <- function(gene_expression_matrix = NULL,
                            gene_association_matrix = gene_association_matrix,
                            rf_features = rf_features,
                            model = model,
+                           model_assessment = model_assessment,
                            predicted_edges = predicted_edges)
     }
     else if(in_format == "data_obj") {
@@ -96,7 +100,8 @@ checkData <- function(gene_expression_matrix = NULL,
                           ground_truth = (if(!is.null(config$ground_truth)) read.csv(config$ground_truth) else NULL),
                           gene_association_matrix = (if(!is.null(config$gene_association_matrix)) read.csv(config$gene_association_matrix) else NULL),
                           rf_features = (if(!is.null(config$rf_features)) read.csv(config$rf_features) else NULL),
-                          model = (if(!is.null(model)) read.csv(config$model) else NULL),
+                          model = (if(!is.null(config$model)) read.csv(config$model) else NULL),
+                          model_assessment = (if(!is.null(config$model_assessment)) read.csv(config$model_assessment) else NULL),
                           predicted_edges = (if(!is.null(config$predicted_edges)) read.csv(config$predicted_edges) else NULL))
     }
     else {
