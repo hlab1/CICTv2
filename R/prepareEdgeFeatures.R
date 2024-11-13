@@ -947,7 +947,7 @@ calculate_f2 <- function (results3)
                            ground_truth = NULL,
                            gene_association_matrix = dt.edge,
                            rf_features = dt.vertices,
-                           rf_outputs = NULL,
+                           model = NULL,
                            predicted_edges = NULL))
 
 }

@@ -9,8 +9,8 @@ checkData(
   ground_truth = NULL,
   gene_association_matrix = NULL,
   rf_features = NULL,
-  rf_outputs = NULL,
-  gene_regulatory_network = NULL,
+  model = NULL,
+  predicted_edges = NULL,
   in_data_obj = NULL,
   config_path = NULL,
   in_format = "separate",
@@ -35,10 +35,9 @@ edge weight between two genes.}
 \item{rf_features}{A tibble with features calculated from raw edge weights,
 to be used in random forest training.}
 
-\item{rf_outputs}{A DataFrame containing outputs from random forest training
-and evaluation using CICT edge features.}
+\item{model}{The model used in predictEdges}
 
-\item{gene_regulatory_network}{A gene regulatory network.}
+\item{predicted_edges}{A predicted gene regulatory network.}
 
 \item{in_data_obj}{A list in the CICT data object format. Produced by a CICT
 function.}
@@ -60,8 +59,8 @@ provided was invalid are null.
 Checks if inputted data is either valid for use in CICT functions or is a
 valid output of a CICT function. Valid data is returned in the CICT data
 list. Invalid data has a null field in the list. Does not currently verify
-\code{gene_association_matrix}, \code{rf_features}, \code{rf_outputs}, or
-\code{gene_regulatory_network}.
+\code{gene_association_matrix}, \code{rf_features}, \code{model}, or
+\code{predicted_edges}.
 }
 \examples{
 # separate inputs
@@ -78,8 +77,8 @@ write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene
                 ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
                 gene_association_matrix = NULL,
                 rf_features = NULL,
-                rf_outputs = NULL,
-                gene_regulatory_network = NULL),
+                model = NULL,
+                predicted_edges = NULL),
            "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
 checkData(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
 }
