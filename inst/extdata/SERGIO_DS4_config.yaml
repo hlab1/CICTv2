@@ -3,4 +3,4 @@ ground_truth: /home/syz248/CICTv2/inst/extdata/SERGIO_DS4_ground_truth.csv
 gene_association_matrix: ~
 rf_features: ~
 rf_outputs: ~
-gene_regulatory_network: ~
+predicted_edges: ~

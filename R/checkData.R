@@ -16,7 +16,7 @@
 #' valid output of a CICT function. Valid data is returned in the CICT data
 #' list. Invalid data has a null field in the list. Does not currently verify
 #' `gene_association_matrix`, `rf_features`, `rf_outputs`, or
-#' `gene_regulatory_network`.
+#' `predicted_edges`.
 #'
 #' @param gene_expression_matrix The gene expression matrix, where each row
 #'   represents a gene and each column represents a sample. A matrix or
@@ -32,7 +32,7 @@
 #'   to be used in random forest training.
 #' @param rf_outputs A DataFrame containing outputs from random forest training
 #'   and evaluation using CICT edge features.
-#' @param gene_regulatory_network A gene regulatory network.
+#' @param predicted_edges A predicted gene regulatory network.
 #' @param in_data_obj A list in the CICT data object format. Produced by a CICT
 #'   function.
 #' @param config_path Path to the YAML config file.
@@ -62,7 +62,7 @@
 #'                 gene_association_matrix = NULL,
 #'                 rf_features = NULL,
 #'                 rf_outputs = NULL,
-#'                 gene_regulatory_network = NULL),
+#'                 predicted_edges = NULL),
 #'            "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
 #' checkData(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
 checkData <- function(gene_expression_matrix = NULL,
@@ -70,7 +70,7 @@ checkData <- function(gene_expression_matrix = NULL,
                         gene_association_matrix = NULL,
                         rf_features = NULL,
                         rf_outputs = NULL,
-                        gene_regulatory_network = NULL,
+                        predicted_edges = NULL,
                         in_data_obj = NULL,
                         config_path = NULL,
                         in_format = "separate",
@@ -84,7 +84,7 @@ checkData <- function(gene_expression_matrix = NULL,
                            gene_association_matrix = gene_association_matrix,
                            rf_features = rf_features,
                            rf_outputs = rf_outputs,
-                           gene_regulatory_network = gene_regulatory_network)
+                           predicted_edges = predicted_edges)
     }
     else if(in_format == "data_obj") {
       out_data_obj <- in_data_obj
@@ -98,7 +98,7 @@ checkData <- function(gene_expression_matrix = NULL,
                           gene_association_matrix = (if(!is.null(config$gene_association_matrix)) read.csv(config$gene_association_matrix) else NULL),
                           rf_features = (if(!is.null(config$rf_features)) read.csv(config$rf_features) else NULL),
                           rf_outputs = (if(!is.null(config$rf_outputs)) read.csv(config$rf_outputs) else NULL),
-                          gene_regulatory_network = (if(!is.null(config$gene_regulatory_network)) read.csv(config$gene_regulatory_network) else NULL))
+                          predicted_edges = (if(!is.null(config$predicted_edges)) read.csv(config$predicted_edges) else NULL))
     }
     else {
       stop("Invalid input format specified")
