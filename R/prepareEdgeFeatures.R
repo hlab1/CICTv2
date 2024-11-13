@@ -1,7 +1,7 @@
 #NEW PEF
 
 
-
+#prepare_edge_features(gene_association_matrix = trial_dt_edge, gene_expression_matrix = trial_dt_geneexp, cict_raw_edge_col = 'Spearman')
 # trial_dt_edge <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/rawEdges.csv")
 # trial_dt_geneexp <- fread("/Users/vvtch/Desktop/sigmafolder/inputs/SERGIO_DS4/net1/ExpressionData.csv")
 
@@ -42,7 +42,7 @@ prepare_edge_features <- function(in_data_obj=NULL, gene_association_matrix=NULL
     colnames(dt_geneexp)[1] <-'gene'
 
     #finally, functions
-    results2 <- calculate_f0(prepare_table_pef(dt_edge, dt_geneexp))  
+    results2 <- calculate_f0(prepare_table_pef(dt_edge, dt_geneexp, cict_raw_edge_col))  
     results3 <- calculate_f1(results2)
     results4 <- calculate_f2(results3)
     
