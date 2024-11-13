@@ -29,7 +29,7 @@
 #'
 #' @return A list in the CICT data object format, with the data from each step
 #'   in the CICT pipeline. Contains `gene_expression_matrix`, `ground_truth`,
-#'   `gene_association_matrix`, `rf_features`, `model`, `model_assessment`,
+#'   `gene_association_matrix`, `edge_features`, `model`, `model_assessment`,
 #'   `predicted_edges`, and potentially other data.
 #' @export
 #'

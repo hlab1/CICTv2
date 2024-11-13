@@ -946,7 +946,7 @@ calculate_f2 <- function (results3)
   return (list(gene_expression_matrix = dt.geneexp,
                            ground_truth = NULL,
                            gene_association_matrix = dt.edge,
-                           rf_features = dt.vertices,
+                           edge_features = dt.vertices,
                            model = NULL,
                            model_assessment = NULL,
                            predicted_edges = NULL))
