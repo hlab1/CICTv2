@@ -49,8 +49,7 @@ prepare_edge_features <- function(in_data_obj=NULL, gene_association_matrix=NULL
     return(results4)
 }
 
-prepare_table_pef <- function(dt_edge, dt_geneexp, cict_raw_edge_col = 'Spearman')
-{
+prepare_table_pef <- function(dt_edge, dt_geneexp, cict_raw_edge_col = 'Spearman'){
     #dt_edge_back00 = dt_edge # create a backup of the originаl data table
     dt_edge$edgeTyp = "" #creating new empty column edgeTyp 
 
@@ -76,8 +75,7 @@ prepare_table_pef <- function(dt_edge, dt_geneexp, cict_raw_edge_col = 'Spearman
 return(list(dt_edge, dt_geneexp, dt_vertices, ig))
 }
 
-calculate_f0 <- function (results) 
-{ 
+calculate_f0 <- function (results) { 
   pseudo_zero <- 0
   dt_edge <- results[[1]]  # modified dt_edge raw edges with weight values of selected type added
   dt_geneexp <- results[[2]] # unmodified dt_geneexp, expression data
@@ -173,32 +171,27 @@ calculate_f0 <- function (results)
   return(list(dt_edge, dt_geneexp, dt_vertices, ig))
 }
 
-myMean <- function (x,default = 0, na.rm = TRUE,...)
-{
+myMean <- function (x,default = 0, na.rm = TRUE,...){
   result = mean(x,na.rm=na.rm,...)
   if(is.na(result)) default else result
 }
 
-myMedian <- function (x,default = 0, na.rm = TRUE,...)
-{
+myMedian <- function (x,default = 0, na.rm = TRUE,...){
   result = median(x,na.rm=na.rm,...)
   if(is.na(result)) default else result
 }
 
-mySD <- function (x,default = 0, na.rm = TRUE)
-{
+mySD <- function (x,default = 0, na.rm = TRUE){
   result = sd(x,na.rm)
   if(is.na(result)) default else result
 }
 
-mySkewness <- function (x,default = 0, na.rm = TRUE,...)
-{
+mySkewness <- function (x,default = 0, na.rm = TRUE,...){
   result = skewness(x,na.rm,...)
   if(is.na(result)) default else result
 }
 
-myKurtosis <- function (x,default =3, na.rm = TRUE,...)
-{
+myKurtosis <- function (x,default =3, na.rm = TRUE,...){
   result = kurtosis(x,na.rm,...)
   if(is.na(result)) default else result
 }
@@ -241,8 +234,7 @@ calculate_moments <- function(data, group_col, value_col, prefix) {
     return(full_stats)
   }
 
-calculate_f1 <- function(results2)
-{
+calculate_f1 <- function(results2){
   #same results unpacking process as in calculate_f0
   
   dt.edge <- results2[[1]]  # modified dt.edge raw edges with weight values of selected type added
@@ -790,8 +782,7 @@ rm( selfConfsFull, selfContribsFull)
 return(list(dt.edge, dt.vertices, dt.geneexp))
 }
 
-extractLmoments = function(v)
-{
+extractLmoments = function(v){
 
   require(Lmoments)
   if(length(v)==1){
@@ -817,8 +808,7 @@ removeDups1<- function(dt,excluded,samplesize=NA){
   unique(hashs$cls[dups])
 }
 
-calculate_f2 <- function (results3)
-{
+calculate_f2 <- function (results3){
 
     #same results unpacking process as in calculate_f0
     dt.edge <- results3[[1]] # modified dt.edge raw edges with weight values of selected type added
@@ -951,4 +941,3 @@ calculate_f2 <- function (results3)
                            gene_regulatory_network = NULL))
                 
 }
-
