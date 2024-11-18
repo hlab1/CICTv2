@@ -33,14 +33,14 @@ prepare_edge_features <- function(in_data_obj=NULL, gene_association_matrix=NULL
     colnames(dt_geneexp)[1] <-'gene'
 
     #finally, functions
-    results2 <- calculate_f0(prepare_table_pef(dt_edge, dt_geneexp, cict_raw_edge_col))
+    results2 <- calculate_f0(prepare_table_pef(dt_edge, dt_geneexp, cict_raw_edge_col, earlyThresholdForGraphAnalysis))
     results3 <- calculate_f1(results2)
     results4 <- calculate_f2(results3)
 
     return(results4)
 }
 
-prepare_table_pef <- function(dt_edge, dt_geneexp, cict_raw_edge_col = 'Spearman'){
+prepare_table_pef <- function(dt_edge, dt_geneexp, cict_raw_edge_col = 'Spearman', earlyThresholdForGraphAnalysis){
     #dt_edge_back00 = dt_edge # create a backup of the originаl data table
     dt_edge$edgeTyp = "" #creating new empty column edgeTyp
 
