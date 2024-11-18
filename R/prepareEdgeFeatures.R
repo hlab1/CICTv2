@@ -10,11 +10,11 @@ prepare_edge_features <- function(in_data_obj=NULL, gene_association_matrix=NULL
     # TODO: allow config and throw error if in_format is not valid
     if(in_format == "separate") {
       dt_edge <- gene_association_matrix
-      dt_geneexp <- setDT(gene_expression_matrix, keep.rownames = "gene")
+      dt_geneexp <- gene_expression_matrix
     }
     else if (in_format == "data_obj") {
       dt_edge <- in_data_obj$gene_association_matrix
-      dt_geneexp <- setDT(in_data_obj$gene_expression_matrix, keep.rownames = "gene")
+      dt_geneexp <- in_data_obj$gene_expression_matrix
     }
 
     #first, environment setup
@@ -54,12 +54,16 @@ prepare_table_pef <- function(dt_edge, dt_geneexp, cict_raw_edge_col = 'Spearman
     # This code performs the following operations on the data frame `dt_geneexp`:
     # 1. Converts `dt_geneexp` to a data frame using `setDF`.
     # 2. Adds a new column `ocr` which is the sum of all columns except 'gene'.
-    # 3. Replaces values in `ocr` that are 0 or NA with `PSEUDO_ZERO`.
+    # 3. Replaces values in `ocr` that are 0 or NA with `PSUDEO_ZERO`.
     # 4. Selects only the 'gene' and 'ocr' columns.
     # 5. Renames the 'gene' column to 'vID'.
-    dt_vertices <- setDF(dt_geneexp) %>% dplyr::mutate(ocr = rowSums(.[which(!colnames(setDF(dt_geneexp)) %in% c('gene'))])) %>% dplyr::mutate(ifelse(ocr ==0 | is.na(ocr), PSUDEO_ZERO,ocr)) %>% dplyr::select(gene,ocr)
-    View(dt_vertices)
-    dt_vertices=setDT(dt_vertices)[,`:=`(OcrInp=ocr,OcrOut=ocr)][,ocr:=NULL]
+
+    dt_vertices <- data.frame(gene = rownames(dt_geneexp),
+                              rowSums(dt_geneexp)) %>%
+      dplyr::mutate(ocr = rowSums(.[which(!colnames(.) %in% c('gene'))])) %>%
+      dplyr::mutate(ocr = ifelse(ocr == 0 | is.na(ocr), PSUDEO_ZERO, ocr)) %>%
+      dplyr::select(gene, ocr)
+    dt_vertices <- setDT(dt_vertices)[,`:=`(OcrInp=ocr,OcrOut=ocr)][,ocr:=NULL]
 
     #convert our data about gene-gene assotiation from matrix to non directed graph
     #rm(ig)
@@ -82,10 +86,6 @@ calculate_f0 <- function (results) {
   ind <- igraph::degree(ig, v=V(ig), mode="in")
   ind <- data.frame(Indegree=ind, subcat=names(ind))
 
-  View(results)
-  View(dt_vertices)
-  View(ind)
-  View(outd)
   # Merge in-degree and out-degree with dt_vertices
   dt_vertices <- dt_vertices %>%
     left_join(ind, by=c("gene"="subcat")) %>%
@@ -155,7 +155,7 @@ calculate_f0 <- function (results) {
            contrib=ifelse(is.na(contrib) | is.infinite(contrib), 0, contrib))
 
   # Discretize confidence and contribution
-  nbins <- as.integer(sqrt(ncol(dt_geneexp) - 1) * 1)
+  nbins <- as.integer(sqrt(ncol(dt_geneexp)) * 1)
   dt_edge <- dt_edge %>%
     mutate(confdisc=unlist(infotheo::discretize(conf, "equalfreq", nbins)),
            contribdisc=unlist(infotheo::discretize(contrib, "equalfreq", nbins)))
@@ -758,7 +758,6 @@ return(list(dt.edge, dt.vertices, dt.geneexp))
 #'
 #' @importFrom dplyr replace_na
 #' @importFrom stringr str_detect
-#' @export
 my_replace_na<-function(df,rplist)
 {
   rplptrns=names(rplist)
