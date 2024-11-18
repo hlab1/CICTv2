@@ -726,43 +726,6 @@ dt.vertices.back1 <- dt.vertices
 
   a=sapply(dt.vertices, function(x) sum(is.na(x)));a[a>0]
 
-  #' Replace NA values in a DataFrame based on a replacement list
-  #'
-  #' This function replaces NA values in a DataFrame with specified values based on a pattern matching of column names.
-  #'
-  #' @param df A DataFrame in which NA values need to be replaced.
-  #' @param rplist A named list where the names are patterns to match column names in the DataFrame, and the values are the replacement values for NA.
-  #'
-  #' @return A DataFrame with NA values replaced according to the specified patterns and replacement values.
-  #'
-  #' @examples
-  #' df <- data.frame(a1 = c(NA, 2, 3), a2 = c(4, NA, 6), b1 = c(7, 8, NA))
-  #' rplist <- list(a = 0, b = 1)
-  #' my_replace_na(df, rplist)
-  #'
-  #' @importFrom dplyr replace_na
-  #' @importFrom stringr str_detect
-  #' @export
-  my_replace_na<-function(df,rplist)
-  {
-    rplptrns=names(rplist)
-    rplvals=unlist(rplist)
-
-    dfcols=colnames(df)
-    rplcols=lapply(rplptrns,function(x) dfcols[str_detect(dfcols,paste0(".*",x))]) #pattern checking
-
-    rplist2=list()
-    for(i in 1:length(rplist)){
-      l=unlist(rplcols[i]);v=rplvals[i]
-      l1=rep(v,length(l))
-      names(l1)<-l
-      rplist2=append(rplist2,l1)
-    }
-
-    df=replace_na(df,replace=rplist2)
-    df
-  }
-
   # This script processes the 'dt.vertices' data frame by replacing NA values with specified defaults.
   # The 'my_replace_na' function is used to replace NA values in 'dt.vertices' with the values progeneed in 'rplist'.
   # The replacement values are 0, except for 'MADcost', which is set to 1.488.
@@ -777,6 +740,43 @@ rm(dt.vertices.othersparams, dt.vertices.selfparams, othersConfsFull, othersCont
 rm( selfConfsFull, selfContribsFull)
 
 return(list(dt.edge, dt.vertices, dt.geneexp))
+}
+
+#' Replace NA values in a DataFrame based on a replacement list
+#'
+#' This function replaces NA values in a DataFrame with specified values based on a pattern matching of column names.
+#'
+#' @param df A DataFrame in which NA values need to be replaced.
+#' @param rplist A named list where the names are patterns to match column names in the DataFrame, and the values are the replacement values for NA.
+#'
+#' @return A DataFrame with NA values replaced according to the specified patterns and replacement values.
+#'
+#' @examples
+#' df <- data.frame(a1 = c(NA, 2, 3), a2 = c(4, NA, 6), b1 = c(7, 8, NA))
+#' rplist <- list(a = 0, b = 1)
+#' my_replace_na(df, rplist)
+#'
+#' @importFrom dplyr replace_na
+#' @importFrom stringr str_detect
+#' @export
+my_replace_na<-function(df,rplist)
+{
+  rplptrns=names(rplist)
+  rplvals=unlist(rplist)
+
+  dfcols=colnames(df)
+  rplcols=lapply(rplptrns,function(x) dfcols[str_detect(dfcols,paste0(".*",x))]) #pattern checking
+
+  rplist2=list()
+  for(i in 1:length(rplist)){
+    l=unlist(rplcols[i]);v=rplvals[i]
+    l1=rep(v,length(l))
+    names(l1)<-l
+    rplist2=append(rplist2,l1)
+  }
+
+  df=replace_na(df,replace=rplist2)
+  df
 }
 
 extractLmoments = function(v){
