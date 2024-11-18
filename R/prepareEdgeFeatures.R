@@ -8,13 +8,14 @@
 prepare_edge_features <- function(in_data_obj=NULL, gene_association_matrix=NULL, gene_expression_matrix=NULL, cict_raw_edge_col = 'Spearman',in_format = "separate") {
 
     # TODO: allow config and throw error if in_format is not valid
-    if(in_format == "separate"){
-        dt_edge <- gene_association_matrix
-        dt_geneexp <- gene_expression_matrix}
-    else if (in_format == "data_obj"){
-        dt_edge <- in_data_obj$gene_association_matrix
-        dt_geneexp <- in_data_obj$gene_expression_matrix}
-
+    if(in_format == "separate") {
+      dt_edge <- gene_association_matrix
+      dt_geneexp <- setDT(gene_expression_matrix, keep.rownames = "gene")
+    }
+    else if (in_format == "data_obj") {
+      dt_edge <- in_data_obj$gene_association_matrix
+      dt_geneexp <- setDT(in_data_obj$gene_expression_matrix, keep.rownames = "gene")
+    }
 
     #first, environment setup
     #THOSE SHALL GO INTO THE NAMESPACE OF THE PACKAGE
@@ -30,7 +31,7 @@ prepare_edge_features <- function(in_data_obj=NULL, gene_association_matrix=NULL
     #second, define the hardcoded variables
     earlyThresholdForGraphAnalysis <- 0
     #third, make sure the data is read
-    colnames(dt_geneexp)[1] <-'gene'
+    #colnames(dt_geneexp)[1] <-'gene'
 
     #finally, functions
     results2 <- calculate_f0(prepare_table_pef(dt_edge, dt_geneexp, cict_raw_edge_col, earlyThresholdForGraphAnalysis))
@@ -53,17 +54,18 @@ prepare_table_pef <- function(dt_edge, dt_geneexp, cict_raw_edge_col = 'Spearman
     # This code performs the following operations on the data frame `dt_geneexp`:
     # 1. Converts `dt_geneexp` to a data frame using `setDF`.
     # 2. Adds a new column `ocr` which is the sum of all columns except 'gene'.
-    # 3. Replaces values in `ocr` that are 0 or NA with `PSUDEO_ZERO`.
+    # 3. Replaces values in `ocr` that are 0 or NA with `PSEUDO_ZERO`.
     # 4. Selects only the 'gene' and 'ocr' columns.
     # 5. Renames the 'gene' column to 'vID'.
     dt_vertices <- setDF(dt_geneexp) %>% dplyr::mutate(ocr = rowSums(.[which(!colnames(setDF(dt_geneexp)) %in% c('gene'))])) %>% dplyr::mutate(ifelse(ocr ==0 | is.na(ocr), PSUDEO_ZERO,ocr)) %>% dplyr::select(gene,ocr)
+    View(dt_vertices)
     dt_vertices=setDT(dt_vertices)[,`:=`(OcrInp=ocr,OcrOut=ocr)][,ocr:=NULL]
 
     #convert our data about gene-gene assotiation from matrix to non directed graph
     #rm(ig)
     ig=graph_from_data_frame(dt_edge[dt_edge$Weight>earlyThresholdForGraphAnalysis,], directed=FALSE)
 
-return(list(dt_edge, dt_geneexp, dt_vertices, ig))
+  return(list(dt_edge, dt_geneexp, dt_vertices, ig))
 }
 
 calculate_f0 <- function (results) {
@@ -80,6 +82,10 @@ calculate_f0 <- function (results) {
   ind <- igraph::degree(ig, v=V(ig), mode="in")
   ind <- data.frame(Indegree=ind, subcat=names(ind))
 
+  View(results)
+  View(dt_vertices)
+  View(ind)
+  View(outd)
   # Merge in-degree and out-degree with dt_vertices
   dt_vertices <- dt_vertices %>%
     left_join(ind, by=c("gene"="subcat")) %>%
