@@ -8,8 +8,6 @@
 # TODO: see where vignettes are more appropriate than function docs
 # TODO: more in-depth explanation for other options parameters
 
-# TODO: import yaml package with roxygen
-
 #' Check validity of data
 #'
 #' Checks if inputted data is either valid for use in CICT functions or is a
@@ -59,7 +57,7 @@
 #'
 #' # inputs from a config file
 #' # create a config YAML file with absolute paths to data
-#' write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
+#' yaml::write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
 #'                 ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
 #'                 gene_association_matrix = NULL,
 #'                 edge_features = NULL,
