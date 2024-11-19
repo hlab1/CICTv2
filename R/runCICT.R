@@ -29,8 +29,8 @@
 #'
 #' @return A list in the CICT data object format, with the data from each step
 #'   in the CICT pipeline. Contains `gene_expression_matrix`, `ground_truth`,
-#'   `gene_association_matrix`, `rf_features`, `rf_outputs`,
-#'   `gene_regulatory_network`, and potentially other data.
+#'   `gene_association_matrix`, `edge_features`, `model`, `model_assessment`,
+#'   `predicted_edges`, and potentially other data.
 #' @export
 #'
 #' @examples print("TODO")
@@ -57,7 +57,14 @@ runCICT <- function(gene_expression_matrix = NULL,
     print("continued driver")
     # calculateRawEdges
     # prepareEdgeFeatures
-    # trainTestReport
+    # predictEdges
+    pe_out <- PredictEdges(gene_expression_matrix = cict_data_obj$gene_expression_matrix,
+                            ground_truth = cict_data_obj$ground_truth,
+                            in_format = "separate",
+                            ...)
+    cict_data_obj$model <- pe_out$model
+    cict_data_obj$model_assessment <- pe_out$model_assessment
+    cict_data_obj$predicted_edges <- pe_out$predicted_edges
 
     return(cict_data_obj)
   }, error = function(e) {

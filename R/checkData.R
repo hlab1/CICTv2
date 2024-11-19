@@ -1,22 +1,20 @@
 # TODO: may be better to change from valid-warning-message system now that error handling has been updated
 # can be quickly changed to internal helper functions if there is only time to implement verification for required driver inputs
+# TODO: make sure raw_edges documentation is correct
 
 # TODO: pass in cict_raw_edge_col arg to PEF
 # TODO: file and function name cases
 # TODO: confirm type of grn and add to docs
 # TODO: see where vignettes are more appropriate than function docs
-# TODO: more in-depth description of rf_features
 # TODO: more in-depth explanation for other options parameters
-
-# TODO: import yaml package with roxygen
 
 #' Check validity of data
 #'
 #' Checks if inputted data is either valid for use in CICT functions or is a
 #' valid output of a CICT function. Valid data is returned in the CICT data
 #' list. Invalid data has a null field in the list. Does not currently verify
-#' `gene_association_matrix`, `rf_features`, `rf_outputs`, or
-#' `gene_regulatory_network`.
+#' `raw_edges`, `edge_features`, `model`, `model_assessment`, or
+#' `predicted_edges`.
 #'
 #' @param gene_expression_matrix The gene expression matrix, where each row
 #'   represents a gene and each column represents a sample. A matrix or
@@ -25,14 +23,16 @@
 #'   network for model training and evaluation. Each row represents a
 #'   source-target relationship, with the source gene in the column labeled
 #'   `"src"` and the target gene in the column labeled `"trgt"`
-#' @param gene_association_matrix The gene association matrix. A symmetric
-#'   matrix or DataFrame where each element is numeric and represents the raw
-#'   edge weight between two genes.
-#' @param rf_features A tibble with features calculated from raw edge weights,
-#'   to be used in random forest training.
-#' @param rf_outputs A DataFrame containing outputs from random forest training
-#'   and evaluation using CICT edge features.
-#' @param gene_regulatory_network A gene regulatory network.
+#' @param raw_edges Edges for the gene association matrix calculated from
+#'   expressioon data. Each row represents a source-target relationship, with
+#'   the source gene in the column labeled `"src"`, the target gene in the
+#'   column labeled `"trgt"`, and the correlation coefficient in a row named
+#'   with `Pearson` or `Spearman` depending on the type of coefficient used.
+#' @param edge_features Features calculated from raw edge data to be used in model
+#'   prediction
+#' @param model The model used to predict edges
+#' @param model_assessment Evaluation of the model used to predict edges
+#' @param predicted_edges A predicted gene regulatory network.
 #' @param in_data_obj A list in the CICT data object format. Produced by a CICT
 #'   function.
 #' @param config_path Path to the YAML config file.
@@ -57,20 +57,22 @@
 #'
 #' # inputs from a config file
 #' # create a config YAML file with absolute paths to data
-#' write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
+#' yaml::write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
 #'                 ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
 #'                 gene_association_matrix = NULL,
-#'                 rf_features = NULL,
-#'                 rf_outputs = NULL,
-#'                 gene_regulatory_network = NULL),
+#'                 edge_features = NULL,
+#'                 model = NULL,
+#'                 model_assessment = NULL,
+#'                 predicted_edges = NULL),
 #'            "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
 #' checkData(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
 checkData <- function(gene_expression_matrix = NULL,
                         ground_truth = NULL,
-                        gene_association_matrix = NULL,
-                        rf_features = NULL,
-                        rf_outputs = NULL,
-                        gene_regulatory_network = NULL,
+                        raw_edges = NULL,
+                        edge_features = NULL,
+                        model = NULL,
+                        model_assessment = NULL,
+                        predicted_edges = NULL,
                         in_data_obj = NULL,
                         config_path = NULL,
                         in_format = "separate",
@@ -81,10 +83,11 @@ checkData <- function(gene_expression_matrix = NULL,
     if(in_format == "separate") {
       out_data_obj <- list(gene_expression_matrix = gene_expression_matrix,
                            ground_truth = ground_truth,
-                           gene_association_matrix = gene_association_matrix,
-                           rf_features = rf_features,
-                           rf_outputs = rf_outputs,
-                           gene_regulatory_network = gene_regulatory_network)
+                           raw_edges = raw_edges,
+                           edge_features = edge_features,
+                           model = model,
+                           model_assessment = model_assessment,
+                           predicted_edges = predicted_edges)
     }
     else if(in_format == "data_obj") {
       out_data_obj <- in_data_obj
@@ -95,10 +98,11 @@ checkData <- function(gene_expression_matrix = NULL,
       # TODO: allow passing in of read.csv arguments for more flexibility
       out_data_obj <- list(gene_expression_matrix = (if(!is.null(config$gene_expression_matrix)) read.csv(config$gene_expression_matrix, row.names = 1) else NULL),
                           ground_truth = (if(!is.null(config$ground_truth)) read.csv(config$ground_truth) else NULL),
-                          gene_association_matrix = (if(!is.null(config$gene_association_matrix)) read.csv(config$gene_association_matrix) else NULL),
-                          rf_features = (if(!is.null(config$rf_features)) read.csv(config$rf_features) else NULL),
-                          rf_outputs = (if(!is.null(config$rf_outputs)) read.csv(config$rf_outputs) else NULL),
-                          gene_regulatory_network = (if(!is.null(config$gene_regulatory_network)) read.csv(config$gene_regulatory_network) else NULL))
+                          raw_edges = (if(!is.null(config$raw_edges)) read.csv(config$raw_edges) else NULL),
+                          edge_features = (if(!is.null(config$edge_features)) read.csv(config$edge_features) else NULL),
+                          model = (if(!is.null(config$model)) read.csv(config$model) else NULL),
+                          model_assessment = (if(!is.null(config$model_assessment)) read.csv(config$model_assessment) else NULL),
+                          predicted_edges = (if(!is.null(config$predicted_edges)) read.csv(config$predicted_edges) else NULL))
     }
     else {
       stop("Invalid input format specified")

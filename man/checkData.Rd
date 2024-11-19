@@ -7,10 +7,11 @@
 checkData(
   gene_expression_matrix = NULL,
   ground_truth = NULL,
-  gene_association_matrix = NULL,
-  rf_features = NULL,
-  rf_outputs = NULL,
-  gene_regulatory_network = NULL,
+  raw_edges = NULL,
+  edge_features = NULL,
+  model = NULL,
+  model_assessment = NULL,
+  predicted_edges = NULL,
   in_data_obj = NULL,
   config_path = NULL,
   in_format = "separate",
@@ -28,17 +29,20 @@ network for model training and evaluation. Each row represents a
 source-target relationship, with the source gene in the column labeled
 \code{"src"} and the target gene in the column labeled \code{"trgt"}}
 
-\item{gene_association_matrix}{The gene association matrix. A symmetric
-matrix or DataFrame where each element is numeric and represents the raw
-edge weight between two genes.}
+\item{raw_edges}{Edges for the gene association matrix calculated from
+expressioon data. Each row represents a source-target relationship, with
+the source gene in the column labeled \code{"src"}, the target gene in the
+column labeled \code{"trgt"}, and the correlation coefficient in a row named
+with \code{Pearson} or \code{Spearman} depending on the type of coefficient used.}
 
-\item{rf_features}{A tibble with features calculated from raw edge weights,
-to be used in random forest training.}
+\item{edge_features}{Features calculated from raw edge data to be used in model
+prediction}
 
-\item{rf_outputs}{A DataFrame containing outputs from random forest training
-and evaluation using CICT edge features.}
+\item{model}{The model used to predict edges}
 
-\item{gene_regulatory_network}{A gene regulatory network.}
+\item{model_assessment}{Evaluation of the model used to predict edges}
+
+\item{predicted_edges}{A predicted gene regulatory network.}
 
 \item{in_data_obj}{A list in the CICT data object format. Produced by a CICT
 function.}
@@ -60,8 +64,8 @@ provided was invalid are null.
 Checks if inputted data is either valid for use in CICT functions or is a
 valid output of a CICT function. Valid data is returned in the CICT data
 list. Invalid data has a null field in the list. Does not currently verify
-\code{gene_association_matrix}, \code{rf_features}, \code{rf_outputs}, or
-\code{gene_regulatory_network}.
+\code{raw_edges}, \code{edge_features}, \code{model}, \code{model_assessment}, or
+\code{predicted_edges}.
 }
 \examples{
 # separate inputs
@@ -74,12 +78,13 @@ checkData(in_data_obj = checkData(gene_expression_matrix = SERGIO_DS4_gene_expre
 
 # inputs from a config file
 # create a config YAML file with absolute paths to data
-write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
+yaml::write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
                 ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
                 gene_association_matrix = NULL,
-                rf_features = NULL,
-                rf_outputs = NULL,
-                gene_regulatory_network = NULL),
+                edge_features = NULL,
+                model = NULL,
+                model_assessment = NULL,
+                predicted_edges = NULL),
            "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
 checkData(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
 }

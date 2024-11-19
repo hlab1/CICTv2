@@ -39,8 +39,8 @@ through \code{config_path}.}
 \value{
 A list in the CICT data object format, with the data from each step
 in the CICT pipeline. Contains \code{gene_expression_matrix}, \code{ground_truth},
-\code{gene_association_matrix}, \code{rf_features}, \code{rf_outputs},
-\code{gene_regulatory_network}, and potentially other data.
+\code{gene_association_matrix}, \code{edge_features}, \code{model}, \code{model_assessment},
+\code{predicted_edges}, and potentially other data.
 }
 \description{
 Takes a gene expression matrix and a ground truth table, calculates raw
