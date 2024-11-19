@@ -57,7 +57,14 @@ runCICT <- function(gene_expression_matrix = NULL,
     print("continued driver")
     # calculateRawEdges
     # prepareEdgeFeatures
-    # trainTestReport
+    # predictEdges
+    pe_out <- PredictEdges(gene_expression_matrix = cict_data_obj$gene_expression_matrix,
+                            ground_truth = cict_data_obj$ground_truth,
+                            in_format = "separate",
+                            ...)
+    cict_data_obj$model <- pe_out$model
+    cict_data_obj$model_assessment <- pe_out$model_assessment
+    cict_data_obj$predicted_edges <- pe_out$predicted_edges
 
     return(cict_data_obj)
   }, error = function(e) {
