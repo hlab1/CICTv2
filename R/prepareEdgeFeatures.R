@@ -932,7 +932,7 @@ calculate_f2 <- function (results3){
   return (list(gene_expression_matrix = dt.geneexp,
                            ground_truth = NULL,
                            gene_association_matrix = dt.edge,
-                           rf_features = dt.vertices,
+                           rf_features = dt.edge,
                            rf_outputs = NULL,
                            gene_regulatory_network = NULL))
 
