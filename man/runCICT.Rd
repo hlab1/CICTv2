@@ -19,9 +19,9 @@ represents a gene and each column represents a sample. A matrix or
 DataFrame with numeric data.}
 
 \item{ground_truth}{A DataFrame representing the ground-truth gene regulatory
-network for model training and evaluation. Each row represents a source-target relationship, with the source
-gene in the column labeled \code{"src"} and the target gene in the column
-labeled \code{"trgt"}}
+network for model training and evaluation. Each row represents a
+source-target relationship, with the source gene in the column labeled
+\code{"src"} and the target gene in the column labeled \code{"trgt"}}
 
 \item{in_data_obj}{A list in the CICT data object format. Produced by a CICT
 function. Must contain \code{gene_expression_matrix} and \code{ground_truth}.}
@@ -31,8 +31,8 @@ the gene expression matrix and ground truth.}
 
 \item{in_format}{String indicating expected input format. \code{"separate"} if
 passing inputs through \code{gene_expression_matrix} and \code{ground_truth},
-\code{"data_obj"} if passing inputs through \code{in_data_obj}, \code{"config"} if passing inputs
-through \code{config_path}.}
+\code{"data_obj"} if passing inputs through \code{in_data_obj}, \code{"config"} if passing
+inputs through \code{config_path}.}
 
 \item{...}{Other options}
 }

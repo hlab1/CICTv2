@@ -31,7 +31,8 @@ predictEdges(
   runOnAllEdges = T,
   trainingTarget = "class2",
   tstPercent = 0.3,
-  url.logfile = "noLog"
+  url.logfile = "noLog",
+  ...
 )
 }
 \arguments{
