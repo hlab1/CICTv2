@@ -18,7 +18,7 @@ runCICT(
 represents a gene and each column represents a sample. A matrix or
 DataFrame with numeric data.}
 
-\item{ground_truth}{A DataFrame representing the ground-truth gene regulatory
+\item{ground_truth}{A Data Frame representing the ground-truth gene regulatory
 network for model training and evaluation. Each row represents a
 source-target relationship, with the source gene in the column labeled
 \code{"src"} and the target gene in the column labeled \code{"trgt"}}

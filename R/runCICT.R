@@ -2,7 +2,6 @@
 
 
 # TODO: Write description of CICT data list format and link to it from function documentation
-# TODO: add example data
 # TODO: use example data to write usage examples with recommended practices (from wickham r packages book)
 # TODO: more in-depth explanation for other options parameters
 
@@ -15,7 +14,7 @@
 #' @param gene_expression_matrix The gene expression matrix, where each row
 #'   represents a gene and each column represents a sample. A matrix or
 #'   DataFrame with numeric data.
-#' @param ground_truth A DataFrame representing the ground-truth gene regulatory
+#' @param ground_truth A Data Frame representing the ground-truth gene regulatory
 #'   network for model training and evaluation. Each row represents a
 #'   source-target relationship, with the source gene in the column labeled
 #'   `"src"` and the target gene in the column labeled `"trgt"`
