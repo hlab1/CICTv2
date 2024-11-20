@@ -1146,7 +1146,7 @@ calculate_f1 <- function(results2) {
 #' rplist <- list(a = 0, b = 1)
 #' my_replace_na(df, rplist)
 #'
-#' @importFrom dplyr replace_na
+#' @importFrom tidyr replace_na
 #' @importFrom stringr str_detect
 my_replace_na <- function(df, rplist)
 {

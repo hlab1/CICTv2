@@ -26,11 +26,10 @@
 #' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
 #' @param preset.test Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
 #' @return Returns a list consisted of three objects
-#' # rcrd: is a list object of intermediary objects
-#' # edges: a dataframe of edge objects and CICT features for edges
-#' # Vertices: a dataframe of vertices objects and CICT features for vertices
+#' rcrd: is a list object of intermediary objects
+#' edges: a dataframe of edge objects and CICT features for edges
+#' Vertices: a dataframe of vertices objects and CICT features for vertices
 #' @examples
-#' # Example usage of the function
 #' c(rcrd,edges,vertices) %<-z% prepareEdgeFeatures(Debug=Debug)
 #' @export
 #'
