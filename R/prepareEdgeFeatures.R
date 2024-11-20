@@ -86,7 +86,7 @@ prepare_table_pef <-
 
     #convert our data about gene-gene assotiation from matrix to non directed graph
     #rm(ig)
-    ig = graph_from_data_frame(dt_edge[dt_edge$Weight > earlyThresholdForGraphAnalysis, ], directed =
+    ig = graph_from_data_frame(dt_edge[dt_edge$Weight > earlyThresholdForGraphAnalysis,], directed =
                                  FALSE)
 
     return(list(dt_edge, dt_geneexp, dt_vertices, ig))
@@ -174,7 +174,7 @@ calculate_f0 <- function (results) {
   dt_vertices_num <-
     setDT(dt_vertices)[, lapply(.SD, factorToNumeric), .SDcols = cols]
   dt_vertices <-
-    dt_vertices[,!names(dt_vertices) %in% cols, with = FALSE]
+    dt_vertices[, !names(dt_vertices) %in% cols, with = FALSE]
   dt_vertices <- cbind(dt_vertices_num, dt_vertices)
   rm(dt_vertices_num)
   gc()
@@ -396,15 +396,15 @@ calculate_f1 <- function(results2) {
   for (j in (1):ngens) {
     tryCatch({
       e.a = e.b = e.ab = NULL
-      firstg = dt.vertices[j, ]$gene
+      firstg = dt.vertices[j,]$gene
 
       if (!globalDistDiscretization) {
         #Discretization was applied on edges of each particular node
-        a.confdisc = myhist(infotheo::discretize(e.cnfcnt[src == firstg, ]$conf, "equalwidth", nbins)$X,
+        a.confdisc = myhist(infotheo::discretize(e.cnfcnt[src == firstg,]$conf, "equalwidth", nbins)$X,
                             nbins,
                             breaks)
         a.contribdisc =  myhist(
-          infotheo::discretize(e.cnfcnt[src == firstg, ]$contrib, "equalwidth", nbins)$X,
+          infotheo::discretize(e.cnfcnt[src == firstg,]$contrib, "equalwidth", nbins)$X,
           nbins,
           breaks
         )
@@ -412,12 +412,12 @@ calculate_f1 <- function(results2) {
       } else if (globalDistDiscretization) {
         #Discretization was applied on all edges
         suppressMessages({
-          a.confhist = myhist(e.cnfcnt[src == firstg, ]$confdisc,
+          a.confhist = myhist(e.cnfcnt[src == firstg,]$confdisc,
                               nbins,
                               breaks,
                               plot = F,
                               prob = F)
-          a.contribhist =  myhist(e.cnfcnt[src == firstg, ]$contribdisc,
+          a.contribhist =  myhist(e.cnfcnt[src == firstg,]$contribdisc,
                                   nbins,
                                   breaks,
                                   plot = F,
@@ -925,7 +925,8 @@ calculate_f1 <- function(results2) {
       #observed to expected emission  minus observed to expected reception for each node
       deltaAttitude = OEER - OERRBA,
       Tendency = ifelse(is.na(UR) |
-                          UR == 0, 0, 1 / UR) - ifelse(is.na(URBA) | URBA == 0, 0, 1 / URBA)
+                          UR == 0, 0, 1 / UR) - ifelse(is.na(URBA) |
+                                                         URBA == 0, 0, 1 / URBA)
     )
 
     a = sapply(dt.edge, function(x)

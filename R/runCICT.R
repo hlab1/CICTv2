@@ -1,5 +1,6 @@
 
 
+
 # TODO: Write description of CICT data list format and link to it from function documentation
 # TODO: add example data
 # TODO: use example data to write usage examples with recommended practices (from wickham r packages book)
@@ -64,10 +65,8 @@ runCICT <- function(gene_expression_matrix = NULL,
     # calculateRawEdges
     # prepareEdgeFeatures
     # pass in raw_edges from cre
-    pef_out <- prepareEdgeFeatures(
-      gene_expression_matrix = cict_data_obj$gene_expression_matrix,
-      ...
-    )
+    pef_out <- prepareEdgeFeatures(gene_expression_matrix = cict_data_obj$gene_expression_matrix,
+                                   ...)
     cict_data_obj$edge_features <- pef_out$edge_features
 
     pe_out <-

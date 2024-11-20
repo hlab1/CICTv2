@@ -304,7 +304,7 @@ predictEdges <- function(edge_features = NULL,
   {
     ##########################################
     # Creates learning set for random forest training
-    ntrgtClass =  nrow(tst1.totalset[trainingTarget == TRUE, ])
+    ntrgtClass =  nrow(tst1.totalset[trainingTarget == TRUE,])
 
     # If a preset train and test is provided, use that
     # Otherwise, learning sets are randomly partitioned from the entire tst1.tst set
@@ -326,16 +326,16 @@ predictEdges <- function(edge_features = NULL,
           list = FALSE,
           times = 1
         ))
-        tst1.train = tst1.totalset[spltIdx, ]
-        tst1.tst = tst1.totalset[-spltIdx, ]
+        tst1.train = tst1.totalset[spltIdx,]
+        tst1.tst = tst1.totalset[-spltIdx,]
 
-        print(paste0("nrow(tst1.tst[trainingTarget]", nrow(tst1.tst[trainingTarget == TRUE, ])))
-        if (nrow(tst1.tst[trainingTarget == TRUE, ]) >= (tstPercent - 0.01) * ntrgtClass)
+        print(paste0("nrow(tst1.tst[trainingTarget]", nrow(tst1.tst[trainingTarget == TRUE,])))
+        if (nrow(tst1.tst[trainingTarget == TRUE,]) >= (tstPercent - 0.01) * ntrgtClass)
           break
       }
     }
 
-    tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T, ]
+    tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T,]
     tst1.totalset.tfs <- as.character(unique(tst1.totalset.tfs$src))
 
     if (url.logfile != "noLog") {
@@ -488,7 +488,7 @@ predictEdges <- function(edge_features = NULL,
         d.new.tmp = lapply(splts,
                            function(thesplit) {
                              print(last(thesplit))
-                             d.new.slice = d.new[thesplit, ]
+                             d.new.slice = d.new[thesplit,]
                              predTest.d.h2o = as.h2o(d.new.slice) #
                              h2o.pred = as.data.frame(
                                h2o.predict(
@@ -517,7 +517,7 @@ predictEdges <- function(edge_features = NULL,
           src1 = src,
           trgt1 = trgt
         ) %>%
-          dplyr::select(-outcomes, -rndPred)
+          dplyr::select(-outcomes,-rndPred)
         pred_outcome = d.new1 %>% left_join(d.new1.rv, by = c("src" = "trgt1", "trgt" =
                                                                 "src1"))
         pred_outcome.back = pred_outcome
@@ -560,10 +560,10 @@ predictEdges <- function(edge_features = NULL,
       {
         prd.varimp = h2o.varimp(tst1.mdl)
 
-        in_data_obj$varimp = prd.varimp[1:20, ] %>% as.data.frame()
+        in_data_obj$varimp = prd.varimp[1:20,] %>% as.data.frame()
         if (url.logfile != "noLog")
           write(
-            prd.varimp[1:20, ] %>% knitr::kable(),
+            prd.varimp[1:20,] %>% knitr::kable(),
             file = url.logfile,
             append = TRUE,
             sep = '\n'
@@ -598,7 +598,7 @@ predictEdges <- function(edge_features = NULL,
           b = attr(x, 'paucs') %>% rename(aucs = paucs, standardized = spaucs) %>%
             mutate(curvetypes = paste0('p', curvetypes))
 
-          rbindlist(list(a, b), fill = T, use.names = T) %>% dplyr::select(-modnames,-dsids) %>%
+          rbindlist(list(a, b), fill = T, use.names = T) %>% dplyr::select(-modnames, -dsids) %>%
             mutate(aucs = round(aucs, 3),
                    standardized = round(standardized, 3))
         }
@@ -774,7 +774,7 @@ predictEdges <- function(edge_features = NULL,
     d.new = edge_features
 
     if (remove.tfs == TRUE) {
-      d.new <- d.new[!d.new$src %in% tst1.totalset.tfs, ]
+      d.new <- d.new[!d.new$src %in% tst1.totalset.tfs,]
     }
 
     splitcount = max(floor(nrow(edge_features) / 30000), 2)
@@ -785,7 +785,7 @@ predictEdges <- function(edge_features = NULL,
     d.new.tmp = lapply(splts,
                        function(thesplit) {
                          print(last(thesplit))
-                         d.new.slice = setDT(d.new)[thesplit, ]
+                         d.new.slice = setDT(d.new)[thesplit,]
                          caret.pred = as.data.frame(predict(
                            tst1.mdl,
                            predTest.d.h2o,
