@@ -14,11 +14,11 @@ prepare_edge_features <-
     # TODO: allow config and throw error if in_format is not valid
     if (in_format == "separate") {
       dt_edge <- raw_edges
-      dt_geneexp <- raw_edges
+      dt_geneexp <- gene_expression_matrix
     }
     else if (in_format == "data_obj") {
       dt_edge <- in_data_obj$raw_edges
-      dt_geneexp <- in_data_obj$raw_edges
+      dt_geneexp <- in_data_obj$gene_expression_matrix
     }
 
     #first, environment setup
@@ -1464,6 +1464,7 @@ calculate_f2 <- function (results3) {
       raw_edges = dt.edge,
       edge_features = dt.edge,
       model = NULL,
+      model_assessment = NULL,
       predicted_edges = NULL
     )
   )
