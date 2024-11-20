@@ -1,9 +1,6 @@
 # TODO: may be better to change from valid-warning-message system now that error handling has been updated
-# can be quickly changed to internal helper functions if there is only time to implement verification for required driver inputs
 # TODO: make sure raw_edges documentation is correct
 
-# TODO: pass in cict_raw_edge_col arg to PEF
-# TODO: file and function name cases
 # TODO: confirm type of grn and add to docs
 # TODO: see where vignettes are more appropriate than function docs
 # TODO: more in-depth explanation for other options parameters
@@ -44,7 +41,7 @@
 #' @return A list in the CICT data object format, where fields for which valid
 #'   data were provided contain the input data and fields for which data
 #'   provided was invalid are null.
-#' @export
+#' @noRd
 #'
 #' @examples
 #' # separate inputs
@@ -174,7 +171,7 @@ checkData <- function(gene_expression_matrix = NULL,
 #'   has numeric data; it is otherwise `FALSE`. `warning` is a boolean with
 #'   value `FALSE`. `message` is a string that contains an explanation of why
 #'   the input triggered a warning, was valid, or was invalid.
-#' @export
+#' @noRd
 #'
 #' @examples
 #' checkGEM(SERGIO_DS4_gene_expression_matrix)
@@ -275,7 +272,7 @@ checkGEM <- function(gem) {
 #'   if the ground truth table does not exists, and otherwise `FALSE`. `message`
 #'   is a string that contains an explanation of why the input triggered a
 #'   warning, was valid, or was invalid.
-#' @export
+#' @noRd
 #'
 #' @examples
 #' checkGT(SERGIO_DS4_ground_truth)
