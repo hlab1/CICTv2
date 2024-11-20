@@ -65,7 +65,7 @@ runCICT <- function(gene_expression_matrix = NULL,
     # prepareEdgeFeatures
     # predictEdges
     pe_out <-
-      PredictEdges(
+      predictEdges(
         gene_expression_matrix = cict_data_obj$gene_expression_matrix,
         ground_truth = cict_data_obj$ground_truth,
         in_format = "separate",

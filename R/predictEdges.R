@@ -9,7 +9,7 @@
 
 #Method could be CICT, and RF or XGB which will only use the basic non CICT features
 
-#' PredictEdges
+#' predictEdges
 #'
 #' Implements CICT supervised learning and prediction of regulatory edges. Currently heavily depends on global variables
 #'
@@ -33,7 +33,7 @@
 #' c(rcrd,edges,vertices) %<-z% prepareEdgeFeatures(Debug=Debug)
 #' @export
 #'
-PredictEdges <- function(edge_features = NULL,
+predictEdges <- function(edge_features = NULL,
                          gene_expression_matrix = NULL,
                          ground_truth = NULL,
                          in_data_obj = NULL,
