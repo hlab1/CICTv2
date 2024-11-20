@@ -1,24 +1,24 @@
 #NEW PEF
 
 
-#prepare_edge_features(gene_association_matrix = trial_dt_edge, gene_expression_matrix = trial_dt_geneexp, cict_raw_edge_col = 'Spearman')
+#prepare_edge_features(raw_edges = trial_dt_edge, gene_expression_matrix = trial_dt_geneexp, cict_raw_edge_col = 'Spearman')
 # trial_dt_edge <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/rawEdges.csv")
 # trial_dt_geneexp <- fread("/Users/vvtch/Desktop/sigmafolder/inputs/SERGIO_DS4/net1/ExpressionData.csv")
 
 prepare_edge_features <-
   function(in_data_obj = NULL,
-           gene_association_matrix = NULL,
+           raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
            in_format = "separate") {
     # TODO: allow config and throw error if in_format is not valid
     if (in_format == "separate") {
-      dt_edge <- gene_association_matrix
-      dt_geneexp <- gene_expression_matrix
+      dt_edge <- raw_edges
+      dt_geneexp <- raw_edges
     }
     else if (in_format == "data_obj") {
-      dt_edge <- in_data_obj$gene_association_matrix
-      dt_geneexp <- in_data_obj$gene_expression_matrix
+      dt_edge <- in_data_obj$raw_edges
+      dt_geneexp <- in_data_obj$raw_edges
     }
 
     #first, environment setup
@@ -1461,7 +1461,7 @@ calculate_f2 <- function (results3) {
     list(
       gene_expression_matrix = dt.geneexp,
       ground_truth = NULL,
-      gene_association_matrix = dt.edge,
+      raw_edges = dt.edge,
       rf_features = dt.edge,
       rf_outputs = NULL,
       gene_regulatory_network = NULL
