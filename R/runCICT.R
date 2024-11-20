@@ -1,4 +1,5 @@
 
+
 # TODO: Write description of CICT data list format and link to it from function documentation
 # TODO: add example data
 # TODO: use example data to write usage examples with recommended practices (from wickham r packages book)
@@ -40,17 +41,22 @@ runCICT <- function(gene_expression_matrix = NULL,
                     config_path = NULL,
                     in_format = "separate",
                     ...) {
-  cict_data_obj <- checkData(gene_expression_matrix = gene_expression_matrix,
-                               ground_truth = ground_truth,
-                               in_data_obj = in_data_obj,
-                               config_path = config_path,
-                               in_format = in_format,
-                               ...)
+  cict_data_obj <-
+    checkData(
+      gene_expression_matrix = gene_expression_matrix,
+      ground_truth = ground_truth,
+      in_data_obj = in_data_obj,
+      config_path = config_path,
+      in_format = in_format,
+      ...
+    )
   # above function takes inputs, verifies them, and puts valid inputs in an object
 
   tryCatch({
     # gene expression matrix and ground truth are required for driver to complete correctly
-    if(is.null(cict_data_obj) | is.null(cict_data_obj$gene_expression_matrix) | is.null(cict_data_obj$ground_truth)) {
+    if (is.null(cict_data_obj) |
+        is.null(cict_data_obj$gene_expression_matrix) |
+        is.null(cict_data_obj$ground_truth)) {
       stop("Failed to create data object")
     }
 
@@ -58,10 +64,13 @@ runCICT <- function(gene_expression_matrix = NULL,
     # calculateRawEdges
     # prepareEdgeFeatures
     # predictEdges
-    pe_out <- PredictEdges(gene_expression_matrix = cict_data_obj$gene_expression_matrix,
-                            ground_truth = cict_data_obj$ground_truth,
-                            in_format = "separate",
-                            ...)
+    pe_out <-
+      PredictEdges(
+        gene_expression_matrix = cict_data_obj$gene_expression_matrix,
+        ground_truth = cict_data_obj$ground_truth,
+        in_format = "separate",
+        ...
+      )
     cict_data_obj$model <- pe_out$model
     cict_data_obj$model_assessment <- pe_out$model_assessment
     cict_data_obj$predicted_edges <- pe_out$predicted_edges
