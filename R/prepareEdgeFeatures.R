@@ -1464,7 +1464,7 @@ calculate_f2 <- function (results3) {
       raw_edges = dt.edge,
       edge_features = dt.edge,
       model = NULL,
-      gene_regulatory_network = NULL
+      predicted_edges = NULL
     )
   )
 
