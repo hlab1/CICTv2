@@ -15,17 +15,17 @@
 #'   represents a gene and each column represents a sample. A matrix or
 #'   DataFrame with numeric data.
 #' @param ground_truth A DataFrame representing the ground-truth gene regulatory
-#'   network for model training and evaluation. Each row represents a source-target relationship, with the source
-#'   gene in the column labeled `"src"` and the target gene in the column
-#'   labeled `"trgt"`
+#'   network for model training and evaluation. Each row represents a
+#'   source-target relationship, with the source gene in the column labeled
+#'   `"src"` and the target gene in the column labeled `"trgt"`
 #' @param in_data_obj A list in the CICT data object format. Produced by a CICT
 #'   function. Must contain `gene_expression_matrix` and `ground_truth`.
 #' @param config_path Path to the YAML config file. Config must contain paths to
 #'   the gene expression matrix and ground truth.
 #' @param in_format String indicating expected input format. `"separate"` if
 #'   passing inputs through `gene_expression_matrix` and `ground_truth`,
-#'   `"data_obj"` if passing inputs through `in_data_obj`, `"config"` if passing inputs
-#'   through `config_path`.
+#'   `"data_obj"` if passing inputs through `in_data_obj`, `"config"` if passing
+#'   inputs through `config_path`.
 #' @param ... Other options
 #'
 #' @return A list in the CICT data object format, with the data from each step
@@ -63,12 +63,18 @@ runCICT <- function(gene_expression_matrix = NULL,
     print("continued driver")
     # calculateRawEdges
     # prepareEdgeFeatures
-    # predictEdges
+    # pass in raw_edges from cre
+    pef_out <- prepareEdgeFeatures(
+      gene_expression_matrix = cict_data_obj$gene_expression_matrix,
+      ...
+    )
+    cict_data_obj$edge_features <- pef_out$edge_features
+
     pe_out <-
       predictEdges(
         gene_expression_matrix = cict_data_obj$gene_expression_matrix,
+        edge_features = cict_data_obj$edge_features,
         ground_truth = cict_data_obj$ground_truth,
-        in_format = "separate",
         ...
       )
     cict_data_obj$model <- pe_out$model

@@ -59,7 +59,8 @@ predictEdges <- function(edge_features = NULL,
                          runOnAllEdges = T,
                          trainingTarget = 'class2',
                          tstPercent = 0.3,
-                         url.logfile = 'noLog') {
+                         url.logfile = 'noLog',
+                         ...) {
   library(dplyr)
   library(hutils)
   library(caret)
@@ -429,6 +430,7 @@ predictEdges <- function(edge_features = NULL,
     out_data_obj$predicted_edges <- caret.test
 
     # TODO
+    out_data_obj$model <- NULL
     out_data_obj$model_assessment <- NULL
     print('Data produced successfuly ==================================')
     return(out_data_obj)
