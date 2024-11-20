@@ -1,11 +1,11 @@
 #NEW PEF
 
 
-#prepare_edge_features(raw_edges = trial_dt_edge, gene_expression_matrix = trial_dt_geneexp, cict_raw_edge_col = 'Spearman')
+#prepareEdgeFeatures(raw_edges = trial_dt_edge, gene_expression_matrix = trial_dt_geneexp, cict_raw_edge_col = 'Spearman')
 # trial_dt_edge <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/rawEdges.csv")
 # trial_dt_geneexp <- fread("/Users/vvtch/Desktop/sigmafolder/inputs/SERGIO_DS4/net1/ExpressionData.csv")
 
-prepare_edge_features <-
+prepareEdgeFeatures <-
   function(in_data_obj = NULL,
            raw_edges = NULL,
            gene_expression_matrix = NULL,
