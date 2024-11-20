@@ -1463,7 +1463,7 @@ calculate_f2 <- function (results3) {
       ground_truth = NULL,
       raw_edges = dt.edge,
       edge_features = dt.edge,
-      rf_outputs = NULL,
+      model = NULL,
       gene_regulatory_network = NULL
     )
   )
