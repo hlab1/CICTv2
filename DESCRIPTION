@@ -15,4 +15,5 @@ Depends:
 LazyData: true
 Imports: 
     yaml,
-    data.table
+    data.table,
+    igraph

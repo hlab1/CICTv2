@@ -23,8 +23,6 @@ prepareEdgeFeatures <-
 
     #first, environment setup
     #THOSE SHALL GO INTO THE NAMESPACE OF THE PACKAGE
-    library("data.table")
-    library("igraph")
     library(magrittr) # needs to be run every time you start R and want to use %>%
     library(dplyr)
     library(tidyr)
@@ -63,7 +61,7 @@ prepare_table_pef <-
     dt_edge <-
       dt_edge %>% dplyr::mutate(Weight = .data[[cict_raw_edge_col]]) %>% select(src, trgt, everything()) #make src and trg the first 2 columns
     # defining a new data table with vertices
-    dt_vertices = data.table()  #change n.itm.v -> dt.vertices
+    dt_vertices = data.table::data.table()  #change n.itm.v -> dt.vertices
 
     #pipeline to format dt_vertices properly
 
@@ -81,7 +79,7 @@ prepare_table_pef <-
                                    is.na(ocr), PSUDEO_ZERO, ocr)) %>%
       dplyr::select(gene, ocr)
     dt_vertices <-
-      setDT(dt_vertices)[, `:=`(OcrInp = ocr, OcrOut = ocr)][, ocr := NULL]
+      data.table::setDT(dt_vertices)[, `:=`(OcrInp = ocr, OcrOut = ocr)][, ocr := NULL]
 
     #convert our data about gene-gene assotiation from matrix to non directed graph
     #rm(ig)
@@ -171,7 +169,7 @@ calculate_f0 <- function (results) {
   factorToNumeric <- function(x)
     as.numeric(as.character(x))
   dt_vertices_num <-
-    setDT(dt_vertices)[, lapply(.SD, factorToNumeric), .SDcols = cols]
+    data.table::setDT(dt_vertices)[, lapply(.SD, factorToNumeric), .SDcols = cols]
   dt_vertices <-
     dt_vertices[, !names(dt_vertices) %in% cols, with = FALSE]
   dt_vertices <- cbind(dt_vertices_num, dt_vertices)
@@ -179,7 +177,7 @@ calculate_f0 <- function (results) {
   gc()
 
   # Replace NA values
-  setDT(dt_vertices)
+  data.table::setDT(dt_vertices)
   dt_vertices[is.na(SumOcrOut.x), SumOcrOut.x := 1]
   dt_vertices[is.na(SumOcrInp.y), SumOcrInp.y := 1]
 
@@ -229,8 +227,8 @@ calculate_f0 <- function (results) {
   e_cnfcnt <- dt_edge %>% select(src, trgt, confdisc, contribdisc)
 
   # Remove unnecessary columns
-  setDT(e_cnfcnt)
-  setkeyv(e_cnfcnt, c('src', 'trgt'))
+  data.table::setDT(e_cnfcnt)
+  data.table::setkeyv(e_cnfcnt, c('src', 'trgt'))
 
   return(list(dt_edge, dt_geneexp, dt_vertices, ig))
 }
@@ -507,7 +505,7 @@ calculate_f1 <- function(results2) {
     sum(is.na(x)))
   a[a > 0]
   #View(dt.vertices[,c("gene","scfSumHTR","ocbSumHTR"),with=FALSE])
-  setDF(dt.vertices)
+  data.table::setDF(dt.vertices)
   dt.vertices = tidyr::replace_na(
     dt.vertices,
     replace = list(
@@ -527,8 +525,8 @@ calculate_f1 <- function(results2) {
   # It then performs two left joins on 'dt.edge':
   # 1. Joins 'dt.edge' with 'dt.vertices1' on the 'src' column of 'dt.edge' and 'gene' column of 'dt.vertices1'.
   # 2. Joins 'dt.edge' with 'dt.vertices1' on the 'trgt' column of 'dt.edge' and 'gene' column of 'dt.vertices1'.
-  setDF(dt.edge)
-  setDF(dt.vertices1)
+  data.table::setDF(dt.edge)
+  data.table::setDF(dt.vertices1)
   dt.edge = dt.edge %>% left_join(dt.vertices1, by = c("src" = "gene"))
   dt.edge = dt.edge %>% left_join(dt.vertices1, by = c("trgt" = "gene"))
 
@@ -574,7 +572,7 @@ calculate_f1 <- function(results2) {
   #    - `URR`: Unexpected resistance calculated as `V` digeneed by the difference between `Weight` and `EI`.
   if (!exists("PSUDEO_ZERO"))
     stop("define PSUDEO_ZERO")
-  dt.edge = setDF(dt.edge) %>% #dplyr::mutate(Weight=mf.mi) %>%
+  dt.edge = data.table::setDF(dt.edge) %>% #dplyr::mutate(Weight=mf.mi) %>%
     dplyr::mutate(
       V = abs(OcrOut.x - OcrInp.y),
       R = V / Weight,
@@ -708,8 +706,8 @@ calculate_f1 <- function(results2) {
     "PoutSD",
     "PoutMean"
   )
-  setDF(dt.edge)
-  setDF(dt.vertices)
+  data.table::setDF(dt.edge)
+  data.table::setDF(dt.vertices)
   # This section of the code performs inner joins on the dt.edge dataframe with the dt.vertices dataframe.
   # It first joins dt.edge with dt.vertices based on the "src" column matching the "gene" column in dt.vertices.
   # Then, it joins dt.edge with dt.vertices again based on the "trgt" column matching the "gene" column in dt.vertices.
@@ -765,7 +763,7 @@ calculate_f1 <- function(results2) {
   # - The script uses `gc()` to trigger garbage collection and free up memory.
   #    Add BA factors and combined measures -----
   if (TRUE) {
-    setDF(dt.edge)
+    data.table::setDF(dt.edge)
     gc()
     dt.edge.back = dt.edge
     dt.edge1 = dt.edge
@@ -967,7 +965,7 @@ calculate_f1 <- function(results2) {
   # Enhance vertices influx outflux----
   dt.edge = dt.edge[, unique(colnames(dt.edge))]
   dt.vertices = dt.vertices[, unique(colnames(dt.vertices))] #removing duplicated columns
-  setDF(dt.edge)
+  data.table::setDF(dt.edge)
   # This script processes vertex and edge data to calculate the outflux for each vertex.
   #
   # Steps:
@@ -1035,10 +1033,10 @@ calculate_f1 <- function(results2) {
     powerParamsOut,
     dt.edge.tmp
   )
-  setDT(dt.edge)
+  data.table::setDT(dt.edge)
   dt.edge.noselfedge = dt.edge [src != trgt, .(src, contrib, conf, trgt)]
-  setDF(dt.edge)
-  setDF(dt.vertices)
+  data.table::setDF(dt.edge)
+  data.table::setDF(dt.vertices)
 
   selfContribNLMoments = dt.edge %>% dplyr::group_by(src) %>% do(extractLmoments(.$contrib))
 
@@ -1221,7 +1219,7 @@ calculate_f2 <- function (results3) {
   dt.vertices <-
     results3[[2]] # unmodified dt_geneexp, expression data
   dt.geneexp <- results3[[3]]
-  setDF(dt.vertices)
+  data.table::setDF(dt.vertices)
   L2 = dt.vertices %>% ungroup() %>% summarise(
     MeanOcfSkew = myMean(ocfSkew, 0, na.rm = TRUE),
     MedianOcfSkew = myMedian(ocfSkew, 0, na.rm = TRUE),
@@ -1405,8 +1403,8 @@ calculate_f2 <- function (results3) {
     sum(is.na(x)))
   a[a > 0]
 
-  setDF(dt.edge)
-  setDF(dt.vertices1)
+  data.table::setDF(dt.edge)
+  data.table::setDF(dt.vertices1)
   #!!!NOTE that parameters with .x point to source parameters and those with .y point to target parameters
 
   dt.edge.back2 = dt.edge
@@ -1447,7 +1445,7 @@ calculate_f2 <- function (results3) {
         scontribZ.y = (contrib - scbMean.y) / ifelse(scbSD.y == 0, PSUDEO_ZERO_2 , scbSD.y)
       )
   }
-  setDT(dt.edge)
+  data.table::setDT(dt.edge)
 
   #   Finalize calculations on edges -----
 
