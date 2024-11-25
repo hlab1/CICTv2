@@ -23,7 +23,6 @@ prepareEdgeFeatures <-
 
     #first, environment setup
     #THOSE SHALL GO INTO THE NAMESPACE OF THE PACKAGE
-    library(dplyr)
     library(tidyr)
     library(Lmoments)
     library(moments)
@@ -58,7 +57,7 @@ prepare_table_pef <-
     dt_edge$edgeTyp = "" #creating new empty column edgeTyp
 
     dt_edge <-
-      dt_edge %>% dplyr::mutate(Weight = .data[[cict_raw_edge_col]]) %>% select(src, trgt, everything()) #make src and trg the first 2 columns
+      dt_edge %>% dplyr::mutate(Weight = .data[[cict_raw_edge_col]]) %>% dplyr::select(src, trgt, everything()) #make src and trg the first 2 columns
     # defining a new data table with vertices
     dt_vertices = data.table::data.table()  #change n.itm.v -> dt.vertices
 
@@ -106,9 +105,9 @@ calculate_f0 <- function (results) {
 
   # Merge in-degree and out-degree with dt_vertices
   dt_vertices <- dt_vertices %>%
-    left_join(ind, by = c("gene" = "subcat")) %>%
-    left_join(outd, by = c("gene" = "subcat")) %>%
-    mutate(
+    dplyr::left_join(ind, by = c("gene" = "subcat")) %>%
+    dplyr::left_join(outd, by = c("gene" = "subcat")) %>%
+    dplyr::mutate(
       Indegree = ifelse(is.na(Indegree), pseudo_zero, Indegree),
       Outdegree = ifelse(is.na(Outdegree), pseudo_zero, Outdegree)
     )
@@ -117,7 +116,7 @@ calculate_f0 <- function (results) {
   vertexOcrSumIn <- sum(dt_vertices$OcrInp, na.rm = TRUE)
   vertexOcrSumOut <- sum(dt_vertices$OcrOut, na.rm = TRUE)
   dt_vertices <- dt_vertices %>%
-    mutate(probInp = OcrInp / vertexOcrSumIn,
+    dplyr::mutate(probInp = OcrInp / vertexOcrSumIn,
            probOut = OcrOut / vertexOcrSumOut)
 
   vinfcols <-
@@ -131,30 +130,30 @@ calculate_f0 <- function (results) {
 
   # Merge dt_edge with dt_vertices
   dt_edge <- dt_edge %>%
-    left_join(dt_vertices[, ..vinfcols], by = c("src" = "gene")) %>%
-    left_join(dt_vertices[, ..vinfcols], by = c("trgt" = "gene"))
+    dplyr::left_join(dt_vertices[, ..vinfcols], by = c("src" = "gene")) %>%
+    dplyr::left_join(dt_vertices[, ..vinfcols], by = c("trgt" = "gene"))
 
   # Summarize OcrInp and OcrOut
   dt_vertices_trgtsum <- dt_vertices %>%
-    left_join(dt_edge, by = c("gene" = "src")) %>%
-    group_by(gene) %>%
-    summarise(
+    dplyr::left_join(dt_edge, by = c("gene" = "src")) %>%
+    dplyr::group_by(gene) %>%
+    dplyr::summarise(
       SumOcrInp.y = sum(OcrInp.y, na.rm = TRUE),
       SumOcrOut.y = sum(OcrOut.y, na.rm = TRUE)
     )
 
   dt_vertices_srcsum <- dt_vertices %>%
-    left_join(dt_edge, by = c("gene" = "trgt")) %>%
-    group_by(gene) %>%
-    summarise(
+    dplyr::left_join(dt_edge, by = c("gene" = "trgt")) %>%
+    dplyr::group_by(gene) %>%
+    dplyr::summarise(
       SumOcrInp.x = sum(OcrInp.x, na.rm = TRUE),
       SumOcrOut.x = sum(OcrOut.x, na.rm = TRUE)
     )
 
   # Merge summarized data back to dt_vertices
   dt_vertices <- dt_vertices %>%
-    left_join(dt_vertices_trgtsum, by = "gene") %>%
-    inner_join(dt_vertices_srcsum, by = "gene")
+    dplyr::left_join(dt_vertices_trgtsum, by = "gene") %>%
+    dplyr::inner_join(dt_vertices_srcsum, by = "gene")
 
   cols <-
     c("SumOcrInp.x",
@@ -188,8 +187,8 @@ calculate_f0 <- function (results) {
       "SumOcrInp.y",
       "SumOcrOut.y")
   dt_edge <- dt_edge %>%
-    inner_join(dt_vertices[, ..vinfcols], by = c("src" = "gene")) %>%
-    inner_join(dt_vertices[, ..vinfcols], by = c("trgt" = "gene"))
+    dplyr::inner_join(dt_vertices[, ..vinfcols], by = c("src" = "gene")) %>%
+    dplyr::inner_join(dt_vertices[, ..vinfcols], by = c("trgt" = "gene"))
 
   # Replace NA values in dt_edge
   dt_edge <-
@@ -209,8 +208,8 @@ calculate_f0 <- function (results) {
 
   # Calculate confidence and contribution
   dt_edge <- dt_edge %>%
-    mutate(conf = Weight / OcrOut.x, contrib = Weight / OcrInp.y) %>%
-    mutate(
+    dplyr::mutate(conf = Weight / OcrOut.x, contrib = Weight / OcrInp.y) %>%
+    dplyr::mutate(
       conf = ifelse(is.na(conf) | is.infinite(conf), 0, conf),
       contrib = ifelse(is.na(contrib) |
                          is.infinite(contrib), 0, contrib)
@@ -219,11 +218,11 @@ calculate_f0 <- function (results) {
   # Discretize confidence and contribution
   nbins <- as.integer(sqrt(ncol(dt_geneexp)) * 1)
   dt_edge <- dt_edge %>%
-    mutate(
+    dplyr::mutate(
       confdisc = unlist(infotheo::discretize(conf, "equalfreq", nbins)),
       contribdisc = unlist(infotheo::discretize(contrib, "equalfreq", nbins))
     )
-  e_cnfcnt <- dt_edge %>% select(src, trgt, confdisc, contribdisc)
+  e_cnfcnt <- dt_edge %>% dplyr::select(src, trgt, confdisc, contribdisc)
 
   # Remove unnecessary columns
   data.table::setDT(e_cnfcnt)
@@ -316,34 +315,34 @@ myMin = function(x, lowwerLimit = -Inf) {
 
 calculate_moments <- function(data, group_col, value_col, prefix) {
   lmoments <-
-    data %>% dplyr::group_by(!!sym(group_col)) %>% do(extractLmoments(.[[value_col]]))
+    data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::do(extractLmoments(.[[value_col]]))
   summary_stats <-
-    data %>% group_by(!!sym(group_col)) %>% summarise(
-      Total = sum(!!sym(value_col), na.rm = TRUE),
-      Mean = myMean(!!sym(value_col), 0, na.rm = TRUE),
-      Median = myMedian(!!sym(value_col), 0, na.rm = TRUE),
-      SD = mySD(!!sym(value_col), 0, na.rm = TRUE),
-      Skew = mySkewness(!!sym(value_col), 0, na.rm = TRUE),
-      Kurt = myKurtosis(!!sym(value_col), 3, na.rm = TRUE),
+    data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::summarise(
+      Total = sum(!!dplyr::sym(value_col), na.rm = TRUE),
+      Mean = myMean(!!dplyr::sym(value_col), 0, na.rm = TRUE),
+      Median = myMedian(!!dplyr::sym(value_col), 0, na.rm = TRUE),
+      SD = mySD(!!dplyr::sym(value_col), 0, na.rm = TRUE),
+      Skew = mySkewness(!!dplyr::sym(value_col), 0, na.rm = TRUE),
+      Kurt = myKurtosis(!!dplyr::sym(value_col), 3, na.rm = TRUE),
       MADconst = ifelse(is.na(sn::qsc(.75, Mean, SD, Skew)), 1.488, sn::qsc(.75, Mean, SD, Skew)),
       MAD = myMedianAbsoluteDeviation(
-        !!sym(value_col),
+        !!dplyr::sym(value_col),
         Median,
         MADconst,
         na.rm = TRUE,
         default = 0
       ),
-      NTotal = sum(!!sym(paste0(value_col, "N")), na.rm = TRUE),
-      NMean = myMean(!!sym(paste0(value_col, "N")), 0, na.rm = TRUE),
-      NMedian = myMedian(!!sym(paste0(value_col, "N")), 0, na.rm = TRUE),
-      NSD = mySD(!!sym(paste0(value_col, "N")), na.rm = TRUE, 0),
-      NSkew = mySkewness(!!sym(paste0(value_col, "N")), 0, na.rm = TRUE),
-      NKurt = myKurtosis(!!sym(paste0(value_col, "N")), 3, na.rm = TRUE),
+      NTotal = sum(!!dplyr::sym(paste0(value_col, "N")), na.rm = TRUE),
+      NMean = myMean(!!dplyr::sym(paste0(value_col, "N")), 0, na.rm = TRUE),
+      NMedian = myMedian(!!dplyr::sym(paste0(value_col, "N")), 0, na.rm = TRUE),
+      NSD = mySD(!!dplyr::sym(paste0(value_col, "N")), na.rm = TRUE, 0),
+      NSkew = mySkewness(!!dplyr::sym(paste0(value_col, "N")), 0, na.rm = TRUE),
+      NKurt = myKurtosis(!!dplyr::sym(paste0(value_col, "N")), 3, na.rm = TRUE),
       NMADconst = ifelse(is.na(sn::qsc(
         .75, NMean, NSD, NSkew
       )), 1.488, sn::qsc(.75, NMean, NSD, NSkew)),
       NMAD = myMedianAbsoluteDeviation(
-        !!sym(paste0(value_col, "N")),
+        !!dplyr::sym(paste0(value_col, "N")),
         NMedian,
         NMADconst,
         na.rm = TRUE,
@@ -351,7 +350,7 @@ calculate_moments <- function(data, group_col, value_col, prefix) {
       )
     )
   full_stats <-
-    summary_stats %>% inner_join(lmoments, by = group_col)
+    summary_stats %>% dplyr::inner_join(lmoments, by = group_col)
   names(full_stats) <- paste0(prefix, names(full_stats))
   return(full_stats)
 }
@@ -449,7 +448,7 @@ calculate_f1 <- function(results2) {
   # 4. A subset of 'dt.edge' is created, containing rows where 'HTR' is NA.
   dt.edge = dt.edge %>% dplyr::mutate(srctrgtSum = OcrOut.x + OcrInp.y,
                                       srctrgtProduct = OcrOut.x * OcrInp.y) %>%
-    mutate(
+    dplyr::mutate(
       srctrgtSum = ifelse(is.na(srctrgtSum) |
                             srctrgtSum == 0, PSUDEO_ZERO, srctrgtSum),
       srctrgtProduct = ifelse(
@@ -459,21 +458,21 @@ calculate_f1 <- function(results2) {
         srctrgtProduct
       )
     ) %>%
-    mutate(
+    dplyr::mutate(
       HTR = (Weight * srctrgtSum) / srctrgtProduct,
       EE = OcrOut.x ^ 2 * OcrInp.y / srctrgtSum
     )
 
-  b = dt.edge %>% filter(is.na(HTR))
+  b = dt.edge %>% dplyr::filter(is.na(HTR))
 
   # This code snippet performs the following operations:
   # 1. Groups the 'dt.edge' data frame by the 'src' column and calculates the sum of 'HTR' and 'EE' columns for each group, ignoring NA values.
   #    The results are stored in a new data frame 'self' with columns 'scfSumHTR' and 'scfSumEE'.
   # 2. Groups the 'dt.edge' data frame by the 'trgt' column and calculates the sum of 'HTR' and 'EE' columns for each group, ignoring NA values.
   #    The results are stored in a new data frame 'others' with columns 'ocbSumHTR' and 'ocbSumEE'.
-  self = dt.edge %>% group_by(src) %>% summarise(scfSumHTR = sum(HTR, na.rm = TRUE),
+  self = dt.edge %>% dplyr::group_by(src) %>% dplyr::summarise(scfSumHTR = sum(HTR, na.rm = TRUE),
                                                  scfSumEE = sum(EE, na.rm = TRUE))
-  others = dt.edge %>% group_by(trgt) %>%  summarise(ocbSumHTR = sum(HTR, na.rm = TRUE),
+  others = dt.edge %>% dplyr::group_by(trgt) %>%  dplyr::summarise(ocbSumHTR = sum(HTR, na.rm = TRUE),
                                                      ocbSumEE = sum(EE, na.rm = TRUE))
 
 
@@ -489,8 +488,8 @@ calculate_f1 <- function(results2) {
   # 3. Joins 'dt.vertices' with the 'others' data frame on the 'gene' and 'trgt' columns.
   # 4. Calculates the number of NA values in each column of 'dt.vertices' and prints the columns with NA values.
   dt.vertices.back = dt.vertices
-  dt.vertices = dt.vertices %>% left_join(self, by = c("gene" = "src"))
-  dt.vertices = dt.vertices %>% left_join(others, by = c("gene" = "trgt"))
+  dt.vertices = dt.vertices %>% dplyr::left_join(self, by = c("gene" = "src"))
+  dt.vertices = dt.vertices %>% dplyr::left_join(others, by = c("gene" = "trgt"))
 
   # This script processes the 'dt.vertices' data table by performing the following steps:
   # 1. Identifies columns with missing values and displays the count of missing values for each column.
@@ -526,8 +525,8 @@ calculate_f1 <- function(results2) {
   # 2. Joins 'dt.edge' with 'dt.vertices1' on the 'trgt' column of 'dt.edge' and 'gene' column of 'dt.vertices1'.
   data.table::setDF(dt.edge)
   data.table::setDF(dt.vertices1)
-  dt.edge = dt.edge %>% left_join(dt.vertices1, by = c("src" = "gene"))
-  dt.edge = dt.edge %>% left_join(dt.vertices1, by = c("trgt" = "gene"))
+  dt.edge = dt.edge %>% dplyr::left_join(dt.vertices1, by = c("src" = "gene"))
+  dt.edge = dt.edge %>% dplyr::left_join(dt.vertices1, by = c("trgt" = "gene"))
 
   print('dt.edge 4')
   print(head(dt.edge))
@@ -653,15 +652,15 @@ calculate_f1 <- function(results2) {
   # - `PoutAbsSum`: Sum of the absolute values of `Pout`, ignoring missing values.
   # - `PoutSD`: Standard deviation of `Pout`, ignoring missing values.
   # - `PoutMean`: Mean of `Pout`, ignoring missing values.
-  powerParamsIn = dt.edge %>% group_by(trgt) %>%
-    summarise(
+  powerParamsIn = dt.edge %>% dplyr::group_by(trgt) %>%
+    dplyr::summarise(
       Pinsum = sum(Pin, na.rm = TRUE),
       PinAbsSum = sum(abs(Pin), na.rm = TRUE),
       PinSD = sd(Pin, na.rm = TRUE),
       PinMean = mean(Pin, na.rm = TRUE)
     )
-  powerParamsOut = dt.edge %>% group_by(src) %>%
-    summarise(
+  powerParamsOut = dt.edge %>% dplyr::group_by(src) %>%
+    dplyr::summarise(
       Poutsum = sum(Pout, na.rm = TRUE),
       PoutAbsSum = sum(abs(Pout), na.rm = TRUE),
       PoutSD = sd(Pout, na.rm = TRUE),
@@ -683,9 +682,9 @@ calculate_f1 <- function(results2) {
 
   # 1. Joins the 'dt.vertices' data frame with 'powerParamsIn' data frame on the 'gene' column from 'dt.vertices' and 'trgt' column from 'powerParamsIn'.
   # 2. Joins the resulting 'dt.vertices' data frame with 'powerParamsOut' data frame on the 'gene' column from 'dt.vertices' and 'src' column from 'powerParamsOut'.
-  dt.vertices = dt.vertices %>% left_join(powerParamsIn, by = c("gene" =
+  dt.vertices = dt.vertices %>% dplyr::left_join(powerParamsIn, by = c("gene" =
                                                                   "trgt"))
-  dt.vertices = dt.vertices %>% left_join(powerParamsOut, by = c("gene" =
+  dt.vertices = dt.vertices %>% dplyr::left_join(powerParamsOut, by = c("gene" =
                                                                    "src"))
 
   # This line of code replaces NA (missing) values in the 'dt.vertices' data frame.
@@ -711,9 +710,9 @@ calculate_f1 <- function(results2) {
   # It first joins dt.edge with dt.vertices based on the "src" column matching the "gene" column in dt.vertices.
   # Then, it joins dt.edge with dt.vertices again based on the "trgt" column matching the "gene" column in dt.vertices.
   # The vinfcols variable specifies the columns to be selected from dt.vertices for the join operations.
-  dt.edge = dt.edge %>% inner_join(dt.vertices[, vinfcols], by = c("src" =
+  dt.edge = dt.edge %>% dplyr::inner_join(dt.vertices[, vinfcols], by = c("src" =
                                                                      "gene"))
-  dt.edge = dt.edge %>% inner_join(dt.vertices[, vinfcols], by = c("trgt" =
+  dt.edge = dt.edge %>% dplyr::inner_join(dt.vertices[, vinfcols], by = c("trgt" =
                                                                      "gene"))
 
 
@@ -794,7 +793,7 @@ calculate_f1 <- function(results2) {
       warn_missing = F
     )   %>%
 
-      select(any_of(
+      dplyr::select(any_of(
         c (
           'src',
           'trgt',
@@ -822,7 +821,7 @@ calculate_f1 <- function(results2) {
         )
       ))
 
-    dt.edge2 = dt.edge %>% left_join(dt.edge1, by = c("src" = "trgt", "trgt" =
+    dt.edge2 = dt.edge %>% dplyr::left_join(dt.edge1, by = c("src" = "trgt", "trgt" =
                                                         "src"))
     rm(dt.edge1)
     a = sapply(dt.edge2, function(x)
@@ -943,7 +942,7 @@ calculate_f1 <- function(results2) {
   # 2. Uses 'anti_join' to find rows in 'dt.edge' where 'src' does not match any 'gene' in 'dt.vertices'.
   # 3. Prints a message listing the unique 'src' values that are not found in 'dt.vertices'.
   dt.edge = as.data.frame(dt.edge)
-  n.notinVertices = dt.edge %>% anti_join(dt.vertices, by = c("src" = "gene"))
+  n.notinVertices = dt.edge %>% dplyr::anti_join(dt.vertices, by = c("src" = "gene"))
   print(paste0(
     "!!! nodes:" ,
     paste(unique(n.notinVertices$src), collapse = ","),
@@ -979,22 +978,22 @@ calculate_f1 <- function(results2) {
   # - dt.vertices.outflux: Data frame containing the outflux for each vertex.
   dt.vertices.back = dt.vertices
   dt.edge.tmp =
-    dt.vertices.outflux = dt.vertices %>% inner_join(dt.edge[, c("src", "Weight")], by =
+    dt.vertices.outflux = dt.vertices %>% dplyr::inner_join(dt.edge[, c("src", "Weight")], by =
                                                        c("gene" = "src")) %>%
-    group_by(gene) %>% summarise(outflux = sum(Weight))
+    dplyr::group_by(gene) %>% dplyr::summarise(outflux = sum(Weight))
 
   # This script performs the following operations on the data tables:
   # 1. Calculates the influx for each vertex by joining the 'dt.vertices' table with the 'dt.edge' table on the 'trgt' column,
   #    grouping by 'gene', and summarizing the total 'Weight' for each 'gene'.
   # 2. Merges the 'dt.vertices' table with 'dt.vertices.outflux' on the 'gene' column.
   # 3. Merges the 'dt.vertices' table with the previously calculated 'dt.vertices.influx' on the 'gene' column.
-  dt.vertices.influx = dt.vertices %>% inner_join(dt.edge[, c("trgt", "Weight")], by =
+  dt.vertices.influx = dt.vertices %>% dplyr::inner_join(dt.edge[, c("trgt", "Weight")], by =
                                                     c("gene" = "trgt")) %>%
-    group_by(gene) %>% summarise(influx = sum(Weight))
+    dplyr::group_by(gene) %>% dplyr::summarise(influx = sum(Weight))
 
-  dt.vertices = dt.vertices %>% left_join(dt.vertices.outflux, by = c("gene" =
+  dt.vertices = dt.vertices %>% dplyr::left_join(dt.vertices.outflux, by = c("gene" =
                                                                         "gene"))
-  dt.vertices = dt.vertices %>% left_join(dt.vertices.influx, by = c("gene" =
+  dt.vertices = dt.vertices %>% dplyr::left_join(dt.vertices.influx, by = c("gene" =
                                                                        "gene"))
 
 
@@ -1037,7 +1036,7 @@ calculate_f1 <- function(results2) {
   data.table::setDF(dt.edge)
   data.table::setDF(dt.vertices)
 
-  selfContribNLMoments = dt.edge %>% dplyr::group_by(src) %>% do(extractLmoments(.$contrib))
+  selfContribNLMoments = dt.edge %>% dplyr::group_by(src) %>% dplyr::do(extractLmoments(.$contrib))
 
   # Calculate moments for self contributions and confidence
 
@@ -1056,9 +1055,9 @@ calculate_f1 <- function(results2) {
 
 
   dt.vertices.othersparams <-
-    othersConfsFull %>% inner_join(othersContribsFull, by = c("ocftrgt" = "ocbtrgt"))
+    othersConfsFull %>% dplyr::inner_join(othersContribsFull, by = c("ocftrgt" = "ocbtrgt"))
   dt.vertices.selfparams <-
-    selfConfsFull %>% inner_join(selfContribsFull, by = c("scfsrc" = "scbsrc"))
+    selfConfsFull %>% dplyr::inner_join(selfContribsFull, by = c("scfsrc" = "scbsrc"))
 
 
   a <- sapply(dt.vertices.othersparams, function(x)
@@ -1079,9 +1078,9 @@ calculate_f1 <- function(results2) {
   a[a > 0]
   dt.vertices.BeforeMoments = dt.vertices
 
-  dt.vertices = dt.vertices %>% left_join(dt.vertices.othersparams, by =
+  dt.vertices = dt.vertices %>% dplyr::left_join(dt.vertices.othersparams, by =
                                             c("gene" = "ocftrgt"))
-  dt.vertices = dt.vertices %>% left_join(dt.vertices.selfparams, by = c("gene" =
+  dt.vertices = dt.vertices %>% dplyr::left_join(dt.vertices.selfparams, by = c("gene" =
                                                                            "scfsrc"))
 
   a = sapply(dt.vertices, function(x)
@@ -1197,7 +1196,7 @@ extractLmoments = function(v) {
 
 removeDups1 <- function(dt, excluded, samplesize = NA) {
   if (!is.na(samplesize))
-    dt = sample_n(dt, samplesize)
+    dt = dplyr::sample_n(dt, samplesize)
   library(digest)
   dupslist = lapply(dt, digest)
   hashs = data.frame(
@@ -1219,7 +1218,7 @@ calculate_f2 <- function (results3) {
     results3[[2]] # unmodified dt_geneexp, expression data
   dt.geneexp <- results3[[3]]
   data.table::setDF(dt.vertices)
-  L2 = dt.vertices %>% ungroup() %>% summarise(
+  L2 = dt.vertices %>% dplyr::ungroup() %>% dplyr::summarise(
     MeanOcfSkew = myMean(ocfSkew, 0, na.rm = TRUE),
     MedianOcfSkew = myMedian(ocfSkew, 0, na.rm = TRUE),
     SDOcfSkew = mySD(ocfSkew, 0, na.rm = TRUE),
@@ -1408,15 +1407,15 @@ calculate_f2 <- function (results3) {
 
   dt.edge.back2 = dt.edge
   dt.edge = as.data.frame(dt.edge)
-  dt.edge = dt.edge %>% left_join(dt.vertices1, by = c("src" = "gene"))
-  dt.edge = dt.edge %>%   left_join(dt.vertices1, by = c("trgt" = "gene"))
+  dt.edge = dt.edge %>% dplyr::left_join(dt.vertices1, by = c("src" = "gene"))
+  dt.edge = dt.edge %>%   dplyr::left_join(dt.vertices1, by = c("trgt" = "gene"))
 
   dupcols = removeDups1(
     dt.edge,
     excluded = c('OcrInp.x', 'Indegree.x'),
     samplesize = nrow(dt.edge) * 0.02
   )
-  dt.edge = dt.edge %>% select(!any_of(dupcols), any_of('Weight'))
+  dt.edge = dt.edge %>% dplyr::select(!any_of(dupcols), any_of('Weight'))
 
   a = sapply(dt.edge, function(x)
     sum(is.na(x)))
@@ -1448,7 +1447,7 @@ calculate_f2 <- function (results3) {
 
   #   Finalize calculations on edges -----
 
-  dt.edge = dt.edge %>% mutate(DiagnosesAb.x = '', DiagnosesAb.y = '')
+  dt.edge = dt.edge %>% dplyr::mutate(DiagnosesAb.x = '', DiagnosesAb.y = '')
   rm(dt.edge.BeforeAugmenting)
 
   #   Correct field names x denotes source and y denotes target ----

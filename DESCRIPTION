@@ -17,4 +17,5 @@ Imports:
     yaml,
     data.table,
     igraph,
-    magrittr
+    magrittr,
+    dplyr
