@@ -1,8 +1,6 @@
 
 
 
-# TODO: Write description of CICT data list format and link to it from function documentation
-# TODO: use example data to write usage examples with recommended practices (from wickham r packages book)
 # TODO: more in-depth explanation for other options parameters
 
 #' Driver for the CICT pipeline
@@ -13,7 +11,7 @@
 #'
 #' @param gene_expression_matrix The gene expression matrix, where each row
 #'   represents a gene and each column represents a sample. A matrix or
-#'   DataFrame with numeric data.
+#'   Data Frame with numeric data.
 #' @param ground_truth A Data Frame representing the ground-truth gene regulatory
 #'   network for model training and evaluation. Each row represents a
 #'   source-target relationship, with the source gene in the column labeled
@@ -26,7 +24,7 @@
 #'   passing inputs through `gene_expression_matrix` and `ground_truth`,
 #'   `"data_obj"` if passing inputs through `in_data_obj`, `"config"` if passing
 #'   inputs through `config_path`.
-#' @param ... Other options
+#' @param ... Options to be passed to calculateRawEdges, prepareEdgeFeatures, and/or predictEdges
 #'
 #' @return A list in the CICT data object format, with the data from each step
 #'   in the CICT pipeline. Contains `gene_expression_matrix`, `ground_truth`,
