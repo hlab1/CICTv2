@@ -23,7 +23,6 @@ prepareEdgeFeatures <-
 
     #first, environment setup
     #THOSE SHALL GO INTO THE NAMESPACE OF THE PACKAGE
-    library(e1071)
     library("data.table")
     library("igraph")
     library(magrittr) # needs to be run every time you start R and want to use %>%
