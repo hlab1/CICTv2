@@ -16,7 +16,7 @@ runCICT(
 \arguments{
 \item{gene_expression_matrix}{The gene expression matrix, where each row
 represents a gene and each column represents a sample. A matrix or
-DataFrame with numeric data.}
+Data Frame with numeric data.}
 
 \item{ground_truth}{A Data Frame representing the ground-truth gene regulatory
 network for model training and evaluation. Each row represents a
@@ -34,7 +34,7 @@ passing inputs through \code{gene_expression_matrix} and \code{ground_truth},
 \code{"data_obj"} if passing inputs through \code{in_data_obj}, \code{"config"} if passing
 inputs through \code{config_path}.}
 
-\item{...}{Other options}
+\item{...}{Options to be passed to calculateRawEdges, prepareEdgeFeatures, and/or predictEdges}
 }
 \value{
 A list in the CICT data object format, with the data from each step
