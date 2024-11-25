@@ -16,4 +16,5 @@ LazyData: true
 Imports: 
     yaml,
     data.table,
-    igraph
+    igraph,
+    magrittr

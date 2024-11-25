@@ -23,7 +23,6 @@ prepareEdgeFeatures <-
 
     #first, environment setup
     #THOSE SHALL GO INTO THE NAMESPACE OF THE PACKAGE
-    library(magrittr) # needs to be run every time you start R and want to use %>%
     library(dplyr)
     library(tidyr)
     library(Lmoments)
@@ -83,7 +82,7 @@ prepare_table_pef <-
 
     #convert our data about gene-gene assotiation from matrix to non directed graph
     #rm(ig)
-    ig = graph_from_data_frame(dt_edge[dt_edge$Weight > earlyThresholdForGraphAnalysis,], directed =
+    ig = igraph::graph_from_data_frame(dt_edge[dt_edge$Weight > earlyThresholdForGraphAnalysis,], directed =
                                  FALSE)
 
     return(list(dt_edge, dt_geneexp, dt_vertices, ig))
@@ -99,10 +98,10 @@ calculate_f0 <- function (results) {
   ig <- results[[4]] # the graph
 
   # Calculate out-degree and in-degree for each vertex
-  outd <- igraph::degree(ig, v = V(ig), mode = "out")
+  outd <- igraph::degree(ig, v = igraph::V(ig), mode = "out")
   outd <- data.frame(Outdegree = outd, subcat = names(outd))
 
-  ind <- igraph::degree(ig, v = V(ig), mode = "in")
+  ind <- igraph::degree(ig, v = igraph::V(ig), mode = "in")
   ind <- data.frame(Indegree = ind, subcat = names(ind))
 
   # Merge in-degree and out-degree with dt_vertices

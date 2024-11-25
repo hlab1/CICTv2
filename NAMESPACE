@@ -2,6 +2,7 @@
 
 export(predictEdges)
 export(runCICT)
-importFrom(data.table,setDT)
+importFrom(data.table,":=")
+importFrom(magrittr,"%>%")
 importFrom(stringr,str_detect)
 importFrom(tidyr,replace_na)
