@@ -20,4 +20,6 @@ Imports:
     magrittr,
     dplyr,
     Lmoments,
-    moments
+    moments,
+    infotheo,
+    digest

@@ -20,11 +20,7 @@ prepareEdgeFeatures <-
       dt_edge <- in_data_obj$raw_edges
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
-
-    #first, environment setup
-    #THOSE SHALL GO INTO THE NAMESPACE OF THE PACKAGE
-    library(stringr)
-    #second, define the hardcoded variables
+    # define the hardcoded variables
     earlyThresholdForGraphAnalysis <- 0
     #third, make sure the data is read
     #colnames(dt_geneexp)[1] <-'gene'
@@ -1193,8 +1189,7 @@ extractLmoments = function(v) {
 removeDups1 <- function(dt, excluded, samplesize = NA) {
   if (!is.na(samplesize))
     dt = dplyr::sample_n(dt, samplesize)
-  library(digest)
-  dupslist = lapply(dt, digest)
+  dupslist = lapply(dt, digest::digest)
   hashs = data.frame(
     cls = names(dupslist),
     hash = unlist(dupslist),
