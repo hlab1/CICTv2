@@ -15,4 +15,13 @@ Depends:
 LazyData: true
 Imports: 
     yaml,
-    data.table
+    data.table,
+    igraph,
+    magrittr,
+    dplyr,
+    Lmoments,
+    moments,
+    infotheo,
+    digest,
+    tidyr,
+    stringr
