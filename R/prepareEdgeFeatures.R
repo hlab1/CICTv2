@@ -23,7 +23,6 @@ prepareEdgeFeatures <-
 
     #first, environment setup
     #THOSE SHALL GO INTO THE NAMESPACE OF THE PACKAGE
-    library(moments)
     library(stringr)
     #second, define the hardcoded variables
     earlyThresholdForGraphAnalysis <- 0
@@ -263,7 +262,7 @@ mySkewness <- function (x,
                         default = 0,
                         na.rm = TRUE,
                         ...) {
-  result = skewness(x, na.rm, ...)
+  result = moments::skewness(x, na.rm, ...)
   if (is.na(result))
     default
   else
@@ -274,7 +273,7 @@ myKurtosis <- function (x,
                         default = 3,
                         na.rm = TRUE,
                         ...) {
-  result = kurtosis(x, na.rm, ...)
+  result = moments::kurtosis(x, na.rm, ...)
   if (is.na(result))
     default
   else
