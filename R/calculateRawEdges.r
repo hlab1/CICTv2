@@ -671,25 +671,25 @@ library("minet")
     
     #try({ processingCluster <-getMPIcluster()}) #Uses parallelly loaded by doFuture
     #if(is.null(processingCluster)) processingCluster <-parallelly::makeClusterMPI(n.workers, autoStop = TRUE)
-    processingCluster <-parallel::makeCluster(n.workers) #, autoStop = TRUE)
-    try({
-      clusterEvalQ(processingCluster, library(infotheo));
-      clusterEvalQ(processingCluster, library(igraph));
-      clusterEvalQ(processingCluster, library(minet));
-      #clusterEvalQ(processingCluster, my.build.mim(actualDataset));
-      # clusterEvalQ(processingCluster, discretize_dataset(actualDataset, disc = "none", nbins = sqrt(NROW(dataset))));
-      # clusterEvalQ(processingCluster, calculate_mim(actualDataset, edgeTypes));
-      # clusterEvalQ(processingCluster, match_estimator(edgeTypes));
-      # clusterEvalQ(processingCluster, mutualinformation);
-      # clusterEvalQ(processingCluster, getNormalizedMatrix(actualDataset));
-      # clusterEvalQ(processingCluster, getRowColNamedMatrix(actualDataset));
-    })
+    # processingCluster <-parallel::makeCluster(n.workers) #, autoStop = TRUE)
+    # try({
+    #   clusterEvalQ(processingCluster, library(infotheo));
+    #   clusterEvalQ(processingCluster, library(igraph));
+    #   clusterEvalQ(processingCluster, library(minet));
+    #   #clusterEvalQ(processingCluster, my.build.mim(actualDataset));
+    #   # clusterEvalQ(processingCluster, discretize_dataset(actualDataset, disc = "none", nbins = sqrt(NROW(dataset))));
+    #   # clusterEvalQ(processingCluster, calculate_mim(actualDataset, edgeTypes));
+    #   # clusterEvalQ(processingCluster, match_estimator(edgeTypes));
+    #   # clusterEvalQ(processingCluster, mutualinformation);
+    #   # clusterEvalQ(processingCluster, getNormalizedMatrix(actualDataset));
+    #   # clusterEvalQ(processingCluster, getRowColNamedMatrix(actualDataset));
+    # })
 
     #If has more cores available then the number of simulations, let them be used on parallelizing subprocesses
     n.workers.subprocess = min(n.workers,length(sims))
     
     #similarityMatrices <- sapply(
-    similarityMatrices <- parSapply(processingCluster,
+    similarityMatrices <- sapply(
       sims, simplify = FALSE, USE.NAMES = TRUE,
       FUN= function(sim, actualDataset, actualDatasetNNodes, actualDatasetNObservations,
                     actualDatasetName, actualDatasetSymbolicPatterns, patterns, numCores)
@@ -798,7 +798,7 @@ if (nrow(n.itm.e) == 0) {
 }
 
 # Stop the cluster
-parallel::stopCluster(processingCluster)
+#parallel::stopCluster(processingCluster)
 
     
     #new cols paste0(colnames(n.itm.e),collapse="','")
