@@ -22,4 +22,6 @@ Imports:
     Lmoments,
     moments,
     infotheo,
-    digest
+    digest,
+    tidyr,
+    stringr

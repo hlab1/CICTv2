@@ -1136,7 +1136,6 @@ calculate_f1 <- function(results2) {
 #' my_replace_na(df, rplist)
 #'
 #' @importFrom tidyr replace_na
-#' @importFrom stringr str_detect
 my_replace_na <- function(df, rplist)
 {
   rplptrns = names(rplist)
@@ -1144,7 +1143,7 @@ my_replace_na <- function(df, rplist)
 
   dfcols = colnames(df)
   rplcols = lapply(rplptrns, function(x)
-    dfcols[str_detect(dfcols, paste0(".*", x))]) #pattern checking
+    dfcols[stringr::str_detect(dfcols, paste0(".*", x))]) #pattern checking
 
   rplist2 = list()
   for (i in 1:length(rplist)) {
