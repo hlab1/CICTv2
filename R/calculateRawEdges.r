@@ -1,41 +1,5 @@
 # NEW CRE 
 
-install.packages("stringr")
-library(stringr)
-
-install.packages("doFuture)")
-library(doFuture)
-
-install.packages("doSNOW")
-library(doSNOW)
-
-install.packages("dplyr")
-library(dplyr)
-
-install.packages("parallel")
-library(parallel)
-
-install.packages("infotheo")
-library("infotheo")
-
-install.packages("minet")
-library("minet")
-
-install.packages("dtw")
-library("dtw")
-
-install.packages("tidyr")
-library(tidyr)
-
-install.packages("WGCNA")
-library("WGCNA")
-
-install.packages("foreach")
-library("foreach")
-
-install.packages("doParallel")
-library("doParallel")
-
 
 #Mutual information steady state Multiple measures parallel
 
@@ -44,6 +8,32 @@ library("doParallel")
 calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, gene_association_matrix=NULL, gene_expression_matrix=NULL, cict_raw_edge_col = 'Spearman',in_format = "separate") {
 	nParallelThreads = 12
     edgeTypes <- cict_raw_edge_col
+
+
+library(stringr)
+
+library(doFuture)
+
+library(doSNOW)
+
+library(dplyr)
+
+library(parallel)
+
+library("infotheo")
+
+library("minet")
+
+library("dtw")
+
+library(tidyr)
+
+library("WGCNA")
+
+library("foreach")
+
+library("doParallel")
+
 
 
 ########## all functions from before start here
