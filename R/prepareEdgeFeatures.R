@@ -23,8 +23,6 @@ prepareEdgeFeatures <-
 
     #first, environment setup
     #THOSE SHALL GO INTO THE NAMESPACE OF THE PACKAGE
-    library(tidyr)
-    library(Lmoments)
     library(moments)
     library(stringr)
     #second, define the hardcoded variables
@@ -1167,7 +1165,6 @@ my_replace_na <- function(df, rplist)
 }
 
 extractLmoments = function(v) {
-  require(Lmoments)
   if (length(v) == 1) {
     data.frame(
       L1 = v,
@@ -1179,7 +1176,7 @@ extractLmoments = function(v) {
     )
   } else
   {
-    l = Lmoments(v, returnobject = TRUE)
+    l = Lmoments::Lmoments(v, returnobject = TRUE)
     if (is.null(l$ratios))
       l$ratios = c(NA, NA, 0, 0.1226)  #happens when length(v)==2
     p = data.frame(

@@ -18,4 +18,5 @@ Imports:
     data.table,
     igraph,
     magrittr,
-    dplyr
+    dplyr,
+    Lmoments
