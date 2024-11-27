@@ -3,5 +3,6 @@
 export(predictEdges)
 export(runCICT)
 importFrom(data.table,":=")
+importFrom(dplyr,mutate)
 importFrom(magrittr,"%>%")
 importFrom(tidyr,replace_na)
