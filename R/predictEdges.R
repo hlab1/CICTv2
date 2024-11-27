@@ -582,12 +582,6 @@ predictEdges <- function(edge_features = NULL,
 
         setDF(tst1.totalset)
 
-        require(verification)
-        require(pROC)
-        require(ROCR)
-        require(OptimalCutpoints)
-        require(precrec)
-
         reportAUC <- function(x)
         {
           a = attr(x, 'aucs')
