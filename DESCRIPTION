@@ -24,4 +24,5 @@ Imports:
     infotheo,
     digest,
     tidyr,
-    stringr
+    stringr,
+    WGCNA

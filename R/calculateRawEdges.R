@@ -11,7 +11,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
 
 library(dplyr)
 
-library(parallel)
 
 library("infotheo")
 
@@ -21,11 +20,9 @@ library("dtw")
 
 library(tidyr)
 
-library("WGCNA")
 
 library("foreach")
 
-library("doParallel")
 
 
 
@@ -367,9 +364,7 @@ library("dtw")
 getSimilarityMatrix_SYMBOLIC <- function(ExpressionMatrix, nrows, npoints, simmethod="sym", npatterns=4, patterns = NULL, diagr=0, discretization = TRUE, discretizator = "equalwidth", mitype="mm", numCores=1){
 source("symbolvector.R")
 library("minet")
-library("parallel")
 library("foreach")
-library("doParallel")
 
 	##.. simmethod: sym, sym.mu, avg.sym.mi
 	##.. npatterns: 1,2,3... number that maximizes no of combination (=npoints/2)
@@ -629,13 +624,11 @@ library("minet")
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
 
-    print(" - Processing in parallel - ")
 
     #setwd(url.CICT_algo)
     #source(paste0(url.CICT_algo, 'requirements/rnR_Framework.R'))
 
     #s0m3
-    library(doParallel);
 
     #outFolder = dirname (url.data)
     actualDataset <- dt_geneexp
