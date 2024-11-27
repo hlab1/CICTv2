@@ -10,7 +10,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
     edgeTypes <- cict_raw_edge_col
 
 
-library(stringr)
 
 library(doFuture)
 
@@ -646,7 +645,7 @@ library("minet")
 
     #outFolder = dirname (url.data)
     actualDataset <- dt_geneexp
-    genecol = str_subset(colnames(actualDataset),'X|^(G|g)ene$')
+    genecol = stringr::str_subset(colnames(actualDataset),'X|^(G|g)ene$')
     if(length(genecol)>0) actualDataset =actualDataset %>% column_to_rownames(genecol)
     actualDataset = actualDataset %>% select_if(is.numeric) #genes in rows and cells in columns  #  stop('Set correct data source') #  all.tdt
 
