@@ -1,11 +1,11 @@
-# NEW CRE 
+# NEW CRE
 
 
 #Mutual information steady state Multiple measures parallel
 
   #Parallel partition for each measure, multiple measures
 
-calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, gene_association_matrix=NULL, gene_expression_matrix=NULL, cict_raw_edge_col = 'Spearman',in_format = "separate") {
+calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gene_expression_matrix=NULL, cict_raw_edge_col = 'Spearman',in_format = "separate") {
 	nParallelThreads = 12
     edgeTypes <- cict_raw_edge_col
 
@@ -50,9 +50,9 @@ library("doParallel")
 ################################################################################@
 # Function to build a mutual information matrix (MIM) from a dataset
 my.build.mim <- function (
-  dataset, 
-  estimator = "spearman", 
-  disc = "none", 
+  dataset,
+  estimator = "spearman",
+  disc = "none",
   nbins = sqrt(NROW(dataset))
 ){ # Calculate the mutual information matrix
   mim <- calculate_mim(dataset, estimator)
@@ -109,7 +109,7 @@ getDirectedGoldStandard <- function(ExpresionMatrix, nrows, filePath,byrow = TRU
 	print("Reading directed gold standard")
 
 	LNetz <- length(scan(file = filePath, what = 'character'))/3
-	Netz <- matrix(scan(file = filePath, what = 'character'),LNetz,3,byrow = byrow) 
+	Netz <- matrix(scan(file = filePath, what = 'character'),LNetz,3,byrow = byrow)
 	Netznr <- array(0,c(LNetz,3))
 	for (i in 1:LNetz)
 	{
@@ -143,7 +143,7 @@ getUndirectedGoldStandard <- function(ExpresionMatrix, nrows,filePath,byrow = TR
 	print("Reading undirected gold standard")
 
 	LNetz <- length(scan(file = filePath, what = 'character'))/3
-	Netz <- matrix(scan(file = filePath, what = 'character'),LNetz,3,byrow = byrow) 
+	Netz <- matrix(scan(file = filePath, what = 'character'),LNetz,3,byrow = byrow)
 	Netznr <- array(0,c(LNetz,3))
 	for (i in 1:LNetz)
 	{
@@ -168,7 +168,7 @@ getUndirectedGoldStandard <- function(ExpresionMatrix, nrows,filePath,byrow = TR
  		NetzMatsym[Netznr[k,1],Netznr[k,3]] <- 1
  		NetzMatsym[Netznr[k,3],Netznr[k,1]] <- 1
 	}
-	grorgundir <- graph.adjacency(NetzMatsym,mode=c("UNDIRECTED")) 
+	grorgundir <- graph.adjacency(NetzMatsym,mode=c("UNDIRECTED"))
 
 	return(NetzMatsym)
 }
@@ -176,9 +176,9 @@ getUndirectedGoldStandard <- function(ExpresionMatrix, nrows,filePath,byrow = TR
 # This function calculates the mean expression levels of technical replicates.
 getCalculatedReplicates<-function(ExpressionMatrix, ngenes, nexpr, nrepls){
 	print("Calculate mean of technical replicates")
-	
+
 	EE_m <- array(0,c((ngenes-1),(nexpr+1)))
-	EE_m[,1] <- ExpressionMatrix[2:ngenes,1] 
+	EE_m[,1] <- ExpressionMatrix[2:ngenes,1]
 	b1 <- 2
 	j <- 1
 	for(k in 1:nexpr)
@@ -216,7 +216,7 @@ library("infotheo")
 # This function normalizes an expression matrix using either max or minimax normalization.
 getNormalizedMatrix <- function(ExpressionMatrix,normalization="max"){
 	##.. normalization: max, minimax
-  
+
   if(normalization=="max")
 	{
 		NormalizedMatrix <- ExpressionMatrix/max(ExpressionMatrix)
@@ -243,12 +243,12 @@ getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson"
   library("minet")
   require(WGCNA)
 	##.. estimators[correlation]: pearson, spearman, kendall
-	##.. estimators[mutual information]: mi.empirical, mi.mm, mi.shrink, mi.sg 
+	##.. estimators[mutual information]: mi.empirical, mi.mm, mi.shrink, mi.sg
 	##.. estimators[other]: coarse.grained, granger
 	##.. subestimators[coarse.grained]: ML, MM, Jeffreys, Laplace, SG, minimax, CS, NSB, shrink
 	##.. discretizator: equalwidth, equalfreq
 	##.. diagr = replacement value of the main diagonal (default: diagr=0)
-	
+
 	if(estimators == "granger")
 	{
 		source("gc1.R")
@@ -286,9 +286,9 @@ getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson"
 		tau_max <- (L-1)
 		for(i in 1:(nrows-1))
 		{
-			
+
  			for(j in 1:(nrows-1))
- 			{ 
+ 			{
   				for(tau in -tau_max: tau_max)
   				{
 
@@ -343,7 +343,7 @@ getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson"
 getSimilarityMatrix_DISTANCES <- function(ExpressionMatrix, nrows, norms=10, diagr=0){
   ##.. norms: 1-> Manhattan, 2-> Euclidian, m->Lm-Norm (default=10)
 	# DistanceMatrix <- array(0,c((nrows-1),(nrows-1)))
-	# 
+	#
 	# for(di in 1:(nrows-1))
 	# {
 	#  for(dj in 1:(nrows-1))
@@ -351,9 +351,9 @@ getSimilarityMatrix_DISTANCES <- function(ExpressionMatrix, nrows, norms=10, dia
 	# 	DistanceMatrix[di,dj] <- (sum(abs(ExpressionMatrix[di,] - ExpressionMatrix[dj,])^norms))^(1/norms)
 	#  }
 	# }
-  
+
   distMatObject <- dist(ExpressionMatrix,method="minkowski",p=norms)
-  
+
   DistanceMatrix <- as.matrix(distMatObject)
   diag(DistanceMatrix) <- diagr
 
@@ -384,7 +384,7 @@ library("doParallel")
 	##.. diagr = replacement value of the main diagonal (default: diagr=0)
     SVEC <- symbolvector(ExpressionMatrix,npoints,npatterns)
 
-  
+
 	A <- SVEC$A
 	A2 <- SVEC$A2
 	l_pattern <- SVEC$l_pattern
@@ -395,41 +395,41 @@ library("doParallel")
         # cl<-makeCluster(numCores, outfile="")
         # registerDoParallel(cl)
         # print("Cluster registered...")
-    
+
 		P1 <- array(0,c((nrows-1),(nrows-1)))
 		P2 <- array(0,c((nrows-1),(nrows-1)))
 		P3 <- array(0,c((nrows-1),(nrows-1)))
-        
+
 		for(i in 1:(nrows-1))
 		{
  			if((i+1) <= (nrows-1))
  			{
-  				
+
                 P4i = foreach(j = (i+1):(nrows-1), .combine='c') %do%
                 {
-                    
+
                     p1 <- 0
    					p2 <- 0
    					for(pl in 1:l_pattern)
    					{
     						p1 <- p1 + ((length(which(A[,i]==pl & A[,j]==pl)))/length(A[,i]))
-    						p2 <- p2 + ((length(which(A[,i]==pl & A2[,j]==pl)))/length(A2[,i])) 
+    						p2 <- p2 + ((length(which(A[,i]==pl & A2[,j]==pl)))/length(A2[,i]))
    					}
-   					
+
                     P4tmp <- max(c(p1,p2))
                     as.numeric(P4tmp)
                 }
-                
-                
+
+
                 P4pre <- array(NA,c(1,i))
                 P3[i,] <- c(P4pre,P4i)
  			}
-			
+
 		}
-        
+
         # stopCluster(cl)
         # print("Cluster stopped!")
-        
+
         for(i in 1:(nrows-1)){
             for(j in i:(nrows-1)) {
                 if(i == j) {
@@ -439,7 +439,7 @@ library("doParallel")
                 }
             }
         }
-        
+
 		SimMilarityMatrix <- P3
 	}
 	else if(simmethod=="sym.mi")
@@ -460,7 +460,7 @@ library("doParallel")
         # cl<-makeCluster(numCores, outfile="")
         # registerDoParallel(cl)
         # print("Cluster registered...")
-    
+
 		### Order pattern
 		P1 <- array(0,c((nrows-1),(nrows-1)))
 		P2 <- array(0,c((nrows-1),(nrows-1)))
@@ -476,7 +476,7 @@ library("doParallel")
    				#	for(pl in 1:l_pattern)
    				#	{
     			#			p1 <- p1 + ((length(which(A[,i]==pl & A[,j]==pl)))/length(A[,i]))
-    			#			p2 <- p2 + ((length(which(A[,i]==pl & A2[,j]==pl)))/length(A2[,i])) 
+    			#			p2 <- p2 + ((length(which(A[,i]==pl & A2[,j]==pl)))/length(A2[,i]))
    				#	}
    				#	P1[i,j] <- p1
    				#	P1[j,i] <- p1
@@ -484,25 +484,25 @@ library("doParallel")
    				#	P2[j,i] <- p2
    				#	P3[i,j] <- max(c(P1[i,j],P2[i,j]))
    				#	P3[j,i] <- max(c(P1[j,i],P2[j,i]))
-				#	
+				#
   				#}
-                
+
                 P4i = foreach(j = (i+1):(nrows-1), .combine='c') %do%
                 {
-                    
+
                     p1 <- 0
    					p2 <- 0
    					for(pl in 1:l_pattern)
    					{
     						p1 <- p1 + ((length(which(A[,i]==pl & A[,j]==pl)))/length(A[,i]))
-    						p2 <- p2 + ((length(which(A[,i]==pl & A2[,j]==pl)))/length(A2[,i])) 
+    						p2 <- p2 + ((length(which(A[,i]==pl & A2[,j]==pl)))/length(A2[,i]))
    					}
-   					
+
                     P4tmp <- max(c(p1,p2))
                     as.numeric(P4tmp)
                 }
-                
-                
+
+
                 P4pre <- array(NA,c(1,i))
                 P3[i,] <- c(P4pre,P4i)
  			}
@@ -510,7 +510,7 @@ library("doParallel")
 
         # stopCluster(cl)
         # print("Cluster stopped!")
-        
+
         for(i in 1:(nrows-1)){
             for(j in i:(nrows-1)) {
                 if(i == j) {
@@ -520,9 +520,9 @@ library("doParallel")
                 }
             }
         }
-        
-        
-        
+
+
+
 		### Order pattern + mi
 		if(discretization==TRUE)
 		{
@@ -546,7 +546,7 @@ library("doParallel")
 getSimilarityMatrix_QUAL <- function(ExpressionMatrix, nrows, npoints){
 source("d_qual.R")
 	##.. nrows (a1) is number of genes + 1
-	##.. npoints is number of time points within the time series	
+	##.. npoints is number of time points within the time series
 
 	D_Q_MATRIX <- Dq_F_MATRIX(ExpressionMatrix,npoints,(nrows-1))
 	D_Q <- Dq(D_Q_MATRIX,(nrows-1))
@@ -559,7 +559,7 @@ library("minet")
 	##.. scorrers: mrnet(default), clr, aracne, awe
 	##.. aracne_eps is aracne parameter (see minet package manual)
 	SimilarityMatrix <- getNormalizedMatrix(SimilarityMatrix,normalization="minimax")
-	
+
 	if(scorrer=="MRNET")
 	{
 	  ScorredMatrix <- tryCatch({
@@ -573,7 +573,7 @@ library("minet")
 	    print(warn);
 	    return(NULL);
 	  })
-		
+
     #ScorredMatrix <- mrnet(SimilarityMatrix)
 	}
 	else if(scorrer=="CLR")
@@ -620,7 +620,7 @@ library("minet")
 	{
 		ScorredMatrix <- mrnet(SimilarityMatrix)
 	}
-	
+
 	return(ScorredMatrix)
 }
 
@@ -628,47 +628,47 @@ library("minet")
 ########### end here
     # TODO: allow config and throw error if in_format is not valid
     if(in_format == "separate") {
-      dt_edge <- gene_association_matrix
+      dt_edge <- raw_edges
       dt_geneexp <- gene_expression_matrix
     }
     else if (in_format == "data_obj") {
-      dt_edge <- in_data_obj$gene_association_matrix
+      dt_edge <- in_data_obj$raw_edges
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
-    
+
     print(" - Processing in parallel - ")
-    
+
     #setwd(url.CICT_algo)
     #source(paste0(url.CICT_algo, 'requirements/rnR_Framework.R'))
-    
+
     #s0m3
     library(doParallel);
-    
+
     #outFolder = dirname (url.data)
-    actualDataset <- dt_geneexp 
+    actualDataset <- dt_geneexp
     genecol = str_subset(colnames(actualDataset),'X|^(G|g)ene$')
-    if(length(genecol)>0) actualDataset =actualDataset %>% column_to_rownames(genecol) 
+    if(length(genecol)>0) actualDataset =actualDataset %>% column_to_rownames(genecol)
     actualDataset = actualDataset %>% select_if(is.numeric) #genes in rows and cells in columns  #  stop('Set correct data source') #  all.tdt
-      
-    
+
+
     actualDatasetNNodes <- nrow(actualDataset) + 1;
     actualDatasetNObservations <- ncol(actualDataset);
     actualDatasetName <- "actualDataset";
     actualDatasetSymbolicPatterns=0;
     actualDatasetPatterns=0
-    
+
     simsGroup=c("MI","CORR","DIST")
     availableGroups <- c("MI","CORR","DIST","SYM");
     availableSimilarities <- vector("list", length(availableGroups));
     names(availableSimilarities) <- availableGroups;
-    
+
     availableSimilarities$MI <- c("ewMImm","ewMIempirical","ewMIshrink","efMIempirical", "efMIshrink") #,"efMImm");
     availableSimilarities$CORR <- c("Pearson","Kendall","Spearman") #);
     availableSimilarities$DIST <- c("Euclidean","Granger"); # ,"L10Norm""Manhattan",
     #availableSimilarities$SYM <- c("efSym","efSymMI","ewSymMI","efAvgSymMI","ewAvgSymMI","Qual");
     #sims <- unlist(lapply(simsGroup, function(group){availableSimilarities[[group]]}), recursive=TRUE, use.names=FALSE);
     sims = intersect(edgeTypes,unlist(availableSimilarities))
-    
+
     #try({ processingCluster <-getMPIcluster()}) #Uses parallelly loaded by doFuture
     #if(is.null(processingCluster)) processingCluster <-parallelly::makeClusterMPI(n.workers, autoStop = TRUE)
     # processingCluster <-parallel::makeCluster(n.workers) #, autoStop = TRUE)
@@ -687,18 +687,18 @@ library("minet")
 
     #If has more cores available then the number of simulations, let them be used on parallelizing subprocesses
     n.workers.subprocess = min(n.workers,length(sims))
-    
+
     #similarityMatrices <- sapply(
     similarityMatrices <- sapply(
       sims, simplify = FALSE, USE.NAMES = TRUE,
       FUN= function(sim, actualDataset, actualDatasetNNodes, actualDatasetNObservations,
                     actualDatasetName, actualDatasetSymbolicPatterns, patterns, numCores)
         {
-        
+
           print(paste("[",Sys.time(),"]","Processing",sim,"over",actualDatasetName,"...",sep=" "));
           ##Perform similarity/distance step
           firstStepMatrix <- tryCatch({
-            
+
             locMatrix <- switch(sim,
                                 efMImm = getSimilarityMatrix_MI(actualDataset,actualDatasetNNodes,estimators="mi.mm", discretization = TRUE, discretizator = "equalfreq"),
                                 ewMImm = getSimilarityMatrix_MI(actualDataset,actualDatasetNNodes,estimators="mi.mm", discretization = TRUE, discretizator = "equalwidth"),
@@ -730,12 +730,12 @@ library("minet")
                                 #       ewMIshrink_gc = getSimilarityMatrix_MI(actualDataset,actualDatasetNNodes,estimators="coarse.grained", subestimators="shrink",discretizator = "equalwidth"),
                                 Granger = getSimilarityMatrix_MI(actualDataset,actualDatasetNNodes,estimators="granger")
             )
-            
+
             row.names(locMatrix) <- row.names(actualDataset);
             colnames(locMatrix) <- row.names(actualDataset);
             print(paste("[",Sys.time(),"]","DONE processing",sim,"over",actualDatasetName,"...",sep=" "));
             return(locMatrix);
-            
+
           },error=function(err){
             print("Error thrown in thread!")
             print(err);
@@ -745,33 +745,33 @@ library("minet")
             print(warn);
             return(NULL);
           });
-          
-          
+
+
           firstStepMatrix
           #getNormalizedMatrix(firstStepMatrix,normalization="minimax");
-          
+
         },
-      actualDataset, actualDatasetNNodes, actualDatasetNObservations, actualDatasetName, 
+      actualDataset, actualDatasetNNodes, actualDatasetNObservations, actualDatasetName,
       actualDatasetSymbolicPatterns, actualDatasetPatterns, numCores = n.workers.subprocess
     ); #max(as.numeric((detectCores()-no_cores)/6)-1,1)
-       
+
     #similarityMatrices=list(res)
     n.itm.e = data.frame()
-    
-    #Merge similarityMatrices into a data.frame and return it 
+
+    #Merge similarityMatrices into a data.frame and return it
     for(i in 1:length(similarityMatrices)){
       tmp=tmp.1=NULL
-      
+
       sm = similarityMatrices[i]
       if(is.null(sm)) next
       sm.name = names(sm)
-      
-      
+
+
       tmp = as.data.frame(sm[[1]])
-      
+
       if(!is.data.frame(tmp)) next
       if(nrow(tmp)==0) next
-      
+
       ncol(tmp);nrow(tmp)
       if(all(  rownames(tmp) %>%as.numeric() %>% is.numeric())){
           colnames(tmp) = rownames(actualDataset)
@@ -800,15 +800,16 @@ if (nrow(n.itm.e) == 0) {
 # Stop the cluster
 #parallel::stopCluster(processingCluster)
 
-    
+
     #new cols paste0(colnames(n.itm.e),collapse="','")
     #c('efMImm','ewMImm','efMIempirical','ewMIempirical','efMIshrink','ewMIshrink','Pearson','Spearman','Kendall','Manhattan','Euclidean','L10Norm')
-    
+
     return (list(gene_expression_matrix = actualDataset,
                            ground_truth = NULL,
-                           gene_association_matrix = n.itm.e,
-                           rf_features = NULL,
-                           rf_outputs = NULL,
-                           gene_regulatory_network = NULL))
+                           raw_edges = n.itm.e,
+                           edge_features = NULL,
+                           model = NULL,
+                           model_assessment = NULL,
+                           predicted_edges = NULL))
   }
   }
