@@ -11,9 +11,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
 
 library(dplyr)
 
-
-library("infotheo")
-
 library("minet")
 
 library("dtw")
@@ -191,7 +188,6 @@ getCalculatedReplicates<-function(ExpressionMatrix, ngenes, nexpr, nrepls){
 ################ Relevance Networks Inferring ###############################
 # This function calculates the mutual information between two variables X and Y using a specified method and discretization technique.
 mutualinformation <- function(X,Y,methode,discretizers="equalwidth"){
-library("infotheo")
 
  Xd <- unlist(discretize(X,disc=discretizers))
  Yd <- unlist(discretize(Y,disc=discretizers))
