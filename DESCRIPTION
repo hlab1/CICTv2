@@ -25,4 +25,6 @@ Imports:
     digest,
     tidyr,
     stringr,
-    WGCNA
+    WGCNA,
+    hutils,
+    caret
