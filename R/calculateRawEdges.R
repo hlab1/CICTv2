@@ -9,8 +9,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
 	nParallelThreads = 12
     edgeTypes <- cict_raw_edge_col
 
-library(doSNOW)
-
 library(dplyr)
 
 library(parallel)
