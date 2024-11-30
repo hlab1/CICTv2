@@ -276,11 +276,6 @@ PredictEdges <-function(edge_features=NULL,
     tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T,]
     tst1.totalset.tfs <- as.character(unique(tst1.totalset.tfs$src))
     
-    if(url.logfile!="noLog") {
-      write(paste0('tst1.train$class2 : ',table(tst1.train$class2)),  file = url.logfile, append = TRUE)
-      write(paste0('tst1.tst$class2 : ',table(tst1.tst$class2)),  file = url.logfile, append = TRUE)
-    }
-    
     # Record train and test sets for learning
     tmp = table(tst1.train$class2); names(tmp)<-paste0('train.',names(tmp))
     in_data_obj=c(in_data_obj, tmp)
@@ -304,9 +299,6 @@ PredictEdges <-function(edge_features=NULL,
   # TRAINS RANDOM FOREST MODEL
   {
     # TRAINING CARET  For Prediction and feature selection ----
-    #Remove large objects
-    if(url.logfile!="noLog") write('Running caret on selected features',  file = url.logfile, append = TRUE)
-    
     # MAX_MEM_SIZE not defined
     # H2OCnn = h2o.init(nthreads = parallel::detectCores(), enable_assertions = TRUE,
     #                   max_mem_size = '100G',strict_version_check=FALSE, port = port)
@@ -329,7 +321,6 @@ PredictEdges <-function(edge_features=NULL,
     
     # Run model on caret
     tst1.rf <- caret::train(caret.x, caret.y, method=method, trControl = fit_control)
-    if(url.logfile!="noLog")  write('Model trained successfuly',  file = url.logfile, append = TRUE)
     out_data_obj$rf_outputs <- tst1.rf
     
     rownames(tst1.tst) <- tst1.tst$shared_name
@@ -424,7 +415,6 @@ PredictEdges <-function(edge_features=NULL,
         prd.varimp=h2o.varimp(tst1.mdl)
         
         in_data_obj$varimp = prd.varimp[1:20,] %>% as.data.frame()
-        if(url.logfile!="noLog")  write( prd.varimp[1:20,]%>% knitr::kable(),  file = url.logfile, append = TRUE, sep = '\n')
         
         h2o.performance(tst1.mdl,valid=T)
         
@@ -432,7 +422,6 @@ PredictEdges <-function(edge_features=NULL,
                 "Reporting model performance on validation set",
                 capture.output(h2o.performance(tst1.mdl,valid=T)))
         cat(paste0(msg,collapse='\n') )
-        if(url.logfile!="noLog") write( msg,  file = url.logfile, append = TRUE, sep = '\n')
         
         setDF(tst1.totalset)
         
@@ -463,16 +452,11 @@ PredictEdges <-function(edge_features=NULL,
         
         theauc = precrec::auc(sscurves); 
         msg = paste0(theauc[[3]],"=", round(theauc[[4]],3))
-        if(url.logfile!="noLog") write(msg,  file = url.logfile, append = TRUE)
         
         in_data_obj$unseensmpl_roc_pr = msg
         
         #partial precision-recall
         sscurves.part <- part(sscurves, xlim = c(0, 0.2))
-        if(url.logfile!="noLog"){ 
-          write('Early precision recall ======',  file = url.logfile, append = TRUE)
-          write(reportAUC(sscurves.part) %>% kable(),  file = url.logfile, append = TRUE)
-        }
         in_data_obj$unseensmpl_part = as.data.frame(reportAUC(sscurves.part) )
         
         pr.prtcrv=sscurves.part$prcs[1][[1]];  pr.prtauc =  attr(pr.prtcrv,'pauc')
@@ -485,21 +469,7 @@ PredictEdges <-function(edge_features=NULL,
         reportAUC(rndmClscurves.part) 
         rnd.prtcrv=rndmClscurves.part$prcs[1][[1]]; rnd.prtauc =  attr(rnd.prtcrv,'pauc')
         in_data_obj$unseensmpl_rndm = as.data.frame(reportAUC(rndmClscurves.part) )
-        
-        msg=""
-        if(url.logfile!="noLog") {
-          print("Random Classifier comparison ============")
-          write("Random Classifier comparison ============",  file = url.logfile, append = TRUE)
-          
-          
-          write('Random classifier precision recall ======',  file = url.logfile, append = TRUE)
-          write(reportAUC(rndmClscurves.part) %>% kable(),  file = url.logfile, append = TRUE)
-          
-          msg = sprintf("%s , AUCPR Ratio CICT to Random= %s,  top 20 percent AUCPR Ratio CICT to Random= %s ", 
-                        arg.dname, round(pr.auc/rnd.auc,2), round(pr.prtauc/rnd.prtauc,2))
-          write(msg,  file = url.logfile, append = TRUE)
-        };  print(msg)
-        
+                
         mmpoins <- evalmod(scores = assespreds$predictions, labels = assespreds$outcomes, mode = "basic")
         
         # the relative cost of of a false negative classification (as compared with a false positive classification)
