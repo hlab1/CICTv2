@@ -11,8 +11,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
 
 library("minet")
 
-library(tidyr)
-
 ########## all functions from before start here
 
 
@@ -750,7 +748,7 @@ library("minet")
 tmp <- tmp %>% mutate(src = rownames(tmp) %>% as.character()) %>% dplyr::select(src, everything())
 
 # Use pivot_longer to transform data from wide to long format
-tmp.1 <- pivot_longer(tmp, cols = colnames(tmp)[2:ncol(tmp)], names_to = 'trgt')
+tmp.1 <- tidyr::pivot_longer(tmp, cols = colnames(tmp)[2:ncol(tmp)], names_to = 'trgt')
 
 # Rename columns
 names(tmp.1) <- c('src', 'trgt', sm.name)
