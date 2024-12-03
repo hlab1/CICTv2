@@ -1,4 +1,6 @@
 
+
+
 #' Driver for the CICT pipeline
 #'
 #' Takes a gene expression matrix and a ground truth table, calculates raw
@@ -54,15 +56,14 @@ runCICT <- function(gene_expression_matrix = NULL,
       stop("Failed to create data object")
     }
 
-    print("continued driver")
-    # calculateRawEdges
-    # prepareEdgeFeatures
-    # pass in raw_edges from cre
-    pef_out <-
-      prepareEdgeFeatures(gene_expression_matrix = cict_data_obj$gene_expression_matrix,
-                          ...)
-    cict_data_obj$edge_features <- pef_out$edge_features
-
+    cict_data_obj$raw_edges <-
+      calculateRawEdges(gene_expression_matrix = cict_data_obj$gene_expression_matrix, ...)$raw_edges
+    cict_data_obj$edge_features <-
+      prepareEdgeFeatures(
+        gene_expression_matrix = cict_data_obj$gene_expression_matrix,
+        raw_edges = cict_data_obj$raw_edges,
+        ...
+      )$edge_features
     pe_out <-
       predictEdges(
         gene_expression_matrix = cict_data_obj$gene_expression_matrix,
