@@ -297,12 +297,12 @@ getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson"
 	{
 	  if(discretization == FALSE)
 		{
-			mim <- build.mim(t(ExpressionMatrix), estimator=estimators)
+			mim <- minet::build.mim(t(ExpressionMatrix), estimator=estimators)
 		}
 		else
 		{
 		  #mim22 <- build.mim(discretize(t(ExpressionMatrix), discretizator), estimator = estimators)
-		  mim <- build.mim(t(ExpressionMatrix), disc = discretizator, estimator = estimators)
+		  mim <- minet::build.mim(t(ExpressionMatrix), disc = discretizator, estimator = estimators)
 		}
 		diag(mim) <- diagr
 	}
