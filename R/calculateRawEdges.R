@@ -9,7 +9,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
 	nParallelThreads = 12
     edgeTypes <- cict_raw_edge_col
 
-library("minet")
 
 ########## all functions from before start here
 
@@ -214,7 +213,6 @@ getRowColNamedMatrix <- function(ExpressionMatrix, prefixs="V"){
 
 # This function computes a similarity matrix using various estimators.
 getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson", subestimators="mm", discretization = FALSE, discretizator = "equalwidth", diagr=0){
-  library("minet")
 	##.. estimators[correlation]: pearson, spearman, kendall
 	##.. estimators[mutual information]: mi.empirical, mi.mm, mi.shrink, mi.sg
 	##.. estimators[other]: coarse.grained, granger
@@ -344,7 +342,6 @@ getSimilarityMatrix_DTW <- function(ExpressionMatrix, distmethod="Euclidean", st
 # This function calculates a similarity matrix based on symbolic representation of an expression matrix.
 getSimilarityMatrix_SYMBOLIC <- function(ExpressionMatrix, nrows, npoints, simmethod="sym", npatterns=4, patterns = NULL, diagr=0, discretization = TRUE, discretizator = "equalwidth", mitype="mm", numCores=1){
 source("symbolvector.R")
-library("minet")
 
 	##.. simmethod: sym, sym.mu, avg.sym.mi
 	##.. npatterns: 1,2,3... number that maximizes no of combination (=npoints/2)
@@ -523,7 +520,6 @@ source("d_qual.R")
 }
 
 getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
-library("minet")
 	##.. scorrers: mrnet(default), clr, aracne, awe
 	##.. aracne_eps is aracne parameter (see minet package manual)
 	SimilarityMatrix <- getNormalizedMatrix(SimilarityMatrix,normalization="minimax")

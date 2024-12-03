@@ -26,4 +26,5 @@ Imports:
     tidyr,
     stringr,
     hutils,
-    caret
+    caret,
+    minet
