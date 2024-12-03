@@ -9,8 +9,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
 	nParallelThreads = 12
     edgeTypes <- cict_raw_edge_col
 
-library(dplyr)
-
 library("minet")
 
 library("dtw")
@@ -630,7 +628,7 @@ library("minet")
     actualDataset <- dt_geneexp
     genecol = stringr::str_subset(colnames(actualDataset),'X|^(G|g)ene$')
     if(length(genecol)>0) actualDataset =actualDataset %>% column_to_rownames(genecol)
-    actualDataset = actualDataset %>% select_if(is.numeric) #genes in rows and cells in columns  #  stop('Set correct data source') #  all.tdt
+    actualDataset = actualDataset %>% dplyr::select_if(is.numeric) #genes in rows and cells in columns  #  stop('Set correct data source') #  all.tdt
 
 
     actualDatasetNNodes <- nrow(actualDataset) + 1;
@@ -758,10 +756,10 @@ library("minet")
       if(all(  rownames(tmp) %>%as.numeric() %>% is.numeric())){
           colnames(tmp) = rownames(actualDataset)
           rownames(tmp) = rownames(actualDataset)
-          tmp =tmp %>% mutate(src =rownames(actualDataset)  ) %>% select(src,everything())
+          tmp =tmp %>% mutate(src =rownames(actualDataset)  ) %>% dplyr::select(src,everything())
       } else tmp = tmp %>% tibble::rownames_to_column()
       # Ensure row names are character
-tmp <- tmp %>% mutate(src = rownames(tmp) %>% as.character()) %>% select(src, everything())
+tmp <- tmp %>% mutate(src = rownames(tmp) %>% as.character()) %>% dplyr::select(src, everything())
 
 # Use pivot_longer to transform data from wide to long format
 tmp.1 <- pivot_longer(tmp, cols = colnames(tmp)[2:ncol(tmp)], names_to = 'trgt')
