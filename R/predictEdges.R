@@ -61,9 +61,6 @@ predictEdges <- function(edge_features = NULL,
                          tstPercent = 0.3,
                          url.logfile = 'noLog',
                          ...) {
-  library(dplyr)
-  library(hutils)
-  library(caret)
 
   # PARSE DATA
   {
@@ -80,7 +77,7 @@ predictEdges <- function(edge_features = NULL,
     # t1.c is 'CAUSAL' edges and is the intersect of ground truth and the edges
     # from expression data
     t1.c = ground_truth %>% dplyr::select(src, trgt) %>%
-      inner_join(edge_features, by = c("src" = "src", "trgt" = "trgt"))
+      dplyr::inner_join(edge_features, by = c("src" = "src", "trgt" = "trgt"))
     if (nrow(t1.c) < nrow(ground_truth) / 2)
       warning("Problem in ground truth. More than half of ground truth was not found in edges")
     if (nrow(t1.c) <= 0)
@@ -89,15 +86,15 @@ predictEdges <- function(edge_features = NULL,
 
     # t1.rc is 'REVERSE CAUSAL' edges, and is the same as t1.c, but with src and trgt
     # swapped
-    t1.rc = edge_features %>% inner_join(t1.c %>% dplyr::select(src, trgt),
+    t1.rc = edge_features %>% dplyr::inner_join(t1.c %>% dplyr::select(src, trgt),
                                          by = c("src" = "trgt", "trgt" = "src"))
     t1.rc$predicate = "REV_CAUSES"
 
     if (include.negative == 'random') {
       # t1.n is 'NEGATIVE' edges to serve as true negative examples in the learning set
       t1.n = edge_features %>%
-        anti_join(ground_truth, by = c("src" = "src", "trgt" = "trgt")) %>%
-        filter(src %in% ground_truth$src)
+        dplyr::anti_join(ground_truth, by = c("src" = "src", "trgt" = "trgt")) %>%
+        dplyr::filter(src %in% ground_truth$src)
       t1.n$predicate = "NEGATIVE"
     }
 
@@ -116,11 +113,11 @@ predictEdges <- function(edge_features = NULL,
     # t1.rnd are edges that are not found in either t1.c or t1.rc (anti-joining by
     # just t1.c should produce the same result)
     t1.rnd = edge_features %>% #dplyr::mutate(edgetyptruth = NA) %>%
-      anti_join(t1.c, by = c("src" = "src", "trgt" = "trgt")) %>%
-      anti_join(t1.rc, by = c("src" = "trgt", "trgt" = "src"))
+      dplyr::anti_join(t1.c, by = c("src" = "src", "trgt" = "trgt")) %>%
+      dplyr::anti_join(t1.rc, by = c("src" = "trgt", "trgt" = "src"))
 
     if (include.negative == 'random') {
-      t1.rnd = t1.rnd %>% anti_join(t1.n, by = c("src" = "trgt", "trgt" = "src"))
+      t1.rnd = t1.rnd %>% dplyr::anti_join(t1.n, by = c("src" = "trgt", "trgt" = "src"))
     }
     t1.rnd$predicate = "IRRELEVANTA"
 
@@ -150,7 +147,7 @@ predictEdges <- function(edge_features = NULL,
 
     t1 = t1 %>%
       dplyr::mutate(
-        SUID = row_number(),
+        SUID = dplyr::row_number(),
         class2 = ifelse(class1 %in% c('c'), TRUE, FALSE),
         class3 = ifelse(class1 %in% c('c', 'rc'), TRUE, FALSE),
         shared_name = paste0(src, "-", trgt)
@@ -181,30 +178,30 @@ predictEdges <- function(edge_features = NULL,
       names(preset.test)[1:2] <- c('src', 'trgt')
       names(preset.train)[1:2] <- c('src', 'trgt')
       t2 = rbind(
-        preset.train %>% dplyr::select(src, trgt) %>% inner_join(t1, by = c(
+        preset.train %>% dplyr::select(src, trgt) %>% dplyr::inner_join(t1, by = c(
           "src" = "src", "trgt" = "trgt"
         )),
-        preset.test %>% dplyr::select(src, trgt) %>% inner_join(t1, by =
+        preset.test %>% dplyr::select(src, trgt) %>% dplyr::inner_join(t1, by =
                                                                   c(
                                                                     "src" = "src", "trgt" = "trgt"
                                                                   ))
       )
     } else{
       t2 = rbind(
-        t1 %>% filter(class1 == 'c') %>% sample_n(size = NcausalEdges),
-        t1 %>% filter(class1 == 'rc') %>% sample_n(size = NcausalEdges),
-        t1 %>% filter(class1 == 'ir') %>% sample_n(size = NrandomEdges)
+        t1 %>% dplyr::filter(class1 == 'c') %>% dplyr::sample_n(size = NcausalEdges),
+        t1 %>% dplyr::filter(class1 == 'rc') %>% dplyr::sample_n(size = NcausalEdges),
+        t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = NrandomEdges)
       )
 
       # If negative, add negative class
       if (include.negative == 'random') {
         t2 = rbind(t2,
-                   t1 %>% filter(class1 == 'n') %>% sample_n(size = NcausalEdges))
+                   t1 %>% dplyr::filter(class1 == 'n') %>% dplyr::sample_n(size = NcausalEdges))
       }
     }
 
     # t2.complement is everything that is not included in the learning set
-    t2.complement = t1  %>%  anti_join(t2, by = c("src" = "src", "trgt" =
+    t2.complement = t1  %>%  dplyr::anti_join(t2, by = c("src" = "src", "trgt" =
                                                     "trgt"))
 
     # Record everything to a log file and in_data_obj object
@@ -311,10 +308,10 @@ predictEdges <- function(edge_features = NULL,
     if (!(is.na(url.preset.train) | is.na(url.preset.test))) {
       print('Using preset test and preset train')
       tst <-
-        preset.train %>% inner_join(preset.test, by = c('src', 'trgt'))
+        preset.train %>% dplyr::inner_join(preset.test, by = c('src', 'trgt'))
       tst1.tst =  preset.test %>% dplyr::select(src, trgt) %>%
-        inner_join(tst1.totalset, by = c("src" = "src", "trgt" = "trgt"))
-      tst1.train = tst1.totalset %>% anti_join(tst1.tst, by = c("src" =
+        dplyr::inner_join(tst1.totalset, by = c("src" = "src", "trgt" = "trgt"))
+      tst1.train = tst1.totalset %>% dplyr::anti_join(tst1.tst, by = c("src" =
                                                                   "src", "trgt" = "trgt"))
 
     } else{
@@ -403,10 +400,10 @@ predictEdges <- function(edge_features = NULL,
 
     if (split.val.tfs) {
       src.groups <- groupKFold(group = tst1.totalset$src, k = 10)
-      fit_control <- trainControl(method = "cv",
+      fit_control <- caret::trainControl(method = "cv",
                                   index = src.groups)
     } else {
-      fit_control <- trainControl(method = "cv",
+      fit_control <- caret::trainControl(method = "cv",
                                   number = 10)
     }
 
@@ -450,7 +447,7 @@ predictEdges <- function(edge_features = NULL,
 
         # d.new is a sample of t2.complement, which is all of the unlabeled data. Most will be labeled
         # as IR with very few CAUSAL relationships
-        d.new = t2.complement %>% sample_n(size = min(50000, nrow(t2.complement) * maxunseenTest.ratio))
+        d.new = t2.complement %>% dplyr::sample_n(size = min(50000, nrow(t2.complement) * maxunseenTest.ratio))
         print('d.new$predicate')
         print(table(d.new$predicate))
 
@@ -584,12 +581,6 @@ predictEdges <- function(edge_features = NULL,
                 sep = '\n')
 
         setDF(tst1.totalset)
-
-        require(verification)
-        require(pROC)
-        require(ROCR)
-        require(OptimalCutpoints)
-        require(precrec)
 
         reportAUC <- function(x)
         {

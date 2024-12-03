@@ -10,32 +10,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
     edgeTypes <- cict_raw_edge_col
 
 
-library(stringr)
-
-library(doFuture)
-
-library(doSNOW)
-
-library(dplyr)
-
-library(parallel)
-
-library("infotheo")
-
-library("minet")
-
-library("dtw")
-
-library(tidyr)
-
-library("WGCNA")
-
-library("foreach")
-
-library("doParallel")
-
-
-
 ########## all functions from before start here
 
 
@@ -201,7 +175,6 @@ getCalculatedReplicates<-function(ExpressionMatrix, ngenes, nexpr, nrepls){
 ################ Relevance Networks Inferring ###############################
 # This function calculates the mutual information between two variables X and Y using a specified method and discretization technique.
 mutualinformation <- function(X,Y,methode,discretizers="equalwidth"){
-library("infotheo")
 
  Xd <- unlist(discretize(X,disc=discretizers))
  Yd <- unlist(discretize(Y,disc=discretizers))
@@ -240,8 +213,6 @@ getRowColNamedMatrix <- function(ExpressionMatrix, prefixs="V"){
 
 # This function computes a similarity matrix using various estimators.
 getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson", subestimators="mm", discretization = FALSE, discretizator = "equalwidth", diagr=0){
-  library("minet")
-  require(WGCNA)
 	##.. estimators[correlation]: pearson, spearman, kendall
 	##.. estimators[mutual information]: mi.empirical, mi.mm, mi.shrink, mi.sg
 	##.. estimators[other]: coarse.grained, granger
@@ -319,8 +290,7 @@ getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson"
 	}
   else if(estimators =='pearsonFALSE' ){
     #NEEDS debugging
-    require(WGCNA)
-    allowWGCNAThreads()
+    WGCNA::allowWGCNAThreads()
     system.time({ mim <- WGCNA::corFast(ExpressionMatrix)})
   }
 	else
@@ -362,7 +332,6 @@ getSimilarityMatrix_DISTANCES <- function(ExpressionMatrix, nrows, norms=10, dia
 
 # This function calculates a similarity matrix using Dynamic Time Warping (DTW) for a given expression matrix.
 getSimilarityMatrix_DTW <- function(ExpressionMatrix, distmethod="Euclidean", steppatern=asymmetric){
-library("dtw")
 	##.. distmethod: Manhattan, Euclidian (default),...
 	##.. steppattern: asymmetric(default), symmetric1, symmetric2,...
   DTWMatrix <- dtwDist(ExpressionMatrix,method="DTW", keep.internals=TRUE,step.pattern=steppatern)
@@ -373,10 +342,6 @@ library("dtw")
 # This function calculates a similarity matrix based on symbolic representation of an expression matrix.
 getSimilarityMatrix_SYMBOLIC <- function(ExpressionMatrix, nrows, npoints, simmethod="sym", npatterns=4, patterns = NULL, diagr=0, discretization = TRUE, discretizator = "equalwidth", mitype="mm", numCores=1){
 source("symbolvector.R")
-library("minet")
-library("parallel")
-library("foreach")
-library("doParallel")
 
 	##.. simmethod: sym, sym.mu, avg.sym.mi
 	##.. npatterns: 1,2,3... number that maximizes no of combination (=npoints/2)
@@ -555,7 +520,6 @@ source("d_qual.R")
 }
 
 getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
-library("minet")
 	##.. scorrers: mrnet(default), clr, aracne, awe
 	##.. aracne_eps is aracne parameter (see minet package manual)
 	SimilarityMatrix <- getNormalizedMatrix(SimilarityMatrix,normalization="minimax")
@@ -636,19 +600,17 @@ library("minet")
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
 
-    print(" - Processing in parallel - ")
 
     #setwd(url.CICT_algo)
     #source(paste0(url.CICT_algo, 'requirements/rnR_Framework.R'))
 
     #s0m3
-    library(doParallel);
 
     #outFolder = dirname (url.data)
     actualDataset <- dt_geneexp
-    genecol = str_subset(colnames(actualDataset),'X|^(G|g)ene$')
+    genecol = stringr::str_subset(colnames(actualDataset),'X|^(G|g)ene$')
     if(length(genecol)>0) actualDataset =actualDataset %>% column_to_rownames(genecol)
-    actualDataset = actualDataset %>% select_if(is.numeric) #genes in rows and cells in columns  #  stop('Set correct data source') #  all.tdt
+    actualDataset = actualDataset %>% dplyr::select_if(is.numeric) #genes in rows and cells in columns  #  stop('Set correct data source') #  all.tdt
 
 
     actualDatasetNNodes <- nrow(actualDataset) + 1;
@@ -776,13 +738,13 @@ library("minet")
       if(all(  rownames(tmp) %>%as.numeric() %>% is.numeric())){
           colnames(tmp) = rownames(actualDataset)
           rownames(tmp) = rownames(actualDataset)
-          tmp =tmp %>% mutate(src =rownames(actualDataset)  ) %>% select(src,everything())
+          tmp =tmp %>% mutate(src =rownames(actualDataset)  ) %>% dplyr::select(src,everything())
       } else tmp = tmp %>% tibble::rownames_to_column()
       # Ensure row names are character
-tmp <- tmp %>% mutate(src = rownames(tmp) %>% as.character()) %>% select(src, everything())
+tmp <- tmp %>% mutate(src = rownames(tmp) %>% as.character()) %>% dplyr::select(src, everything())
 
 # Use pivot_longer to transform data from wide to long format
-tmp.1 <- pivot_longer(tmp, cols = colnames(tmp)[2:ncol(tmp)], names_to = 'trgt')
+tmp.1 <- tidyr::pivot_longer(tmp, cols = colnames(tmp)[2:ncol(tmp)], names_to = 'trgt')
 
 # Rename columns
 names(tmp.1) <- c('src', 'trgt', sm.name)

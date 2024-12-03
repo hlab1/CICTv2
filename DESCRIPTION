@@ -24,4 +24,7 @@ Imports:
     infotheo,
     digest,
     tidyr,
-    stringr
+    stringr,
+    hutils,
+    caret,
+    minet
