@@ -15,12 +15,6 @@ library("dtw")
 
 library(tidyr)
 
-
-library("foreach")
-
-
-
-
 ########## all functions from before start here
 
 
@@ -356,7 +350,6 @@ library("dtw")
 getSimilarityMatrix_SYMBOLIC <- function(ExpressionMatrix, nrows, npoints, simmethod="sym", npatterns=4, patterns = NULL, diagr=0, discretization = TRUE, discretizator = "equalwidth", mitype="mm", numCores=1){
 source("symbolvector.R")
 library("minet")
-library("foreach")
 
 	##.. simmethod: sym, sym.mu, avg.sym.mi
 	##.. npatterns: 1,2,3... number that maximizes no of combination (=npoints/2)
