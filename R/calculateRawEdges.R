@@ -225,7 +225,6 @@ getRowColNamedMatrix <- function(ExpressionMatrix, prefixs="V"){
 # This function computes a similarity matrix using various estimators.
 getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson", subestimators="mm", discretization = FALSE, discretizator = "equalwidth", diagr=0){
   library("minet")
-  require(WGCNA)
 	##.. estimators[correlation]: pearson, spearman, kendall
 	##.. estimators[mutual information]: mi.empirical, mi.mm, mi.shrink, mi.sg
 	##.. estimators[other]: coarse.grained, granger
@@ -303,8 +302,7 @@ getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson"
 	}
   else if(estimators =='pearsonFALSE' ){
     #NEEDS debugging
-    require(WGCNA)
-    allowWGCNAThreads()
+    WGCNA::allowWGCNAThreads()
     system.time({ mim <- WGCNA::corFast(ExpressionMatrix)})
   }
 	else
