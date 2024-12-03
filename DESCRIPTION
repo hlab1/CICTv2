@@ -27,4 +27,6 @@ Imports:
     stringr,
     WGCNA,
     hutils,
-    caret
+    caret,
+    foreach,
+    dtw

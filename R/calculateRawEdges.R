@@ -11,8 +11,6 @@ calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gen
 
 library("minet")
 
-library("dtw")
-
 library(tidyr)
 
 ########## all functions from before start here
@@ -338,7 +336,6 @@ getSimilarityMatrix_DISTANCES <- function(ExpressionMatrix, nrows, norms=10, dia
 
 # This function calculates a similarity matrix using Dynamic Time Warping (DTW) for a given expression matrix.
 getSimilarityMatrix_DTW <- function(ExpressionMatrix, distmethod="Euclidean", steppatern=asymmetric){
-library("dtw")
 	##.. distmethod: Manhattan, Euclidian (default),...
 	##.. steppattern: asymmetric(default), symmetric1, symmetric2,...
   DTWMatrix <- dtwDist(ExpressionMatrix,method="DTW", keep.internals=TRUE,step.pattern=steppatern)
