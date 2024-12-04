@@ -28,4 +28,10 @@ Imports:
     hutils,
     caret,
     minet,
-    BiocManager
+    BiocManager,
+    WGCNA,
+    knitr,
+    plyr,
+    precrec,
+    sn,
+    tibble
