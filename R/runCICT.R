@@ -33,26 +33,8 @@
 #' @export
 #'
 #' @examples
-#' # separate inputs
-#' runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix, ground_truth = SERGIO_DS4_ground_truth)
-#'
-#' # input a data list
-#' runCICT(in_data_obj = checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
-#'                         ground_truth = SERGIO_DS4_ground_truth),
-#'           in_format = "data_obj")
-#'
-#' # inputs from a config file
-#' # create a config YAML file with absolute paths to data
-#' yaml::write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
-#'                 ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
-#'                 gene_association_matrix = NULL,
-#'                 edge_features = NULL,
-#'                 model = NULL,
-#'                 model_assessment = NULL,
-#'                 predicted_edges = NULL),
-#'            "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
-#' runCICT(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
-
+#' runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
+#'         ground_truth = SERGIO_DS4_ground_truth)
 runCICT <- function(gene_expression_matrix = NULL,
                     ground_truth = NULL,
                     in_data_obj = NULL,
