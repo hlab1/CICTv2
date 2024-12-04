@@ -8,29 +8,51 @@
 #' gene regulatory network. Does not currently work in config mode.
 #'
 #' @param gene_expression_matrix The gene expression matrix, where each row
-#'   represents a gene and each column represents a sample. A matrix or
-#'   Data Frame with numeric data.
-#' @param ground_truth A Data Frame representing the ground-truth gene regulatory
-#'   network for model training and evaluation. Each row represents a
+#'   represents a gene and each column represents a sample. A matrix or Data
+#'   Frame with numeric data.
+#' @param ground_truth A Data Frame representing the ground-truth gene
+#'   regulatory network for model training and evaluation. Each row represents a
 #'   source-target relationship, with the source gene in the column labeled
 #'   `"src"` and the target gene in the column labeled `"trgt"`
 #' @param in_data_obj A list in the CICT data object format. Produced by a CICT
-#'   function. Must contain `gene_expression_matrix` and `ground_truth`.
+#'   function. Must contain `gene_expression_matrix` and `ground_truth` for the
+#'   driver to run.
 #' @param config_path Path to the YAML config file. Config must contain paths to
 #'   the gene expression matrix and ground truth.
 #' @param in_format String indicating expected input format. `"separate"` if
 #'   passing inputs through `gene_expression_matrix` and `ground_truth`,
 #'   `"data_obj"` if passing inputs through `in_data_obj`, `"config"` if passing
 #'   inputs through `config_path`.
-#' @param ... Options to be passed to calculateRawEdges, prepareEdgeFeatures, and/or predictEdges
+#' @param ... Options to be passed to calculateRawEdges, prepareEdgeFeatures,
+#'   and/or predictEdges
 #'
 #' @return A list in the CICT data object format, with the data from each step
 #'   in the CICT pipeline. Contains `gene_expression_matrix`, `ground_truth`,
-#'   `gene_association_matrix`, `edge_features`, `model`, `model_assessment`,
+#'   `raw_edges`, `edge_features`, `model`, `model_assessment`,
 #'   `predicted_edges`, and potentially other data.
 #' @export
 #'
-#' @examples print("TODO")
+#' @examples
+#' # separate inputs
+#' runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix, ground_truth = SERGIO_DS4_ground_truth)
+#'
+#' # input a data list
+#' runCICT(in_data_obj = checkData(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
+#'                         ground_truth = SERGIO_DS4_ground_truth),
+#'           in_format = "data_obj")
+#'
+#' # inputs from a config file
+#' # create a config YAML file with absolute paths to data
+#' yaml::write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
+#'                 ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
+#'                 gene_association_matrix = NULL,
+#'                 edge_features = NULL,
+#'                 model = NULL,
+#'                 model_assessment = NULL,
+#'                 predicted_edges = NULL),
+#'            "/home/syz248/CICTv2/inst/extdata/SERGIO_DS4_config.yaml")
+#' runCICT(config_path = system.file("extdata", "SERGIO_DS4_config.yaml", package = "CICTv2", mustWork = TRUE), in_format = "config_file")
+
 runCICT <- function(gene_expression_matrix = NULL,
                     ground_truth = NULL,
                     in_data_obj = NULL,
