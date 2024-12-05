@@ -392,9 +392,6 @@ PredictEdges <-function(edge_features=NULL,
         pred_outcome = d.new1 %>% left_join(d.new1.rv, by=c("src"="trgt1", "trgt"="src1") )
         pred_outcome.back = pred_outcome
         
-        
-        
-        
         pred_outcome.top2c = pred_outcome[, head(.SD, 2), by = "trgt"]
         pred_outcome.top2c=pred_outcome.top2c[,`:=`(predictions=NULL,outcomes=NULL,rvpred=NULL , is.causal1 =1)]
         d.new2 = merge(d.new1,pred_outcome.top2c,all.x=TRUE, by=c('src','trgt'))
