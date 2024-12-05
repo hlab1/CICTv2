@@ -33,6 +33,8 @@ Imports:
     plyr,
     precrec,
     sn,
-    tibble
+    tibble,
+    stats,
+    utils
 Suggests: 
     yaml
