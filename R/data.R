@@ -6,7 +6,7 @@
 #'
 #' The DS4 gene expression matrix generated with SERGIO
 #'
-#' @format ## `SERGIO_DS4_gene_expression_matrix`
+#' @format ## `SERGIO_DS4_net0_gene_expression_matrix`
 #' A gzipped data frame with 100 rows and 900 columns:
 #' \describe{
 #'   \item{Rows}{Unique gene names}
@@ -14,17 +14,17 @@
 #'   \item{Values}{Expression levels of each gene in each sample}
 #' }
 #' @source <https://github.com/hlab1/scRNAseqWithCICT/blob/main/inputs/SERGIO_DS4/net0/ExpressionData.csv>
-"SERGIO_DS4_gene_expression_matrix"
+"SERGIO_DS4_net0_gene_expression_matrix"
 
 #' SERGIO DS4 ground truth
 #'
 #' A ground truth gene regulatory network for the SERGIO DS4 generated gene expression data
 #'
-#' @format ## `SERGIO_DS4_ground_truth`
+#' @format ## `SERGIO_DS4_net0_ground_truth`
 #' A data frame with 137 rows and 2 columns:
 #' \describe{
 #'   \item{src}{Source gene}
 #'   \item{trgt}{Target gene}
 #' }
 #' @source <https://github.com/hlab1/scRNAseqWithCICT/blob/main/inputs/SERGIO_DS4/net0/refNetwork.csv>
-"SERGIO_DS4_ground_truth"
+"SERGIO_DS4_net0_ground_truth"

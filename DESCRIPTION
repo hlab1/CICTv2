@@ -13,3 +13,18 @@ RoxygenNote: 7.3.1
 Depends: 
     R (>= 2.10)
 LazyData: true
+Imports: 
+    yaml,
+    data.table,
+    igraph,
+    magrittr,
+    dplyr,
+    Lmoments,
+    moments,
+    infotheo,
+    digest,
+    tidyr,
+    stringr,
+    hutils,
+    caret,
+    minet
