@@ -15,16 +15,17 @@ runCICT(
 }
 \arguments{
 \item{gene_expression_matrix}{The gene expression matrix, where each row
-represents a gene and each column represents a sample. A matrix or
-Data Frame with numeric data.}
+represents a gene and each column represents a sample. A matrix or Data
+Frame with numeric data.}
 
-\item{ground_truth}{A Data Frame representing the ground-truth gene regulatory
-network for model training and evaluation. Each row represents a
+\item{ground_truth}{A Data Frame representing the ground-truth gene
+regulatory network for model training and evaluation. Each row represents a
 source-target relationship, with the source gene in the column labeled
 \code{"src"} and the target gene in the column labeled \code{"trgt"}}
 
 \item{in_data_obj}{A list in the CICT data object format. Produced by a CICT
-function. Must contain \code{gene_expression_matrix} and \code{ground_truth}.}
+function. Must contain \code{gene_expression_matrix} and \code{ground_truth} for the
+driver to run.}
 
 \item{config_path}{Path to the YAML config file. Config must contain paths to
 the gene expression matrix and ground truth.}
@@ -34,12 +35,13 @@ passing inputs through \code{gene_expression_matrix} and \code{ground_truth},
 \code{"data_obj"} if passing inputs through \code{in_data_obj}, \code{"config"} if passing
 inputs through \code{config_path}.}
 
-\item{...}{Options to be passed to calculateRawEdges, prepareEdgeFeatures, and/or predictEdges}
+\item{...}{Options to be passed to calculateRawEdges, prepareEdgeFeatures,
+and/or predictEdges}
 }
 \value{
 A list in the CICT data object format, with the data from each step
 in the CICT pipeline. Contains \code{gene_expression_matrix}, \code{ground_truth},
-\code{gene_association_matrix}, \code{edge_features}, \code{model}, \code{model_assessment},
+\code{raw_edges}, \code{edge_features}, \code{model}, \code{model_assessment},
 \code{predicted_edges}, and potentially other data.
 }
 \description{
@@ -48,5 +50,6 @@ edges, prepares edge features, and uses a random forest model to predict a
 gene regulatory network. Does not currently work in config mode.
 }
 \examples{
-print("TODO")
+runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
+        ground_truth = SERGIO_DS4_ground_truth)
 }
