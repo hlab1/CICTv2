@@ -340,12 +340,8 @@ calculate_moments <- function(data, group_col, value_col, prefix, tn) {
         NMADconst,
         na.rm = TRUE,
         default = 0
-      )
-    )
-  if(prefix == "scf") {
-    new_summary_stats <-
-    data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::summarise(
-       tnTotal=sum(tn,na.rm= TRUE),
+      ),
+      tnTotal=sum(tn,na.rm= TRUE),
        tnMean=myMean(tn, 0,na.rm= TRUE),
        tnMedian=myMedian(tn, 0,na.rm= TRUE),
        tnSD=mySD(tn, na.rm = TRUE,0),
@@ -353,9 +349,9 @@ calculate_moments <- function(data, group_col, value_col, prefix, tn) {
        tnKurt=myKurtosis(tn, 3,na.rm = TRUE),
        tnMADconst=ifelse(is.na(sn::qsc(.75,tnMean,tnSD,tnSkew)),1.488,sn::qsc(.75,tnMean,tnSD,tnSkew)),
        tnMAD= myMedianAbsoluteDeviation(tn,tnMedian,tnMADconst,na.rm=TRUE,default=0)
-       )
+    )
   full_stats <-
-    summary_stats %>% dplyr::inner_join(lmoments, by = group_col)%>% dplyr::inner_join(new_summary_stats, by = group_col)
+    summary_stats %>% dplyr::inner_join(lmoments, by = group_col)
   names(full_stats) <- paste0(prefix, names(full_stats))
   return(full_stats)
 }
@@ -451,6 +447,7 @@ calculate_f1 <- function(results2) {
   #    - 'HTR': Harmonized Transition Rate, calculated as (Weight * srctrgtSum) / srctrgtProduct.
   #    - 'EE': Some efficiency measure, calculated as (OcrOut.x^2 * OcrInp.y) / srctrgtSum.
   # 4. A subset of 'dt.edge' is created, containing rows where 'HTR' is NA.
+ 
   dt.edge = dt.edge %>% dplyr::mutate(srctrgtSum = OcrOut.x + OcrInp.y,
                                       srctrgtProduct = OcrOut.x * OcrInp.y) %>%
     dplyr::mutate(
@@ -1466,4 +1463,4 @@ calculate_f2 <- function (results3) {
       predicted_edges = NULL
     )
   )
-} }
+} 
