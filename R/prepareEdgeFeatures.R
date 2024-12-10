@@ -3,7 +3,7 @@
 
 #prepareEdgeFeatures(raw_edges = trial_dt_edge, gene_expression_matrix = trial_dt_geneexp, cict_raw_edge_col = 'Spearman')
 # trial_dt_edge <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/rawEdges.csv")
-# trial_dt_geneexp <- fread("/Users/vvtch/Desktop/sigmafolder/inputs/SERGIO_DS4/net1/ExpressionData.csv")
+# trial_dt_geneexp <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/SERGIO_DS4/net1/ExpressionData.csv")
 
 prepareEdgeFeatures <-
   function(in_data_obj = NULL,
@@ -306,7 +306,7 @@ myMin = function(x, lowwerLimit = -Inf) {
     max(mn, lowwerLimit)
 }
 
-calculate_moments <- function(data, group_col, value_col, prefix) {
+calculate_moments <- function(data, group_col, value_col, prefix, tn) {
   lmoments <-
     data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::do(extractLmoments(.[[value_col]]))
   summary_stats <-
@@ -342,8 +342,20 @@ calculate_moments <- function(data, group_col, value_col, prefix) {
         default = 0
       )
     )
+  if(prefix == "scf") {
+    new_summary_stats <-
+    data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::summarise(
+       tnTotal=sum(tn,na.rm= TRUE),
+       tnMean=myMean(tn, 0,na.rm= TRUE),
+       tnMedian=myMedian(tn, 0,na.rm= TRUE),
+       tnSD=mySD(tn, na.rm = TRUE,0),
+       tnSkew=mySkewness(tn, 0,na.rm =TRUE),
+       tnKurt=myKurtosis(tn, 3,na.rm = TRUE),
+       tnMADconst=ifelse(is.na(sn::qsc(.75,tnMean,tnSD,tnSkew)),1.488,sn::qsc(.75,tnMean,tnSD,tnSkew)),
+       tnMAD= myMedianAbsoluteDeviation(tn,tnMedian,tnMADconst,na.rm=TRUE,default=0)
+       )
   full_stats <-
-    summary_stats %>% dplyr::inner_join(lmoments, by = group_col)
+    summary_stats %>% dplyr::inner_join(lmoments, by = group_col)%>% dplyr::inner_join(new_summary_stats, by = group_col)
   names(full_stats) <- paste0(prefix, names(full_stats))
   return(full_stats)
 }
@@ -1038,13 +1050,13 @@ calculate_f1 <- function(results2) {
 
   # Calculate moments for others contributions and confidence
   othersConfsFull <-
-    calculate_moments(dt.edge, "trgt", "conf", "ocf")
+    calculate_moments(dt.edge, "trgt", "conf", "ocf", tn)
   othersContribsFull <-
-    calculate_moments(dt.edge, "trgt", "contrib", "ocb")
+    calculate_moments(dt.edge, "trgt", "contrib", "ocb", tn)
   # Calculate moments for self contributions and confidence
-  selfConfsFull <- calculate_moments(dt.edge, "src", "conf", "scf")
+  selfConfsFull <- calculate_moments(dt.edge, "src", "conf", "scf", tn)
   selfContribsFull <-
-    calculate_moments(dt.edge, "src", "contrib", "scb")
+    calculate_moments(dt.edge, "src", "contrib", "scb", tn)
 
 
   dt.vertices.othersparams <-
@@ -1454,5 +1466,4 @@ calculate_f2 <- function (results3) {
       predicted_edges = NULL
     )
   )
-
-}
+} }
