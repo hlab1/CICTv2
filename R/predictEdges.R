@@ -386,10 +386,10 @@ predictEdges <- function(edge_features = NULL,
     tstset.preds <- predict(caret.model, tst1.tst, type = "prob")
 
     out_data_obj$predicted_edges <- tstset.preds
-    out_data_obj$variable_importance = caret::varImp(caret.model)
+    out_data_obj$variable_importance <- caret::varImp(caret.model)
 
     # Assigns caret model to model slot
-    out_data_obj$model <- tst1.rf
+    out_data_obj$model <- caret.model
 
     # Runs assessment using ground truth and caret functionality
 
