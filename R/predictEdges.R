@@ -52,7 +52,6 @@ predictEdges <- function(edge_features = NULL,
                          exportTrainAndTest = T,
                          returnDat = T,
                          include.negative = 'random',
-                         rep = '',
                          remove.tfs = T,
                          split.val.tfs = F,
                          learning.params = NA,
@@ -95,14 +94,6 @@ predictEdges <- function(edge_features = NULL,
         dplyr::anti_join(ground_truth, by = c("src" = "src", "trgt" = "trgt")) %>%
         dplyr::filter(src %in% ground_truth$src)
       t1.n$predicate = "NEGATIVE"
-    }
-
-    # This is to generate new port numbers for running H2O. Will remove when caret is used
-    if (!is.na(rep)) {
-      rep.int <- as.integer(substr(rep, nchar(rep), nchar(rep)))
-      port = 54321 + 3 * rep.int
-    } else {
-      port = 54321
     }
 
     # Joining t1.c and t1.rc
@@ -200,8 +191,7 @@ predictEdges <- function(edge_features = NULL,
     }
 
     # t2.complement is everything that is not included in the learning set
-    t2.complement = t1  %>%  dplyr::anti_join(t2, by = c("src" = "src", "trgt" =
-                                                    "trgt"))
+    t2.complement = t1  %>%  dplyr::anti_join(t2, by = c("src" = "src","trgt" = "trgt"))
 
     # Record everything to a log file and in_data_obj object
     msg = sprintf(
@@ -397,10 +387,17 @@ predictEdges <- function(edge_features = NULL,
 
     out_data_obj$predicted_edges <- caret.test
 
-    # TODO
-    out_data_obj$model <- NULL
+    # Assigns caret model to model slot
+    out_data_obj$model <- tst1.rf
+
+    # Runs assessment using ground truth and caret functionality
     out_data_obj$model_assessment <- NULL
     print('Data produced successfuly ==================================')
     return(out_data_obj)
+  }
+
+  # PREDICT ON ALL EDGES
+  {
+    
   }
 }
