@@ -60,6 +60,7 @@ predictEdges <- function(edge_features = NULL,
                          tstPercent = 0.3,
                          url.outputFolder='./cict_output/',
                          ...) {
+  library(PRROC)
   # PARSE DATA
   {
     if (in_format == "data_obj") {
@@ -379,18 +380,20 @@ predictEdges <- function(edge_features = NULL,
     rownames(caret.x) <- tst1.totalset$shared_name
 
     # Run model on caret
-    tst1.rf <- caret::train(caret.x, caret.y, method = method, trControl = fit_control)
-    out_data_obj$rf_outputs <- tst1.rf
+    caret.model <- caret::train(caret.x, caret.y, method = method, trControl = fit_control)
 
     rownames(tst1.tst) <- tst1.tst$shared_name
-    caret.test <- predict(tst1.rf, tst1.tst, type = "prob")
+    tstset.preds <- predict(caret.model, tst1.tst, type = "prob")
 
-    out_data_obj$predicted_edges <- caret.test
+    out_data_obj$predicted_edges <- tstset.preds
+    out_data_obj$variable_importance = caret::varImp(caret.model)
 
     # Assigns caret model to model slot
     out_data_obj$model <- tst1.rf
 
     # Runs assessment using ground truth and caret functionality
+
+
     out_data_obj$model_assessment <- NULL
     print('Data produced successfuly ==================================')
     return(out_data_obj)
@@ -398,6 +401,6 @@ predictEdges <- function(edge_features = NULL,
 
   # PREDICT ON ALL EDGES
   {
-    
+
   }
 }
