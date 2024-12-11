@@ -59,9 +59,8 @@ predictEdges <- function(edge_features = NULL,
                          runOnAllEdges = T,
                          trainingTarget = 'class2',
                          tstPercent = 0.3,
-                         url.logfile = 'noLog',
+                         url.outputFolder='./out/',
                          ...) {
-
   # PARSE DATA
   {
     if (in_format == "data_obj") {
@@ -219,9 +218,6 @@ predictEdges <- function(edge_features = NULL,
 
     print(url.logfile)
     cat(msg)
-    if (url.logfile != "noLog")
-      write(msg, file = url.logfile, append = TRUE)
-
     in_data_obj = c(
       in_data_obj,
       c(
@@ -335,14 +331,6 @@ predictEdges <- function(edge_features = NULL,
     tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T,]
     tst1.totalset.tfs <- as.character(unique(tst1.totalset.tfs$src))
 
-    if (url.logfile != "noLog") {
-      write(paste0('tst1.train$class2 : ', table(tst1.train$class2)),
-            file = url.logfile,
-            append = TRUE)
-      write(paste0('tst1.tst$class2 : ', table(tst1.tst$class2)),
-            file = url.logfile,
-            append = TRUE)
-    }
 
     # Record train and test sets for learning
     tmp = table(tst1.train$class2)
@@ -388,12 +376,6 @@ predictEdges <- function(edge_features = NULL,
   # TRAINS RANDOM FOREST MODEL
   {
     # TRAINING CARET  For Prediction and feature selection ----
-    #Remove large objects
-    if (url.logfile != "noLog")
-      write('Running caret on selected features',
-            file = url.logfile,
-            append = TRUE)
-
     # MAX_MEM_SIZE not defined
     # H2OCnn = h2o.init(nthreads = parallel::detectCores(), enable_assertions = TRUE,
     #                   max_mem_size = '100G',strict_version_check=FALSE, port = port)
@@ -413,12 +395,7 @@ predictEdges <- function(edge_features = NULL,
     rownames(caret.x) <- tst1.totalset$shared_name
 
     # Run model on caret
-    tst1.rf <-
-      caret::train(caret.x, caret.y, method = method, trControl = fit_control)
-    if (url.logfile != "noLog")
-      write('Model trained successfuly',
-            file = url.logfile,
-            append = TRUE)
+    tst1.rf <- caret::train(caret.x, caret.y, method = method, trControl = fit_control)
     out_data_obj$rf_outputs <- tst1.rf
 
     rownames(tst1.tst) <- tst1.tst$shared_name
@@ -463,11 +440,6 @@ predictEdges <- function(edge_features = NULL,
           nrow(t2) + nrow(t2.complement),
           nrow(edge_features)
         )
-
-        cat(msg)
-        if (url.logfile != "noLog")
-          write(msg, file = url.logfile, append = TRUE)
-        in_data_obj$unseensmpl_stats = msg
 
 
         #d.new = edge_features
@@ -558,14 +530,6 @@ predictEdges <- function(edge_features = NULL,
         prd.varimp = h2o.varimp(tst1.mdl)
 
         in_data_obj$varimp = prd.varimp[1:20,] %>% as.data.frame()
-        if (url.logfile != "noLog")
-          write(
-            prd.varimp[1:20,] %>% knitr::kable(),
-            file = url.logfile,
-            append = TRUE,
-            sep = '\n'
-          )
-
         h2o.performance(tst1.mdl, valid = T)
 
         msg = c(
@@ -574,12 +538,7 @@ predictEdges <- function(edge_features = NULL,
           capture.output(h2o.performance(tst1.mdl, valid = T))
         )
         cat(paste0(msg, collapse = '\n'))
-        if (url.logfile != "noLog")
-          write(msg,
-                file = url.logfile,
-                append = TRUE,
-                sep = '\n')
-
+      
         setDF(tst1.totalset)
 
         reportAUC <- function(x)
@@ -613,21 +572,12 @@ predictEdges <- function(edge_features = NULL,
         theauc = precrec::auc(sscurves)
 
         msg = paste0(theauc[[3]], "=", round(theauc[[4]], 3))
-        if (url.logfile != "noLog")
-          write(msg,  file = url.logfile, append = TRUE)
 
         in_data_obj$unseensmpl_roc_pr = msg
 
         #partial precision-recall
         sscurves.part <- part(sscurves, xlim = c(0, 0.2))
-        if (url.logfile != "noLog") {
-          write('Early precision recall ======',
-                file = url.logfile,
-                append = TRUE)
-          write(reportAUC(sscurves.part) %>% kable(),
-                file = url.logfile,
-                append = TRUE)
-        }
+        
         in_data_obj$unseensmpl_part = as.data.frame(reportAUC(sscurves.part))
 
         pr.prtcrv = sscurves.part$prcs[1][[1]]
@@ -648,34 +598,7 @@ predictEdges <- function(edge_features = NULL,
         in_data_obj$unseensmpl_rndm = as.data.frame(reportAUC(rndmClscurves.part))
 
         msg = ""
-        if (url.logfile != "noLog") {
-          print("Random Classifier comparison ============")
-          write(
-            "Random Classifier comparison ============",
-            file = url.logfile,
-            append = TRUE
-          )
-
-
-          write(
-            'Random classifier precision recall ======',
-            file = url.logfile,
-            append = TRUE
-          )
-          write(
-            reportAUC(rndmClscurves.part) %>% kable(),
-            file = url.logfile,
-            append = TRUE
-          )
-
-          msg = sprintf(
-            "%s , AUCPR Ratio CICT to Random= %s,  top 20 percent AUCPR Ratio CICT to Random= %s ",
-            arg.dname,
-            round(pr.auc / rnd.auc, 2),
-            round(pr.prtauc / rnd.prtauc, 2)
-          )
-          write(msg,  file = url.logfile, append = TRUE)
-        }
+        
         print(msg)
 
         mmpoins <-
@@ -724,38 +647,6 @@ predictEdges <- function(edge_features = NULL,
                   labels = assespreds$outcomes)
         pr.crv = sscurves$prcs[1][[1]]
         pr.auc =  attr(pr.crv, 'auc')
-
-        msg = ""
-        if (url.logfile != "noLog") {
-          print(
-            sprintf(
-              "Best threshold: %s for fn/fp cost ratio: %s " ,
-              bestcutoff,
-              relativeCostfn_fp
-            )
-          )
-          write(
-            sprintf(
-              "Best threshold: %s for fn/fp cost ratio: %s " ,
-              bestcutoff,
-              relativeCostfn_fp
-            ),
-            file = url.logfile,
-            append = TRUE
-          )
-
-          msg = sprintf(
-            "With FP-FN ratio 0.5 => AUCPR Ratio CICT to Random= %s,  top 20 percent AUCPR Ratio CICT to Random= %s ",
-            round(pr.auc / rnd.auc, 2),
-            round(pr.prtauc / rnd.prtauc, 2)
-          )
-          write(msg,  file = url.logfile, append = TRUE)
-
-        }
-
-        print(msg)
-        in_data_obj$costFnFp_cutoff_roc = msg
-      }
     }
   }
 
