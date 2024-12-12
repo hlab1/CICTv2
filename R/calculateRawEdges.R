@@ -107,7 +107,7 @@ getDirectedGoldStandard <- function(ExpresionMatrix, nrows, filePath,byrow = TRU
 	{
  		NetzMat[Netznr[k,1],Netznr[k,3]] <- 1
 	}
-	grorg <- graph.adjacency(NetzMat,mode=c("DIRECTED"))
+	grorg <- igraph::graph.adjacency(NetzMat,mode=c("DIRECTED"))
 
 	return(NetzMat)
 }
@@ -142,7 +142,7 @@ getUndirectedGoldStandard <- function(ExpresionMatrix, nrows,filePath,byrow = TR
  		NetzMatsym[Netznr[k,1],Netznr[k,3]] <- 1
  		NetzMatsym[Netznr[k,3],Netznr[k,1]] <- 1
 	}
-	grorgundir <- graph.adjacency(NetzMatsym,mode=c("UNDIRECTED"))
+	grorgundir <- igraph::graph.adjacency(NetzMatsym,mode=c("UNDIRECTED"))
 
 	return(NetzMatsym)
 }
@@ -176,13 +176,13 @@ getCalculatedReplicates<-function(ExpressionMatrix, ngenes, nexpr, nrepls){
 # This function calculates the mutual information between two variables X and Y using a specified method and discretization technique.
 mutualinformation <- function(X,Y,methode,discretizers="equalwidth"){
 
- Xd <- unlist(discretize(X,disc=discretizers))
- Yd <- unlist(discretize(Y,disc=discretizers))
+ Xd <- unlist(infotheo::discretize(X,disc=discretizers))
+ Yd <- unlist(infotheo::discretize(Y,disc=discretizers))
  XYd <- array(0,c(length(X),2))
  XYd[,1] <- Xd
  XYd[,2] <- Yd
 
- I <- entropy(Xd,method=methode) + entropy(Yd,method=methode) - entropy(XYd,method=methode)
+ I <- infotheo::entropy(Xd,method=methode) + infotheo::entropy(Yd,method=methode) - infotheo::entropy(XYd,method=methode)
  return(I)
 }
 
@@ -411,11 +411,11 @@ source("symbolvector.R")
 	{
 		if(discretization==TRUE)
 		{
-			MI_A <- mutinformation(discretize(A,disc=discretizator),method=mitype)
+			MI_A <- infotheo::mutinformation(infotheo::discretize(A,disc=discretizator),method=mitype)
 		}
 		else
 		{
-			MI_A <- mutinformation(A,method=mitype)
+			MI_A <- infotheo::mutinformation(A,method=mitype)
 		}
 		SimMilarityMatrix <- MI_A
 	}
@@ -491,11 +491,11 @@ source("symbolvector.R")
 		### Order pattern + mi
 		if(discretization==TRUE)
 		{
-			MI_A <- mutinformation(discretize(A,disc=discretizator),method=mitype)
+			MI_A <- infotheo::mutinformation(infotheo::discretize(A,disc=discretizator),method=mitype)
 		}
 		else
 		{
-			MI_A <- mutinformation(A,method=mitype)
+			MI_A <- infotheo::mutinformation(A,method=mitype)
 		}
 
 		### Finall Avg. Order pattern+mi
@@ -527,7 +527,7 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
 	if(scorrer=="MRNET")
 	{
 	  ScorredMatrix <- tryCatch({
-	    return(mrnet(SimilarityMatrix))
+	    return(minet::mrnet(SimilarityMatrix))
 	  },error=function(err){
 	    print("Error thrown in MRNET!")
 	    print(err);
@@ -543,7 +543,7 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
 	else if(scorrer=="CLR")
 	{
 	  ScorredMatrix <- tryCatch({
-	    return(clr(SimilarityMatrix))
+	    return(minet::clr(SimilarityMatrix))
 	  },error=function(err){
 	    print(SimilarityMatrix)
 	    print("Error thrown in CLR!")
@@ -559,7 +559,7 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
 	else if(scorrer=="ARACNE")
 	{
 	  ScorredMatrix <- tryCatch({
-	    return(aracne(SimilarityMatrix,eps=aracne_eps))
+	    return(minet::aracne(SimilarityMatrix,eps=aracne_eps))
 	  },error=function(err){
 	    print("Error thrown in ARACNE!")
 	    print(err);
@@ -582,7 +582,7 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
 	}
 	else
 	{
-		ScorredMatrix <- mrnet(SimilarityMatrix)
+		ScorredMatrix <- minet::mrnet(SimilarityMatrix)
 	}
 
 	return(ScorredMatrix)
