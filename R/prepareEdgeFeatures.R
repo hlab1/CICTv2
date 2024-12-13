@@ -10,7 +10,7 @@ prepareEdgeFeatures <-
            raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
-           in_format = "separate") {
+           in_format = "separate",...) {
     # TODO: allow config and throw error if in_format is not valid
     if (in_format == "separate") {
       dt_edge <- raw_edges
@@ -20,6 +20,7 @@ prepareEdgeFeatures <-
       dt_edge <- in_data_obj$raw_edges
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
+    backup_raw_edges <- dt_edge
     # define the hardcoded variables
     earlyThresholdForGraphAnalysis <- 0
     #third, make sure the data is read
@@ -38,7 +39,10 @@ prepareEdgeFeatures <-
     results3 <- calculate_f1(results2)
     results4 <- calculate_f2(results3)
 
-    return(results4)
+    results5 <- results4
+    results5$raw_edges <- tibble::as_tibble(backup_raw_edges)
+
+    return(results5)
   }
 
 prepare_table_pef <-

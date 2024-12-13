@@ -27,4 +27,5 @@ Imports:
     stringr,
     hutils,
     caret,
-    minet
+    minet,
+    tibble
