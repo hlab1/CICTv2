@@ -1346,7 +1346,7 @@ calculate_f2 <- function (results3) {
 
   #   Add source and target charectristics to edges -----
   dt.edge.BeforeAugmenting = dt.edge
-
+  
   collist = c(
     'MAD',
     'Median',
@@ -1418,7 +1418,9 @@ calculate_f2 <- function (results3) {
     excluded = c('OcrInp.x', 'Indegree.x'),
     samplesize = nrow(dt.edge) * 0.02
   )
-  dt.edge = dt.edge %>% dplyr::select(!any_of(dupcols), any_of('Weight'))
+  dt.edge = dt.edge %>% dplyr::select(!any_of(dupcols), any_of(c('Weight', "scftnMedian.x", "scftnMADconst.x", "scftnMAD.x", "ocfNMAD.x", "scftnMedian.y", "scftnMADconst.y", "scftnMAD.y", "ocfNMAD.y")))
+
+  dt.edge = dt.edge %>% dplyr::select(c(-"scbtnMedian.x", -"scbtnMADconst.x", -"scbtnMAD.x", -"scbtnMedian.y", -"scbtnMADconst.y", -"scbtnMAD.y"))
 
   a = sapply(dt.edge, function(x)
     sum(is.na(x)))
