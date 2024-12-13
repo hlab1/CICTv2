@@ -4,14 +4,34 @@
 #Mutual information steady state Multiple measures parallel
 
   #Parallel partition for each measure, multiple measures
-
+#' Calculate Raw Edges
+#'
+#' This function calculates raw edges using mutual information and other measures in parallel.
+#'
+#' @param n.workers Integer. Number of workers for parallel processing. Default is 5.
+#' @param in_data_obj List. Input data object containing necessary data.
+#' @param raw_edges Data frame. Raw edges data.
+#' @param gene_expression_matrix Data frame. Gene expression matrix.
+#' @param cict_raw_edge_col Character. Column name for raw edge calculation. Default is 'Spearman'.
+#' @param in_format Character. Format of the input data. Default is "separate".
+#' @return A list containing the calculated raw edges and other relevant data.
+#' @details This function performs parallel processing to calculate raw edges using mutual information and other measures. It is a modified edition of the code provided by Kuzmanovski et al.
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' gene_expression_matrix <- read.csv("path/to/gene_expression_matrix.csv")
+#' raw_edges <- read.csv("path/to/raw_edges.csv")
+#' results <- calculateRawEdges(
+#'   n.workers = 5,
+#'   gene_expression_matrix = gene_expression_matrix,
+#'   raw_edges = raw_edges,
+#'   cict_raw_edge_col = 'Spearman'
+#' )
+#' }
+#' @export
 calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gene_expression_matrix=NULL, cict_raw_edge_col = 'Spearman',in_format = "separate") {
 	nParallelThreads = 12
     edgeTypes <- cict_raw_edge_col
-
-
-########## all functions from before start here
-
 
 ################################################################################@
 # This is a modified edition of the code provided by Kuzmanovski et al. to
