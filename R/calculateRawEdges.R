@@ -220,36 +220,37 @@ getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson"
 	##.. discretizator: equalwidth, equalfreq
 	##.. diagr = replacement value of the main diagonal (default: diagr=0)
 
-	if(estimators == "granger")
-	{
-		source("gc1.R")
-		gc_simp <- array(0,c((nrows-1),(nrows-1)))
-		for(i in 1:(nrows-1))
-		{
- 			if(i < (nrows-1))
- 			{
-  				for(j in (i+1):(nrows-1))
-  				{
-					T1 <- ExpressionMatrix[i,]
-     					T2 <- ExpressionMatrix[j,]
+	# if(estimators == "granger")
+	# {
+	# 	source("gc1.R")
+	# 	gc_simp <- array(0,c((nrows-1),(nrows-1)))
+	# 	for(i in 1:(nrows-1))
+	# 	{
+ 	# 		if(i < (nrows-1))
+ 	# 		{
+  	# 			for(j in (i+1):(nrows-1))
+  	# 			{
+	# 				T1 <- ExpressionMatrix[i,]
+    #  					T2 <- ExpressionMatrix[j,]
 
-					l1 <- VARselect(T1,lag.max = 8)$selection[[1]]
-     					l2 <- VARselect(T2,lag.max = 8)$selection[[1]]
-     					if(is.finite(l1) == 0)  l1 <- NA
-     					if(is.finite(l2) == 0)  l2 <- NA
-     					LAG <- floor(mean(c(l1,l2),na.rm = TRUE))
-     					if(is.na(LAG)) LAG <- 1
-      				gc_simp[i,j] <- granger(cbind(T2,T1), L=LAG)
-      				gc_simp[j,i] <- granger(cbind(T1,T2), L=LAG)
-   				}
- 			}
-		}
+	# 				l1 <- VARselect(T1,lag.max = 8)$selection[[1]]
+    #  					l2 <- VARselect(T2,lag.max = 8)$selection[[1]]
+    #  					if(is.finite(l1) == 0)  l1 <- NA
+    #  					if(is.finite(l2) == 0)  l2 <- NA
+    #  					LAG <- floor(mean(c(l1,l2),na.rm = TRUE))
+    #  					if(is.na(LAG)) LAG <- 1
+    #   				gc_simp[i,j] <- granger(cbind(T2,T1), L=LAG)
+    #   				gc_simp[j,i] <- granger(cbind(T1,T2), L=LAG)
+   	# 			}
+ 	# 		}
+	# 	}
 
-		mim <- gc_simp
-		diag(mim) <- diagr
+	# 	mim <- gc_simp
+	# 	diag(mim) <- diagr
 
-	}
-	else if(estimators == "coarse.grained")
+	# }
+	# else 
+	if(estimators == "coarse.grained")
 	{
 		DATA <- t(ExpressionMatrix)
 		L <- length(DATA[,1])
@@ -341,7 +342,7 @@ getSimilarityMatrix_DTW <- function(ExpressionMatrix, distmethod="Euclidean", st
 
 # This function calculates a similarity matrix based on symbolic representation of an expression matrix.
 getSimilarityMatrix_SYMBOLIC <- function(ExpressionMatrix, nrows, npoints, simmethod="sym", npatterns=4, patterns = NULL, diagr=0, discretization = TRUE, discretizator = "equalwidth", mitype="mm", numCores=1){
-source("symbolvector.R")
+
 
 	##.. simmethod: sym, sym.mu, avg.sym.mi
 	##.. npatterns: 1,2,3... number that maximizes no of combination (=npoints/2)
@@ -509,7 +510,7 @@ source("symbolvector.R")
 
 # This function calculates a similarity matrix using a qualitative approach.
 getSimilarityMatrix_QUAL <- function(ExpressionMatrix, nrows, npoints){
-source("d_qual.R")
+
 	##.. nrows (a1) is number of genes + 1
 	##.. npoints is number of time points within the time series
 
@@ -600,17 +601,11 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
 
-
-    #setwd(url.CICT_algo)
-    #source(paste0(url.CICT_algo, 'requirements/rnR_Framework.R'))
-
-    #s0m3
-
     #outFolder = dirname (url.data)
     actualDataset <- dt_geneexp
     genecol = stringr::str_subset(colnames(actualDataset),'X|^(G|g)ene$')
     if(length(genecol)>0) actualDataset =actualDataset %>% column_to_rownames(genecol)
-    actualDataset = actualDataset %>% dplyr::select_if(is.numeric) #genes in rows and cells in columns  #  stop('Set correct data source') #  all.tdt
+    actualDataset = actualDataset %>% dplyr::select_if(is.numeric) #genes in rows and cells in columns  #  stop
 
 
     actualDatasetNNodes <- nrow(actualDataset) + 1;
