@@ -4,7 +4,30 @@
 #prepareEdgeFeatures(raw_edges = trial_dt_edge, gene_expression_matrix = trial_dt_geneexp, cict_raw_edge_col = 'Spearman')
 # trial_dt_edge <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/rawEdges.csv")
 # trial_dt_geneexp <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/SERGIO_DS4/net1/ExpressionData.csv")
-
+#' Prepare Edge Features
+#'
+#' This function prepares edge features from raw edges and a gene expression matrix.
+#'
+#' @param in_data_obj List. Input data object containing necessary data. Default is NULL.
+#' @param raw_edges Data frame. Raw edges data. Default is NULL.
+#' @param gene_expression_matrix Data frame. Gene expression matrix. Default is NULL.
+#' @param cict_raw_edge_col Character. Column name for raw edge calculation. Default is 'Spearman'.
+#' @param in_format Character. Format of the input data. Can be "separate" or "data_obj". Default is "separate".
+#' @param ... Additional arguments to be passed to other functions.
+#' @return A list containing the prepared edge features and other relevant data.
+#' @details This function processes the raw edges and gene expression matrix to prepare edge features. It supports two input formats: "separate" and "data_obj".
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' raw_edges <- read.csv("path/to/raw_edges.csv")
+#' gene_expression_matrix <- read.csv("path/to/gene_expression_matrix.csv")
+#' edge_features <- prepareEdgeFeatures(
+#'   raw_edges = raw_edges,
+#'   gene_expression_matrix = gene_expression_matrix,
+#'   cict_raw_edge_col = 'Spearman'
+#' )
+#' }
+#' @export
 prepareEdgeFeatures <-
   function(in_data_obj = NULL,
            raw_edges = NULL,

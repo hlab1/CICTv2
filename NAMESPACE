@@ -2,6 +2,7 @@
 
 export(calculateRawEdges)
 export(predictEdges)
+export(prepareEdgeFeatures)
 export(runCICT)
 importFrom(data.table,":=")
 importFrom(dplyr,mutate)
