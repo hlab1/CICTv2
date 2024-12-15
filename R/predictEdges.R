@@ -305,8 +305,6 @@ predictEdges <- function(edge_features = NULL,
         ))
         tst1.train = tst1.totalset[spltIdx,]
         tst1.tst = tst1.totalset[-spltIdx,]
-
-        print(paste0("nrow(tst1.tst[trainingTarget]", nrow(tst1.tst[trainingTarget == TRUE,])))
         if (nrow(tst1.tst[trainingTarget == TRUE,]) >= (tstPercent - 0.01) * ntrgtClass)
           break
       }
@@ -314,15 +312,6 @@ predictEdges <- function(edge_features = NULL,
 
     tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T,]
     tst1.totalset.tfs <- as.character(unique(tst1.totalset.tfs$src))
-
-
-    # Record train and test sets for learning
-    tmp = table(tst1.train$class2)
-    names(tmp) <- paste0('train.', names(tmp))
-    in_data_obj = c(in_data_obj, tmp)
-    tmp = table(tst1.tst$class2)
-    names(tmp) <- paste0('test.', names(tmp))
-    in_data_obj = c(in_data_obj, tmp)
 
     # Save train and test sets
     # TODO: think about output folder name and if we should create it or throw an error
@@ -383,7 +372,11 @@ predictEdges <- function(edge_features = NULL,
     caret.model <- caret::train(caret.x, caret.y, method = method, trControl = fit_control)
 
     rownames(tst1.tst) <- tst1.tst$shared_name
-    tstset.preds <- predict(caret.model, tst1.tst, type = "prob")
+    tstset.preds <- caret::extractProb(list(caret.model), tst1.tst)
+    tstset.preds$src <- tst1.totalset$src
+    tstset.preds$trgt <- tst1.totalset$trgt
+
+    print(tst1.totalset[,trainingTarget])
 
     out_data_obj$predicted_edges <- tstset.preds
     out_data_obj$variable_importance <- caret::varImp(caret.model)
