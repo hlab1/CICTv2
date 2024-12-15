@@ -1,0 +1,3 @@
+dummyImports <- function() {
+  BiocManager::install()
+}
