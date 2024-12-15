@@ -25,6 +25,7 @@
 #' @param Debug If TRUE, function enters debugging mode in critical stops along the exectuion allowing verification of variables and features
 #' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
 #' @param preset.test Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
+#' @param predict_all Default is: 'none'. User can provide strings 'none', 'all', or a vector of genes on which the user wants to predict.
 #' @return Returns a list consisted of three objects
 #' rcrd: is a list object of intermediary objects
 #' edges: a dataframe of edge objects and CICT features for edges
@@ -59,6 +60,7 @@ predictEdges <- function(edge_features = NULL,
                          trainingTarget = 'class2',
                          tstPercent = 0.3,
                          url.outputFolder='./cict_output/',
+                         predict_on='none',
                          ...) {
   library(PRROC)
   # PARSE DATA
@@ -366,34 +368,42 @@ predictEdges <- function(edge_features = NULL,
     # Set up df for caret
     caret.y = as.factor(as.data.frame(tst1.totalset)[, trainingTarget])
     caret.x = as.data.frame(tst1.totalset)[, mdlColNames]
-    rownames(caret.x) <- tst1.totalset$shared_name
 
-    # Run model on caret
+    # Train model on caret
     caret.model <- caret::train(caret.x, caret.y, method = method, trControl = fit_control)
 
-    rownames(tst1.tst) <- tst1.tst$shared_name
-    tstset.preds <- caret::extractProb(list(caret.model), tst1.tst)
-    tstset.preds$src <- tst1.totalset$src
-    tstset.preds$trgt <- tst1.totalset$trgt
-
-    print(tst1.totalset[,trainingTarget])
-
-    out_data_obj$predicted_edges <- tstset.preds
+    # Predict on specified edges
+    if (predict_on == 'none') {
+      tstset.preds <- caret::extractProb(models=list(caret.model), testX=caret.x, testY=caret.y)
+      tstset.preds$src <- tst1.totalset$src
+      tstset.preds$trgt <- tst1.totalset$trgt
+      out_data_obj$predicted_edges <- tstset.preds
+    } else if (predict_on == 'all') {
+      caret.complement = as.data.frame(t2.complement)[,mdlColNames]
+      all.preds <- caret::extractProb(models=list(caret.model), testX=caret.x, testY=caret.y, unkX=caret.complement)
+      all.preds$src <- c(tst1.totalset$src, t2.complement$src)
+      all.preds$trgt <- c(tst1.totalset$trgt, t2.complement$trgt)
+      out_data_obj$predicted_edges <- all.preds
+    } else {
+      t1.subset <- as.data.frame(t1)[t1$src %in% predict_on, mdlColNames]
+      sub.preds <- caret::extractProb(models=list(caret.model), unkX=t1.subset)
+      sub.preds$src <- t1.subset$src
+      sub.preds$trgt <- t1.subset$trgt
+      out_data_obj$predicted_edges <- sub.preds
+    }
+    
     out_data_obj$variable_importance <- caret::varImp(caret.model)
 
     # Assigns caret model to model slot
     out_data_obj$model <- caret.model
 
-    # Runs assessment using ground truth and caret functionality
-
-
     out_data_obj$model_assessment <- NULL
-    print('Data produced successfuly ==================================')
-    return(out_data_obj)
   }
-
-  # PREDICT ON ALL EDGES
+  
+  # Calculate AUPRC, pAUPRC, AUROC and pAUROC
   {
-
+    
   }
+  print('Data produced successfuly ==================================')
+  return(out_data_obj)
 }
