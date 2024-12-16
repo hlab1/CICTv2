@@ -25,7 +25,7 @@
 #' @param Debug If TRUE, function enters debugging mode in critical stops along the exectuion allowing verification of variables and features
 #' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
 #' @param preset.test Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
-#' @param predict_all Default is: 'none'. User can provide strings 'none', 'all', or a vector of genes on which the user wants to predict.
+#' @param predict_on Default is: 'none'. User can provide strings 'none', 'all', or a vector of genes on which the user wants to predict.
 #' @return Returns a list consisted of three objects
 #' rcrd: is a list object of intermediary objects
 #' edges: a dataframe of edge objects and CICT features for edges
@@ -85,12 +85,6 @@ predictEdges <- function(edge_features = NULL,
       print("!!! No causal edge in the groundtruth? check gene names")
     t1.c$predicate = "CAUSES"
 
-    # t1.rc is 'REVERSE CAUSAL' edges, and is the same as t1.c, but with src and trgt
-    # swapped
-    t1.rc = edge_features %>% dplyr::inner_join(t1.c %>% dplyr::select(src, trgt),
-                                         by = c("src" = "trgt", "trgt" = "src"))
-    t1.rc$predicate = "REV_CAUSES"
-
     if (include.negative == 'random') {
       # t1.n is 'NEGATIVE' edges to serve as true negative examples in the learning set
       t1.n = edge_features %>%
@@ -99,15 +93,10 @@ predictEdges <- function(edge_features = NULL,
       t1.n$predicate = "NEGATIVE"
     }
 
-    # Joining t1.c and t1.rc
-    t1.causal_reversecausal = rbind(t1.c, t1.rc)
-
     # Adding non-causal edges
-    # t1.rnd are edges that are not found in either t1.c or t1.rc (anti-joining by
-    # just t1.c should produce the same result)
-    t1.rnd = edge_features %>% #dplyr::mutate(edgetyptruth = NA) %>%
-      dplyr::anti_join(t1.c, by = c("src" = "src", "trgt" = "trgt")) %>%
-      dplyr::anti_join(t1.rc, by = c("src" = "trgt", "trgt" = "src"))
+    # t1.rnd are edges that are not found in either t1.c
+    t1.rnd = edge_features %>%
+      dplyr::anti_join(t1.c, by = c("src" = "src", "trgt" = "trgt"))
 
     if (include.negative == 'random') {
       t1.rnd = t1.rnd %>% dplyr::anti_join(t1.n, by = c("src" = "trgt", "trgt" = "src"))
@@ -118,20 +107,18 @@ predictEdges <- function(edge_features = NULL,
     # 1. The overlap of causual edges in gt and edges in rawEdges
     # 2. The reverse of (1)
     # 3. All other edges that are in rawEdges and NOT in the gt or its reverse
-    t1 = rbind(t1.c, t1.rc, t1.rnd)
+    t1 = rbind(t1.c, t1.rnd)
 
     if (include.negative == 'random') {
       t1 = rbind(t1, t1.n)
     }
 
-    # Adds 'class1', 'class2', and 'class3', and src-trgt as 'shared_name'
-    # Class1 will either be 'c', 'rc', or 'u'
+    # Adds 'class1', 'class2', and src-trgt as 'shared_name'
+    # Class1 will either be 'c', or 'u'
     # Class2 will be T if Class1 is 'c'
-    # Class3 will be T if Class1 is 'c' or 'rc'
     t1$class1 = hutils::Switch(
       t1$predicate,
       CAUSES = 'c',
-      REV_CAUSES = 'rc',
       IRRELEVANTA = 'ir',
       IF_NA = 'u',
       DEFAULT = 'u',
@@ -142,7 +129,6 @@ predictEdges <- function(edge_features = NULL,
       dplyr::mutate(
         SUID = dplyr::row_number(),
         class2 = ifelse(class1 %in% c('c'), TRUE, FALSE),
-        class3 = ifelse(class1 %in% c('c', 'rc'), TRUE, FALSE),
         shared_name = paste0(src, "-", trgt)
       )
 
@@ -182,7 +168,6 @@ predictEdges <- function(edge_features = NULL,
     } else{
       t2 = rbind(
         t1 %>% dplyr::filter(class1 == 'c') %>% dplyr::sample_n(size = NcausalEdges),
-        t1 %>% dplyr::filter(class1 == 'rc') %>% dplyr::sample_n(size = NcausalEdges),
         t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = NrandomEdges)
       )
 
@@ -239,7 +224,6 @@ predictEdges <- function(edge_features = NULL,
       'class1',
       'SUID',
       'class2',
-      'class3',
       'shared_name',
       'predicate',
       'DiagnosesAb.x',
@@ -247,7 +231,7 @@ predictEdges <- function(edge_features = NULL,
       'edgeTyp'
     )]
 
-    objectiveColNames = c("class1", "class2", "class3")
+    objectiveColNames = c("class1", "class2")
     objectiveColNames = objectiveColNames[objectiveColNames %in% colnames(t2)]
 
     evaluationColNames = c("predicate", "src", "trgt", "SUID")
@@ -315,13 +299,15 @@ predictEdges <- function(edge_features = NULL,
     tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T,]
     tst1.totalset.tfs <- as.character(unique(tst1.totalset.tfs$src))
 
+    print(tst1.totalset[tst1.totalset$src=='G9',c('src','trgt','class2')])
+
     # Save train and test sets
     # TODO: think about output folder name and if we should create it or throw an error
     if (exportTrainAndTest) {
       # try({
       #   if (!dir.exists(url.outputFolder))
       #     dir.create(url.outputFolder)
-      #   tst1.train %>% dplyr::select(src , trgt, class2, class3) %>%
+      #   tst1.train %>% dplyr::select(src , trgt, class2) %>%
       #     rename(
       #       Gene1 = src,
       #       Gene2 = trgt,
@@ -372,6 +358,7 @@ predictEdges <- function(edge_features = NULL,
     # Train model on caret
     caret.model <- caret::train(caret.x, caret.y, method = method, trControl = fit_control)
 
+    print(predict_on)
     # Predict on specified edges
     if (predict_on == 'none') {
       tstset.preds <- caret::extractProb(models=list(caret.model), testX=caret.x, testY=caret.y)
