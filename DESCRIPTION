@@ -14,7 +14,6 @@ Depends:
     R (>= 2.10)
 LazyData: true
 Imports: 
-    yaml,
     data.table,
     igraph,
     magrittr,
@@ -28,4 +27,16 @@ Imports:
     hutils,
     caret,
     minet,
-    tibble
+    tibble,
+    BiocManager,
+    WGCNA,
+    knitr,
+    plyr,
+    precrec,
+    sn,
+    tibble,
+    stats,
+    utils
+Suggests: 
+    yaml
+

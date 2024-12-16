@@ -1172,6 +1172,7 @@ calculate_f1 <- function(results2) {
 #' my_replace_na(df, rplist)
 #'
 #' @importFrom tidyr replace_na
+#' @noRd
 my_replace_na <- function(df, rplist)
 {
   rplptrns = names(rplist)
