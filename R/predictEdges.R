@@ -80,9 +80,9 @@ predictEdges <- function(edge_features = NULL,
     t1.c = ground_truth %>% dplyr::select(src, trgt) %>%
       dplyr::inner_join(edge_features, by = c("src" = "src", "trgt" = "trgt"))
     if (nrow(t1.c) < nrow(ground_truth) / 2)
-      warning("Problem in ground truth. More than half of ground truth was not found in edges")
+      warning("More than half of ground truth was not found in edges")
     if (nrow(t1.c) <= 0)
-      print("!!! No causal edge in the groundtruth? check gene names")
+      print("No causal edge in the groundtruth. Check gene names.")
     t1.c$predicate = "CAUSES"
 
     if (include.negative == 'random') {
@@ -99,7 +99,7 @@ predictEdges <- function(edge_features = NULL,
       dplyr::anti_join(t1.c, by = c("src" = "src", "trgt" = "trgt"))
 
     if (include.negative == 'random') {
-      t1.rnd = t1.rnd %>% dplyr::anti_join(t1.n, by = c("src" = "trgt", "trgt" = "src"))
+      t1.rnd = t1.rnd %>% dplyr::anti_join(t1.n, by = c("src" = "src", "trgt" = "trgt"))
     }
     t1.rnd$predicate = "IRRELEVANTA"
 
@@ -246,6 +246,7 @@ predictEdges <- function(edge_features = NULL,
 
     mdlChkColNames = mdlChkColNames[mdlChkColNames %in% colnames(t2)]
     tst1.totalset = t2[, intersect(colnames(t2), unique(c(mdlChkColNames)))]
+    tst1.complement = t2.complement[, intersect(colnames(t2.complement), unique(mdlChkColNames))]
 
     # This removes NAs from the totalset. In this dataframe, only 'R', 'directionLogRatio', and
     # 'iRatio' had NA values. Unclear if this should be kept. Should discuss with Carol
@@ -257,9 +258,18 @@ predictEdges <- function(edge_features = NULL,
     as.list(rp)
     tst1.totalset = replace_na(tst1.totalset, as.list(rp))
 
+    a = sapply(tst1.complement, function(x)
+      sum(is.na(x)))
+    a[a > 0]
+    rp = rep(0, length(a[a > 0]))
+    names(rp) <- names(a[a > 0])
+    as.list(rp)
+    tst1.complement = replace_na(tst1.complement, as.list(rp))
+
     # Checking for nas in the test set
     try({
       tst1.totalset = na.omit(tst1.totalset)
+      tst1.complement = na.omit(tst1.complement)
     })
   }
 
@@ -298,8 +308,6 @@ predictEdges <- function(edge_features = NULL,
 
     tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T,]
     tst1.totalset.tfs <- as.character(unique(tst1.totalset.tfs$src))
-
-    print(tst1.totalset[tst1.totalset$src=='G9',c('src','trgt','class2')])
 
     # Save train and test sets
     # TODO: think about output folder name and if we should create it or throw an error
@@ -351,33 +359,36 @@ predictEdges <- function(edge_features = NULL,
                                   number = 10)
     }
 
-    # Set up df for caret
+    # Set up df for training with caret
     caret.y = as.factor(as.data.frame(tst1.totalset)[, trainingTarget])
-    caret.x = as.data.frame(tst1.totalset)[, mdlColNames]
+    caret.x = as.data.frame(tst1.totalset)[, c('src', 'trgt', mdlColNames)]
+
+    # Set up unknown df for pedictions
+    if (length(predict_on) == 1) {
+      if (predict_on == 'all') {
+        pred.dat <- as.data.frame(rbind(
+          tst1.totalset,tst1.complement))[, c('src', 'trgt', mdlColNames)]
+      } else if (predict_on == 'none') {
+        pred.dat <- caret.x
+      } else {
+        pred.dat <- as.data.frame(rbind(
+          tst1.totalset,tst1.complement))[, c('src', 'trgt', mdlColNames)]
+        pred.dat <- pred.dat[pred.dat$src %in% predict_on,]
+      }
+    } else {
+      pred.dat <- as.data.frame(rbind(
+          tst1.totalset,tst1.complement))[, c('src', 'trgt', mdlColNames)]
+      pred.dat <- pred.dat[pred.dat$src %in% predict_on,]
+    }
 
     # Train model on caret
     caret.model <- caret::train(caret.x, caret.y, method = method, trControl = fit_control)
 
-    print(predict_on)
     # Predict on specified edges
-    if (predict_on == 'none') {
-      tstset.preds <- caret::extractProb(models=list(caret.model), testX=caret.x, testY=caret.y)
-      tstset.preds$src <- tst1.totalset$src
-      tstset.preds$trgt <- tst1.totalset$trgt
-      out_data_obj$predicted_edges <- tstset.preds
-    } else if (predict_on == 'all') {
-      caret.complement = as.data.frame(t2.complement)[,mdlColNames]
-      all.preds <- caret::extractProb(models=list(caret.model), testX=caret.x, testY=caret.y, unkX=caret.complement)
-      all.preds$src <- c(tst1.totalset$src, t2.complement$src)
-      all.preds$trgt <- c(tst1.totalset$trgt, t2.complement$trgt)
-      out_data_obj$predicted_edges <- all.preds
-    } else {
-      t1.subset <- as.data.frame(t1)[t1$src %in% predict_on, mdlColNames]
-      sub.preds <- caret::extractProb(models=list(caret.model), unkX=t1.subset)
-      sub.preds$src <- t1.subset$src
-      sub.preds$trgt <- t1.subset$trgt
-      out_data_obj$predicted_edges <- sub.preds
-    }
+    preds <- predict(caret.model, newdata=pred.dat, type='prob')
+    preds$src <- pred.dat$src
+    preds$trgt <- pred.dat$trgt
+    out_data_obj$predicted_edges <- preds
     
     out_data_obj$variable_importance <- caret::varImp(caret.model)
 
