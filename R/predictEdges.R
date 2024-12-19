@@ -62,7 +62,6 @@ predictEdges <- function(edge_features = NULL,
                          url.outputFolder='./cict_output/',
                          predict_on='none',
                          ...) {
-  library(PRROC)
   # PARSE DATA
   {
     if (in_format == "data_obj") {
@@ -391,7 +390,7 @@ predictEdges <- function(edge_features = NULL,
       sub.preds$trgt <- t1.subset$trgt
       out_data_obj$predicted_edges <- sub.preds
     }
-    
+
     out_data_obj$variable_importance <- caret::varImp(caret.model)
 
     # Assigns caret model to model slot
@@ -399,10 +398,10 @@ predictEdges <- function(edge_features = NULL,
 
     out_data_obj$model_assessment <- NULL
   }
-  
+
   # Calculate AUPRC, pAUPRC, AUROC and pAUROC
   {
-    
+
   }
   print('Data produced successfuly ==================================')
   return(out_data_obj)
