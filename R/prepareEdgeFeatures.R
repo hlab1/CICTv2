@@ -10,7 +10,8 @@ prepareEdgeFeatures <-
            raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
-           in_format = "separate") {
+           in_format = "separate",
+           ...) {
     # TODO: allow config and throw error if in_format is not valid
     if (in_format == "separate") {
       dt_edge <- raw_edges
