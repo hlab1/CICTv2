@@ -5,3 +5,4 @@ edge_features: ~
 model: ~
 model_assessment: ~
 predicted_edges: ~
+cict_raw_edge_col: Pearson
