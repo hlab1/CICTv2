@@ -73,6 +73,11 @@ predictEdges <- function(edge_features = NULL,
     out_data_obj <- in_data_obj
   }
 
+  # SUBSETS GROUND TRUTH FOR LEARNING AND EVALUATION
+  {
+    if (split_ground_truth_by=='tfs') {}
+  }
+
   # LABELS CAUSAL, REVERSE CAUSAL, IRRELEVANTA, AND NEGATIVE EXAMPLES
   {
     # t1.c is 'CAUSAL' edges and is the intersect of ground truth and the edges
@@ -157,13 +162,10 @@ predictEdges <- function(edge_features = NULL,
       names(preset.test)[1:2] <- c('src', 'trgt')
       names(preset.train)[1:2] <- c('src', 'trgt')
       t2 = rbind(
-        preset.train %>% dplyr::select(src, trgt) %>% dplyr::inner_join(t1, by = c(
-          "src" = "src", "trgt" = "trgt"
-        )),
-        preset.test %>% dplyr::select(src, trgt) %>% dplyr::inner_join(t1, by =
-                                                                  c(
-                                                                    "src" = "src", "trgt" = "trgt"
-                                                                  ))
+        preset.train %>% dplyr::select(src, trgt) %>%
+          dplyr::inner_join(t1, by = c("src" = "src", "trgt" = "trgt")),
+        preset.test %>% dplyr::select(src, trgt) %>%
+          dplyr::inner_join(t1, by = c("src" = "src", "trgt" = "trgt"))
       )
     } else{
       t2 = rbind(
