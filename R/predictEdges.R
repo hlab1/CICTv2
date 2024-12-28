@@ -20,13 +20,10 @@
 #' @param in_data_obj cict object replacing rcrd that has all of the results stored as a list
 #' @param rcrd A list object that accumulates intermediary objects, results and performance measures and will be stored as an rds file for later use
 #' @param method Default value is: "CICT", which uses CICT features in a supervised learning. Also can take "RF" (random forest) or "XGB" (xgboost) which these supervised methods on relevance measures
-#' @param evaluateUnseenSample Defualt is: TRUE, calculates regulatory edges on a subsample of up to 50000 edges.
-#' @param evaluateAllEdges Defualt is: FALSE. If TRUE, CICT tries predicting all potential edges in the given network which might take longer time.
-#' @param Debug If TRUE, function enters debugging mode in critical stops along the exectuion allowing verification of variables and features
 #' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
 #' @param preset.test Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
 #' @param predict_on Default is: 'none'. User can provide strings 'none', 'all', or a vector of genes on which the user wants to predict.
-#' @return Returns a list consisted of three objects
+#' @return Returns a list consisting of three objects
 #' rcrd: is a list object of intermediary objects
 #' edges: a dataframe of edge objects and CICT features for edges
 #' Vertices: a dataframe of vertices objects and CICT features for vertices
@@ -40,29 +37,22 @@ predictEdges <- function(edge_features = NULL,
                          in_data_obj = NULL,
                          in_format = 'separate',
                          method = 'rf',
-                         evaluateUnseenSample = T,
-                         evaluateAllEdges = F,
-                         Debug = F,
                          url.preset.train = NA,
                          url.preset.test = NA,
                          minGroundTruth.ratio.learning = 0.3,
                          maxGroundTruth = 500,
                          randomEdgesFoldCausal = 5,
-                         RF_ntrees = 50,
-                         RF_max_depth = 20,
                          exportTrainAndTest = T,
                          returnDat = T,
                          include.negative = 'random',
                          remove.tfs = T,
                          split.val.tfs = F,
                          learning.params = NA,
-                         runOnAllEdges = T,
                          trainingTarget = 'class2',
                          tstPercent = 0.3,
                          url.outputFolder='./cict_output/',
                          predict_on='none',
                          ...) {
-  library(PRROC)
   # PARSE DATA
   {
     if (in_format == "data_obj") {
