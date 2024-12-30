@@ -60,18 +60,21 @@ runCICT <- function(gene_expression_matrix = NULL,
       stop("Failed to create data object")
     }
 
+    # TODO: once other functions can take both config and input formats, should
+    # delete this and change to passing all arguments directly
     # set unnamed args based on input format
     unnamed_args <- list(...)
     if (in_format == "config_file") {
-      # works just fine but do not define "in_format" in config file or it won't work properly
       # args from ellipses are ignored when using config file
-      #TODO: fix this so it doesn't matter if in_format is defined in config file
       config <- yaml::yaml.load_file(config_path)
       config_names <- names(config)
       unnamed_args <-
         config[!(config_names %in% names(cict_data_obj))]
+      unnamed_args$in_format <- "separate"
+      print(unnamed_args)
     }
     args <- list(c(cict_data_obj, unnamed_args))
+
     cict_data_obj$raw_edges <-
       do.call("calculateRawEdges", c(cict_data_obj, unnamed_args))$raw_edges
     cict_data_obj$edge_features <-
