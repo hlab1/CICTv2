@@ -24,14 +24,14 @@ predictEdges(
   exportTrainAndTest = T,
   returnDat = T,
   include.negative = "random",
-  rep = "",
   remove.tfs = T,
   split.val.tfs = F,
   learning.params = NA,
   runOnAllEdges = T,
   trainingTarget = "class2",
   tstPercent = 0.3,
-  url.logfile = "noLog",
+  url.outputFolder = "./cict_output/",
+  predict_on = "none",
   ...
 )
 }
@@ -59,6 +59,8 @@ predictEdges(
 \item{preset.train}{Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features}
 
 \item{preset.test}{Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features}
+
+\item{predict_all}{Default is: 'none'. User can provide strings 'none', 'all', or a vector of genes on which the user wants to predict.}
 }
 \value{
 Returns a list consisted of three objects

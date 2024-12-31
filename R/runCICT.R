@@ -1,6 +1,7 @@
 
 
 
+
 #' Driver for the CICT pipeline
 #'
 #' Takes a gene expression matrix and a ground truth table, calculates raw
@@ -14,9 +15,6 @@
 #'   regulatory network for model training and evaluation. Each row represents a
 #'   source-target relationship, with the source gene in the column labeled
 #'   `"src"` and the target gene in the column labeled `"trgt"`
-#' @param in_data_obj A list in the CICT data object format. Produced by a CICT
-#'   function. Must contain `gene_expression_matrix` and `ground_truth` for the
-#'   driver to run.
 #' @param config_path Path to the YAML config file. Config must contain paths to
 #'   the gene expression matrix and ground truth.
 #' @param in_format String indicating expected input format. `"separate"` if
@@ -35,9 +33,12 @@
 #' @examples
 #' runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
 #'         ground_truth = SERGIO_DS4_ground_truth)
+#' # TODO: use piggyback to download config, gene expression matrix, and ground
+#' # truth files from github to inst/extdata
+#' runCICT(config_path = "inst/extdata/SERGIO_DS4_config.yaml",
+#'         in_format = "config_file")
 runCICT <- function(gene_expression_matrix = NULL,
                     ground_truth = NULL,
-                    in_data_obj = NULL,
                     config_path = NULL,
                     in_format = "separate",
                     ...) {
@@ -45,7 +46,6 @@ runCICT <- function(gene_expression_matrix = NULL,
     checkData(
       gene_expression_matrix = gene_expression_matrix,
       ground_truth = ground_truth,
-      in_data_obj = in_data_obj,
       config_path = config_path,
       in_format = in_format,
       ...
@@ -60,21 +60,27 @@ runCICT <- function(gene_expression_matrix = NULL,
       stop("Failed to create data object")
     }
 
+    # TODO: once other functions can take both config and input formats, should
+    # delete this and change to passing all arguments directly
+    # set unnamed args based on input format
+    unnamed_args <- list(...)
+    if (in_format == "config_file") {
+      # args from ellipses are ignored when using config file
+      config <- yaml::yaml.load_file(config_path)
+      config_names <- names(config)
+      unnamed_args <-
+        config[!(config_names %in% names(cict_data_obj))]
+      unnamed_args$in_format <- "separate"
+      print(unnamed_args)
+    }
+    args <- list(c(cict_data_obj, unnamed_args))
+
     cict_data_obj$raw_edges <-
-      calculateRawEdges(gene_expression_matrix = cict_data_obj$gene_expression_matrix, ...)$raw_edges
+      do.call("calculateRawEdges", c(cict_data_obj, unnamed_args))$raw_edges
     cict_data_obj$edge_features <-
-      prepareEdgeFeatures(
-        gene_expression_matrix = cict_data_obj$gene_expression_matrix,
-        raw_edges = cict_data_obj$raw_edges,
-        ...
-      )$edge_features
+      do.call("prepareEdgeFeatures", c(cict_data_obj, unnamed_args))$edge_features
     pe_out <-
-      predictEdges(
-        gene_expression_matrix = cict_data_obj$gene_expression_matrix,
-        edge_features = cict_data_obj$edge_features,
-        ground_truth = cict_data_obj$ground_truth,
-        ...
-      )
+      do.call("predictEdges", c(cict_data_obj, unnamed_args))
     cict_data_obj$model <- pe_out$model
     cict_data_obj$model_assessment <- pe_out$model_assessment
     cict_data_obj$predicted_edges <- pe_out$predicted_edges

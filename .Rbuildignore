@@ -11,3 +11,4 @@
 ^data/SERGIO_DS4_net0_gene_expression_matrix\.rda$
 ^data/SERGIO_DS4_net0_ground_truth\.rda$
 ^data/SERGIO_DS4_net0_raw_edges\.rda$
+^LICENSE\.md$
