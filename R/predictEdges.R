@@ -17,12 +17,19 @@
 #' @param edge_features NEW NAME FOR dt.edge
 #' @param ground_truth NEW NAME for tbl.goldStandard
 #' @param gene_expression_matrix gene expression matrix not required for this function
+#' @param learning_ratio percent of ground truth to be used for learning
 #' @param in_data_obj cict object replacing rcrd that has all of the results stored as a list
-#' @param rcrd A list object that accumulates intermediary objects, results and performance measures and will be stored as an rds file for later use
-#' @param method Default value is: "CICT", which uses CICT features in a supervised learning. Also can take "RF" (random forest) or "XGB" (xgboost) which these supervised methods on relevance measures
-#' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
-#' @param preset.test Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
-#' @param predict_on Default is: 'none'. User can provide strings 'none', 'all', or a vector of genes on which the user wants to predict.
+#' @param rcrd A list object that accumulates intermediary objects, results and performance measures and
+#' will be stored as an rds file for later use.
+#' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training.
+#' Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
+#' @param preset.test Defualt is: NA. If provided a path to proper CSV, uses that for training.
+#' Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
+#' @param predict_on Default is: 'none'. User can provide strings 'none', 'all', or a vector
+#' of genes on which the user wants to predict.
+#' @param sample_tfs Default is: 'random'. Used only when param split_ground_truth_by is set to 'tfs'.
+#' User can provide strings 'quartiles' or 'random'. Option 'quartiles' will  randomly sample from each
+#' quartile of TFs ranked by number of targets. 'random' will randomly sample from the entire list in an unbiased fashion.
 #' @return Returns a list consisting of three objects
 #' rcrd: is a list object of intermediary objects
 #' edges: a dataframe of edge objects and CICT features for edges
@@ -36,10 +43,9 @@ predictEdges <- function(edge_features = NULL,
                          ground_truth = NULL,
                          in_data_obj = NULL,
                          in_format = 'separate',
-                         method = 'rf',
                          url.preset.train = NA,
                          url.preset.test = NA,
-                         minGroundTruth.ratio.learning = 0.3,
+                         learning_ratio = 0.8,
                          maxGroundTruth = 500,
                          randomEdgesFoldCausal = 5,
                          exportTrainAndTest = T,
@@ -52,6 +58,8 @@ predictEdges <- function(edge_features = NULL,
                          tstPercent = 0.3,
                          url.outputFolder='./cict_output/',
                          predict_on='none',
+                         split_ground_truth_by='nodes',
+                         sample_tfs='random',
                          ...) {
   # PARSE DATA
   {
@@ -59,13 +67,33 @@ predictEdges <- function(edge_features = NULL,
       edge_features <- in_data_obj$edge_features
       gene_expression_matrix <- in_data_obj$gene_expression_matrix
       ground_truth <- in_data_obj$ground_truth
+      out_data_obj <- in_data_obj
+    } else{
+      out_data_obj <- list('edge_features'=edge_features,
+        'gene_expression_matrix'=gene_expression_matrix,
+        'ground_truth'=ground_truth)
     }
-    out_data_obj <- in_data_obj
   }
 
   # SUBSETS GROUND TRUTH FOR LEARNING AND EVALUATION
   {
-    if (split_ground_truth_by=='tfs') {}
+    ground_truth_tfs <- unique(ground_truth$src)
+    n_ground_truth_tfs <- length(ground_truth_tfs)
+    if (split_ground_truth_by=='nodes') {
+      gt_degree <- as.data.frame(table(ground_truth$src)) %>%
+        mutate(quartile = ntile(b, 4))
+      n_tfs_learn <- floor(learning_ratio * n_ground_truth_tfs)
+      learning_tfs <- sample(ground_truth_tfs, size = n_tfs_learn)
+      eval_tfs <- setdiff(ground_truth_tfs, learning_tfs)
+      learning_edges <- ground_truth[ground_truth$src %in% learning_tfs,]
+      eval_edges <- ground_truth[ground_truth$src %in% eval_tfs,]
+    } else {
+      n_edges_learn <- floor(learning_ratio * n_ground_truth_tfs)
+      learning_rows <- sample(seq_len(nrow(ground_truth)), size = n_edges_learn)
+      eval_rows <- setdiff(seq_len(nrow(ground_truth)), learning_edges)
+      learning_edges <- ground_truth[learning_rows,]
+      eval_edges <- ground_truth[eval_rows,]
+    }
   }
 
   # LABELS CAUSAL, REVERSE CAUSAL, IRRELEVANTA, AND NEGATIVE EXAMPLES
@@ -128,16 +156,16 @@ predictEdges <- function(edge_features = NULL,
       )
 
     # Number of causal edges in the ground truth will be the minimum of 'maxGroundTruth'
-    # and the minGroundTruth.ratio.learning multiplied by the number of 'causal' edges in t1.c. If this
+    # and the learning_ratio multiplied by the number of 'causal' edges in t1.c. If this
     # value is less than 300, NcausalEdges will be 2x the initial value.
 
     # Note that this may bring the value of NcausalEdges HIGHER than maxGroundTruth!!
 
     NcausalEdges = min(maxGroundTruth,
-                       nrow(t1.c) * minGroundTruth.ratio.learning) %>% as.integer()
+                       nrow(t1.c) * learning_ratio) %>% as.integer()
     # 300 minimum seems arbitrary...
     if (NcausalEdges < 300)
-      NcausalEdges = floor(2 * nrow(t1.c) * minGroundTruth.ratio.learning)
+      NcausalEdges = floor(2 * nrow(t1.c) * learning_ratio)
     NcausalEdges = min(maxGroundTruth, NcausalEdges) %>% as.integer()
     NrandomEdges = NcausalEdges * randomEdgesFoldCausal
 
