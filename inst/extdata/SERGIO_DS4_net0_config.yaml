@@ -1,5 +1,5 @@
-gene_expression_matrix: /home/syz248/CICTv2/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv
-ground_truth: /home/syz248/CICTv2/inst/extdata/SERGIO_DS4_net0_ground_truth.csv
+gene_expression_matrix: SERGIO_DS4_net0_gene_expression_matrix.csv
+ground_truth: SERGIO_DS4_net0_ground_truth.csv
 raw_edges: ~
 edge_features: ~
 model: ~
