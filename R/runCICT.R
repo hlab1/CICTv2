@@ -6,7 +6,7 @@
 #'
 #' Takes a gene expression matrix and a ground truth table, calculates raw
 #' edges, prepares edge features, and uses a random forest model to predict a
-#' gene regulatory network. Does not currently work in config mode.
+#' gene regulatory network.
 #'
 #' @param gene_expression_matrix The gene expression matrix, where each row
 #'   represents a gene and each column represents a sample. A matrix or Data
@@ -15,12 +15,12 @@
 #'   regulatory network for model training and evaluation. Each row represents a
 #'   source-target relationship, with the source gene in the column labeled
 #'   `"src"` and the target gene in the column labeled `"trgt"`
-#' @param config_path Path to the YAML config file. Config must contain paths to
-#'   the gene expression matrix and ground truth.
+#' @param config_path Path to the YAML config file, if one is used.
 #' @param in_format String indicating expected input format. `"separate"` if
 #'   passing inputs through `gene_expression_matrix` and `ground_truth`,
-#'   `"data_obj"` if passing inputs through `in_data_obj`, `"config"` if passing
-#'   inputs through `config_path`.
+#'   `"config"` if passing inputs through `config_path`. If using the config
+#'   format, all other arguments passed to the function are ignored except
+#'   `config_path`.
 #' @param ... Options to be passed to calculateRawEdges, prepareEdgeFeatures,
 #'   and/or predictEdges
 #'
@@ -75,6 +75,7 @@ runCICT <- function(gene_expression_matrix = NULL,
     }
     args <- list(c(cict_data_obj, unnamed_args))
 
+    # run pipeline
     cict_data_obj$raw_edges <-
       do.call("calculateRawEdges", c(cict_data_obj, unnamed_args))$raw_edges
     cict_data_obj$edge_features <-
