@@ -296,7 +296,7 @@ myKurtosis <- function (x,
                         default = 3,
                         na.rm = TRUE,
                         ...) {
-  result = moments::kurtosis(x, na.rm, ...)
+  result = PerformanceAnalytics::kurtosis(x, na.rm, ...)
   if (is.na(result))
     default
   else
@@ -1195,29 +1195,18 @@ my_replace_na <- function(df, rplist)
   df
 }
 
-extractLmoments = function(v) {
-  if (length(v) == 1) {
-    data.frame(
-      L1 = v,
-      L2 = 0,
-      L3 = NA,
-      L4 = NA,
-      tau3 = 0,
-      tau4 = 0.1226
-    )
+extractLmoments = function(v)
+{
+  if(length(v)==1){
+    # if just one value reutrns defualst for normal distirbution
+    #Normal 	L1=mean, L2=	σ /√π ,tau3=l_skewness=	0 ,tau4=L_kurtosis=	0.1226
+    data.frame(L1=v,L2=0,L3=NA,L4=NA,tau3=0,tau4=0.1226)
   } else
   {
-    l = Lmoments::Lmoments(v, returnobject = TRUE)
-    if (is.null(l$ratios))
-      l$ratios = c(NA, NA, 0, 0.1226)  #happens when length(v)==2
-    p = data.frame(
-      L1 = l$lambdas[1],
-      L2 = l$lambdas[2],
-      L3 = l$lambdas[3],
-      L4 = l$lambdas[4],
-      tau3 = l$ratios[3],
-      tau4 = l$ratios[4]
-    )
+    l =Lmoments::Lmoments(v,returnobject = TRUE)
+    if(is.null(l$ratios)) l$ratios=c(NA,NA,0,0.1226)  #happens when length(v)==2
+    p=data.frame(L1=l$lambdas[1],L2=l$lambdas[2],L3=l$lambdas[3],L4=l$lambdas[4],
+                 tau3=l$ratios[3],tau4=l$ratios[4])
     p
   }
 }
