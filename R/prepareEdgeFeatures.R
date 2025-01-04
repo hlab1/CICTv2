@@ -393,7 +393,7 @@ my_replace_na <- function(df, rplist)
 
 calculate_moments <- function(data, group_col, value_col, prefix, tn) {
   lmoments <-
-    data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::do(extractLmoments(.[[value_col]]))
+    data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::do(extractLmoments(.[[paste0(value_col, "N")]]))
   summary_stats <-
     data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::summarise(
       Total = sum(!!dplyr::sym(value_col), na.rm = TRUE),
