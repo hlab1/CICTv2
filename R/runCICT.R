@@ -90,6 +90,9 @@ runCICT <- function(gene_expression_matrix = NULL,
     cict_data_obj$model_assessment <- pe_out$model_assessment
     cict_data_obj$predicted_edges <- pe_out$predicted_edges
 
+    # saves to working directory by default, use "file" argument otherwise
+    saveRDS(out_obj, file = if(is.null(unnamed_args$file)) "cict_data.rds" else unnamed_args$file)
+
     return(cict_data_obj)
   }, error = function(e) {
     message(e$message)
