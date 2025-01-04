@@ -33,7 +33,8 @@ prepareEdgeFeatures <-
            raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
-           in_format = "separate",...) {
+           in_format = "separate", 
+           prior = NULL, ...) {
     # TODO: allow config and throw error if in_format is not valid
     if (in_format == "separate") {
       dt_edge <- raw_edges
@@ -65,7 +66,14 @@ prepareEdgeFeatures <-
     results5 <- results4
     results5$raw_edges <- tibble::as_tibble(backup_raw_edges)
 
-    return(results5)
+    # Convert prior to a data frame if it is not already
+    prior <- as.data.frame(prior)
+
+    # Perform the left join
+    results6 <- results5
+    results6$edge_features <- merge(results6$edge_features, prior, by = c("src" = "trgt", "trgt" = "src"), all.x = TRUE)
+
+  return(results6)
   }
 
 prepare_table_pef <-
