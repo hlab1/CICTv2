@@ -74,13 +74,12 @@ prepareEdgeFeatures <-
     if (!is.null(prior)) {
     # Convert prior to a data frame if it is not already
     prior <- as.data.frame(prior)
-    
-    # Ensure the column names exist in both data frames
-    if ("gene" %in% colnames(results5$edge_features) && "gene" %in% colnames(prior)) {
-      # Perform the left join
-      results6 <- results5
-      results6$edge_features <- merge(results6$edge_features, prior, by.x = "gene", by.y = "gene", all.x = TRUE)
-  }} else {
+    # Add a new column "prior" to edge_features
+    results6$edge_features$prior <- ifelse(
+    paste(results6$edge_features$src, results6$edge_features$trgt) %in% 
+      paste(prior$src, prior$trgt), 1, 0
+  )
+  } else {
     results6 <- results5
     results6$edge_features <- results5$edge_features
   }
