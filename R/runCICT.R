@@ -1,7 +1,3 @@
-
-
-
-
 #' Driver for the CICT pipeline
 #'
 #' Takes a gene expression matrix and a ground truth table, calculates raw
@@ -36,11 +32,6 @@
 #' # SERGIO_DS4_net0_ground_truth.rda
 #' runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
 #'         ground_truth = SERGIO_DS4_ground_truth)
-#' # From the inst/extdata folder of the CICTv2 GitHub repo, download
-#' # SERGIO_DS4_net0_config.yaml, SERGIO_DS4_net0_gene_expression_matrix.csv,
-#' # and SERGIO_DS4_net0_ground_truth.csv
-#' runCICT(config_path = "SERGIO_DS4_config.yaml",
-#'         in_format = "config_file")
 runCICT <- function(gene_expression_matrix = NULL,
                     ground_truth = NULL,
                     config_path = NULL,
