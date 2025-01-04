@@ -71,8 +71,19 @@ prepareEdgeFeatures <-
 
     # Perform the left join
     results6 <- results5
-    results6$edge_features <- merge(results6$edge_features, prior, by = c("src" = "trgt", "trgt" = "src"), all.x = TRUE)
-
+    if (!is.null(prior)) {
+    # Convert prior to a data frame if it is not already
+    prior <- as.data.frame(prior)
+    
+    # Ensure the column names exist in both data frames
+    if ("gene" %in% colnames(results5$edge_features) && "gene" %in% colnames(prior)) {
+      # Perform the left join
+      results6 <- results5
+      results6$edge_features <- merge(results6$edge_features, prior, by.x = "gene", by.y = "gene", all.x = TRUE)
+  }} else {
+    results6 <- results5
+    results6$edge_features <- results5$edge_features
+  }
   return(results6)
   }
 
@@ -340,6 +351,45 @@ myMin = function(x, lowwerLimit = -Inf) {
   else
     max(mn, lowwerLimit)
 }
+
+#' Replace NA values in a DataFrame based on a replacement list
+#'
+#' This function replaces NA values in a DataFrame with specified values based on a pattern matching of column names.
+#'
+#' @param df A DataFrame in which NA values need to be replaced.
+#' @param rplist A named list where the names are patterns to match column names in the DataFrame, and the values are the replacement values for NA.
+#'
+#' @return A DataFrame with NA values replaced according to the specified patterns and replacement values.
+#'
+#' @examples
+#' df <- data.frame(a1 = c(NA, 2, 3), a2 = c(4, NA, 6), b1 = c(7, 8, NA))
+#' rplist <- list(a = 0, b = 1)
+#' my_replace_na(df, rplist)
+#'
+#' @importFrom tidyr replace_na
+#' @noRd
+my_replace_na <- function(df, rplist)
+{
+  rplptrns = names(rplist)
+  rplvals = unlist(rplist)
+
+  dfcols = colnames(df)
+  rplcols = lapply(rplptrns, function(x)
+    dfcols[stringr::str_detect(dfcols, paste0(".*", x))]) #pattern checking
+
+  rplist2 = list()
+  for (i in 1:length(rplist)) {
+    l = unlist(rplcols[i])
+    v = rplvals[i]
+    l1 = rep(v, length(l))
+    names(l1) <- l
+    rplist2 = append(rplist2, l1)
+  }
+
+  df = replace_na(df, replace = rplist2)
+  df
+}
+
 
 calculate_moments <- function(data, group_col, value_col, prefix, tn) {
   lmoments <-
@@ -1165,43 +1215,6 @@ calculate_f1 <- function(results2) {
   return(list(dt.edge, dt.vertices, dt.geneexp))
 }
 
-#' Replace NA values in a DataFrame based on a replacement list
-#'
-#' This function replaces NA values in a DataFrame with specified values based on a pattern matching of column names.
-#'
-#' @param df A DataFrame in which NA values need to be replaced.
-#' @param rplist A named list where the names are patterns to match column names in the DataFrame, and the values are the replacement values for NA.
-#'
-#' @return A DataFrame with NA values replaced according to the specified patterns and replacement values.
-#'
-#' @examples
-#' df <- data.frame(a1 = c(NA, 2, 3), a2 = c(4, NA, 6), b1 = c(7, 8, NA))
-#' rplist <- list(a = 0, b = 1)
-#' my_replace_na(df, rplist)
-#'
-#' @importFrom tidyr replace_na
-#' @noRd
-my_replace_na <- function(df, rplist)
-{
-  rplptrns = names(rplist)
-  rplvals = unlist(rplist)
-
-  dfcols = colnames(df)
-  rplcols = lapply(rplptrns, function(x)
-    dfcols[stringr::str_detect(dfcols, paste0(".*", x))]) #pattern checking
-
-  rplist2 = list()
-  for (i in 1:length(rplist)) {
-    l = unlist(rplcols[i])
-    v = rplvals[i]
-    l1 = rep(v, length(l))
-    names(l1) <- l
-    rplist2 = append(rplist2, l1)
-  }
-
-  df = replace_na(df, replace = rplist2)
-  df
-}
 
 extractLmoments = function(v)
 {
