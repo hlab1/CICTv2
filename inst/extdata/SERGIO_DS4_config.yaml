@@ -1,6 +1,0 @@
-gene_expression_matrix: /home/syz248/CICTv2/inst/extdata/SERGIO_DS4_gene_expression_matrix.csv
-ground_truth: /home/syz248/CICTv2/inst/extdata/SERGIO_DS4_ground_truth.csv
-gene_association_matrix: ~
-rf_features: ~
-rf_outputs: ~
-predicted_edges: ~

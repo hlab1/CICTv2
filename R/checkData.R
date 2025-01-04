@@ -56,7 +56,7 @@
 #' # create a config YAML file with absolute paths to data
 #' yaml::write_yaml(list(gene_expression_matrix = system.file("extdata", "SERGIO_DS4_gene_expression_matrix.csv", package = "CICTv2", mustWork = TRUE),
 #'                 ground_truth = system.file("extdata", "SERGIO_DS4_ground_truth.csv", package = "CICTv2", mustWork = TRUE),
-#'                 gene_association_matrix = NULL,
+#'                 raw_edges = NULL,
 #'                 edge_features = NULL,
 #'                 model = NULL,
 #'                 model_assessment = NULL,

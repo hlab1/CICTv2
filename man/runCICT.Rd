@@ -52,4 +52,8 @@ gene regulatory network. Does not currently work in config mode.
 \examples{
 runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
         ground_truth = SERGIO_DS4_ground_truth)
+# TODO: use piggyback to download config, gene expression matrix, and ground
+# truth files from github to inst/extdata
+runCICT(config_path = "inst/extdata/SERGIO_DS4_config.yaml",
+        in_format = "config_file")
 }
