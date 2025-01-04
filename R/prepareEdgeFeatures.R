@@ -3,15 +3,38 @@
 
 #prepareEdgeFeatures(raw_edges = trial_dt_edge, gene_expression_matrix = trial_dt_geneexp, cict_raw_edge_col = 'Spearman')
 # trial_dt_edge <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/rawEdges.csv")
-# trial_dt_geneexp <- fread("/Users/vvtch/Desktop/sigmafolder/inputs/SERGIO_DS4/net1/ExpressionData.csv")
-
+# trial_dt_geneexp <- read.csv("/Users/vvtch/Desktop/sigmafolder/inputs/SERGIO_DS4/net1/ExpressionData.csv")
+#' Prepare Edge Features
+#'
+#' This function prepares edge features from raw edges and a gene expression matrix.
+#'
+#' @param in_data_obj List. Input data object containing necessary data. Default is NULL.
+#' @param raw_edges Data frame. Raw edges data. Default is NULL.
+#' @param gene_expression_matrix Data frame. Gene expression matrix. Default is NULL.
+#' @param cict_raw_edge_col Character. Column name for raw edge calculation. Default is 'Spearman'.
+#' @param in_format Character. Format of the input data. Can be "separate" or "data_obj". Default is "separate".
+#' @param ... Additional arguments to be passed to other functions.
+#' @return A list containing the prepared edge features and other relevant data.
+#' @details This function processes the raw edges and gene expression matrix to prepare edge features. It supports two input formats: "separate" and "data_obj".
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' raw_edges <- read.csv("path/to/raw_edges.csv")
+#' gene_expression_matrix <- read.csv("path/to/gene_expression_matrix.csv")
+#' edge_features <- prepareEdgeFeatures(
+#'   raw_edges = raw_edges,
+#'   gene_expression_matrix = gene_expression_matrix,
+#'   cict_raw_edge_col = 'Spearman'
+#' )
+#' }
+#' @export
 prepareEdgeFeatures <-
   function(in_data_obj = NULL,
            raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
-           in_format = "separate",
-           ...) {
+           in_format = "separate", 
+           prior = NULL, ...) {
     # TODO: allow config and throw error if in_format is not valid
     if (in_format == "separate") {
       dt_edge <- raw_edges
@@ -21,6 +44,7 @@ prepareEdgeFeatures <-
       dt_edge <- in_data_obj$raw_edges
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
+    backup_raw_edges <- dt_edge
     # define the hardcoded variables
     earlyThresholdForGraphAnalysis <- 0
     #third, make sure the data is read
@@ -39,7 +63,27 @@ prepareEdgeFeatures <-
     results3 <- calculate_f1(results2)
     results4 <- calculate_f2(results3)
 
-    return(results4)
+    results5 <- results4
+    results5$raw_edges <- tibble::as_tibble(backup_raw_edges)
+
+    # Convert prior to a data frame if it is not already
+    prior <- as.data.frame(prior)
+
+    # Perform the left join
+    results6 <- results5
+    if (!is.null(prior)) {
+    # Convert prior to a data frame if it is not already
+    prior <- as.data.frame(prior)
+    # Add a new column "prior" to edge_features
+    results6$edge_features$prior <- ifelse(
+    paste(results6$edge_features$src, results6$edge_features$trgt) %in% 
+      paste(prior$src, prior$trgt), 1, 0
+  )
+  } else {
+    results6 <- results5
+    results6$edge_features <- results5$edge_features
+  }
+  return(results6)
   }
 
 prepare_table_pef <-
@@ -270,7 +314,7 @@ myKurtosis <- function (x,
                         default = 3,
                         na.rm = TRUE,
                         ...) {
-  result = moments::kurtosis(x, na.rm, ...)
+  result = PerformanceAnalytics::kurtosis(x, na.rm, ...)
   if (is.na(result))
     default
   else
@@ -307,9 +351,48 @@ myMin = function(x, lowwerLimit = -Inf) {
     max(mn, lowwerLimit)
 }
 
-calculate_moments <- function(data, group_col, value_col, prefix) {
+#' Replace NA values in a DataFrame based on a replacement list
+#'
+#' This function replaces NA values in a DataFrame with specified values based on a pattern matching of column names.
+#'
+#' @param df A DataFrame in which NA values need to be replaced.
+#' @param rplist A named list where the names are patterns to match column names in the DataFrame, and the values are the replacement values for NA.
+#'
+#' @return A DataFrame with NA values replaced according to the specified patterns and replacement values.
+#'
+#' @examples
+#' df <- data.frame(a1 = c(NA, 2, 3), a2 = c(4, NA, 6), b1 = c(7, 8, NA))
+#' rplist <- list(a = 0, b = 1)
+#' my_replace_na(df, rplist)
+#'
+#' @importFrom tidyr replace_na
+#' @noRd
+my_replace_na <- function(df, rplist)
+{
+  rplptrns = names(rplist)
+  rplvals = unlist(rplist)
+
+  dfcols = colnames(df)
+  rplcols = lapply(rplptrns, function(x)
+    dfcols[stringr::str_detect(dfcols, paste0(".*", x))]) #pattern checking
+
+  rplist2 = list()
+  for (i in 1:length(rplist)) {
+    l = unlist(rplcols[i])
+    v = rplvals[i]
+    l1 = rep(v, length(l))
+    names(l1) <- l
+    rplist2 = append(rplist2, l1)
+  }
+
+  df = replace_na(df, replace = rplist2)
+  df
+}
+
+
+calculate_moments <- function(data, group_col, value_col, prefix, tn) {
   lmoments <-
-    data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::do(extractLmoments(.[[value_col]]))
+    data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::do(extractLmoments(.[[paste0(value_col, "N")]]))
   summary_stats <-
     data %>% dplyr::group_by(!!dplyr::sym(group_col)) %>% dplyr::summarise(
       Total = sum(!!dplyr::sym(value_col), na.rm = TRUE),
@@ -341,7 +424,15 @@ calculate_moments <- function(data, group_col, value_col, prefix) {
         NMADconst,
         na.rm = TRUE,
         default = 0
-      )
+      ),
+      tnTotal=sum(tn,na.rm= TRUE),
+       tnMean=myMean(tn, 0,na.rm= TRUE),
+       tnMedian=myMedian(tn, 0,na.rm= TRUE),
+       tnSD=mySD(tn, na.rm = TRUE,0),
+       tnSkew=mySkewness(tn, 0,na.rm =TRUE),
+       tnKurt=myKurtosis(tn, 3,na.rm = TRUE),
+       tnMADconst=ifelse(is.na(sn::qsc(.75,tnMean,tnSD,tnSkew)),1.488,sn::qsc(.75,tnMean,tnSD,tnSkew)),
+       tnMAD= myMedianAbsoluteDeviation(tn,tnMedian,tnMADconst,na.rm=TRUE,default=0)
     )
   full_stats <-
     summary_stats %>% dplyr::inner_join(lmoments, by = group_col)
@@ -440,6 +531,7 @@ calculate_f1 <- function(results2) {
   #    - 'HTR': Harmonized Transition Rate, calculated as (Weight * srctrgtSum) / srctrgtProduct.
   #    - 'EE': Some efficiency measure, calculated as (OcrOut.x^2 * OcrInp.y) / srctrgtSum.
   # 4. A subset of 'dt.edge' is created, containing rows where 'HTR' is NA.
+ 
   dt.edge = dt.edge %>% dplyr::mutate(srctrgtSum = OcrOut.x + OcrInp.y,
                                       srctrgtProduct = OcrOut.x * OcrInp.y) %>%
     dplyr::mutate(
@@ -1039,13 +1131,13 @@ calculate_f1 <- function(results2) {
 
   # Calculate moments for others contributions and confidence
   othersConfsFull <-
-    calculate_moments(dt.edge, "trgt", "conf", "ocf")
+    calculate_moments(dt.edge, "trgt", "conf", "ocf", tn)
   othersContribsFull <-
-    calculate_moments(dt.edge, "trgt", "contrib", "ocb")
+    calculate_moments(dt.edge, "trgt", "contrib", "ocb", tn)
   # Calculate moments for self contributions and confidence
-  selfConfsFull <- calculate_moments(dt.edge, "src", "conf", "scf")
+  selfConfsFull <- calculate_moments(dt.edge, "src", "conf", "scf", tn)
   selfContribsFull <-
-    calculate_moments(dt.edge, "src", "contrib", "scb")
+    calculate_moments(dt.edge, "src", "contrib", "scb", tn)
 
 
   dt.vertices.othersparams <-
@@ -1122,67 +1214,19 @@ calculate_f1 <- function(results2) {
   return(list(dt.edge, dt.vertices, dt.geneexp))
 }
 
-#' Replace NA values in a DataFrame based on a replacement list
-#'
-#' This function replaces NA values in a DataFrame with specified values based on a pattern matching of column names.
-#'
-#' @param df A DataFrame in which NA values need to be replaced.
-#' @param rplist A named list where the names are patterns to match column names in the DataFrame, and the values are the replacement values for NA.
-#'
-#' @return A DataFrame with NA values replaced according to the specified patterns and replacement values.
-#'
-#' @examples
-#' df <- data.frame(a1 = c(NA, 2, 3), a2 = c(4, NA, 6), b1 = c(7, 8, NA))
-#' rplist <- list(a = 0, b = 1)
-#' my_replace_na(df, rplist)
-#'
-#' @importFrom tidyr replace_na
-#' @noRd
-my_replace_na <- function(df, rplist)
+
+extractLmoments = function(v)
 {
-  rplptrns = names(rplist)
-  rplvals = unlist(rplist)
-
-  dfcols = colnames(df)
-  rplcols = lapply(rplptrns, function(x)
-    dfcols[stringr::str_detect(dfcols, paste0(".*", x))]) #pattern checking
-
-  rplist2 = list()
-  for (i in 1:length(rplist)) {
-    l = unlist(rplcols[i])
-    v = rplvals[i]
-    l1 = rep(v, length(l))
-    names(l1) <- l
-    rplist2 = append(rplist2, l1)
-  }
-
-  df = replace_na(df, replace = rplist2)
-  df
-}
-
-extractLmoments = function(v) {
-  if (length(v) == 1) {
-    data.frame(
-      L1 = v,
-      L2 = 0,
-      L3 = NA,
-      L4 = NA,
-      tau3 = 0,
-      tau4 = 0.1226
-    )
+  if(length(v)==1){
+    # if just one value reutrns defualst for normal distirbution
+    #Normal 	L1=mean, L2=	σ /√π ,tau3=l_skewness=	0 ,tau4=L_kurtosis=	0.1226
+    data.frame(L1=v,L2=0,L3=NA,L4=NA,tau3=0,tau4=0.1226)
   } else
   {
-    l = Lmoments::Lmoments(v, returnobject = TRUE)
-    if (is.null(l$ratios))
-      l$ratios = c(NA, NA, 0, 0.1226)  #happens when length(v)==2
-    p = data.frame(
-      L1 = l$lambdas[1],
-      L2 = l$lambdas[2],
-      L3 = l$lambdas[3],
-      L4 = l$lambdas[4],
-      tau3 = l$ratios[3],
-      tau4 = l$ratios[4]
-    )
+    l =Lmoments::Lmoments(v,returnobject = TRUE)
+    if(is.null(l$ratios)) l$ratios=c(NA,NA,0,0.1226)  #happens when length(v)==2
+    p=data.frame(L1=l$lambdas[1],L2=l$lambdas[2],L3=l$lambdas[3],L4=l$lambdas[4],
+                 tau3=l$ratios[3],tau4=l$ratios[4])
     p
   }
 }
@@ -1335,7 +1379,7 @@ calculate_f2 <- function (results3) {
 
   #   Add source and target charectristics to edges -----
   dt.edge.BeforeAugmenting = dt.edge
-
+  
   collist = c(
     'MAD',
     'Median',
@@ -1407,7 +1451,9 @@ calculate_f2 <- function (results3) {
     excluded = c('OcrInp.x', 'Indegree.x'),
     samplesize = nrow(dt.edge) * 0.02
   )
-  dt.edge = dt.edge %>% dplyr::select(!any_of(dupcols), any_of('Weight'))
+  dt.edge = dt.edge %>% dplyr::select(!any_of(dupcols), any_of(c('Weight', "scftnMedian.x", "scftnMADconst.x", "scftnMAD.x", "ocfNMAD.x", "scftnMedian.y", "scftnMADconst.y", "scftnMAD.y", "ocfNMAD.y")))
+
+  dt.edge = dt.edge %>% dplyr::select(c(-"scbtnMedian.x", -"scbtnMADconst.x", -"scbtnMAD.x", -"scbtnMedian.y", -"scbtnMADconst.y", -"scbtnMAD.y"))
 
   a = sapply(dt.edge, function(x)
     sum(is.na(x)))
@@ -1456,5 +1502,4 @@ calculate_f2 <- function (results3) {
       predicted_edges = NULL
     )
   )
-
-}
+} 
