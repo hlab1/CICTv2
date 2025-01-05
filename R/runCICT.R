@@ -70,21 +70,32 @@ runCICT <- function(gene_expression_matrix = NULL,
       unnamed_args <-
         config[!(config_names %in% names(cict_data_obj))]
       unnamed_args$in_format <- "separate"
+
+      # set results dir to work dir if no otherwise specified
+      if(is.null(unnamed_args$results_dir)) {
+        unnamed_args$results_dir = "."
+      }
+
+      # if there is an existing log file, clear it
+      log_file <- file.path(unnamed_args$results_dir, "log")
+      file.create(log_file)
+      # redirect printed notes to log file
+      sink(log_file)
     }
     args <- list(c(cict_data_obj, unnamed_args))
 
     # run pipeline
-    print(paste("[",Sys.time(),"]","Begin calculating raw edge weights",sep=" "));
+    print(paste("[",Sys.time(),"]","Began calculating raw edge weights",sep=" "));
     cict_data_obj$raw_edges <-
       do.call("calculateRawEdges", c(cict_data_obj, unnamed_args))$raw_edges
     print(paste("[",Sys.time(),"]","Finished calculating raw edge weights",sep=" "));
 
-    print(paste("[",Sys.time(),"]","Begin calculating edge features",sep=" "));
+    print(paste("[",Sys.time(),"]","Began calculating edge features",sep=" "));
     cict_data_obj$edge_features <-
       do.call("prepareEdgeFeatures", c(cict_data_obj, unnamed_args))$edge_features
     print(paste("[",Sys.time(),"]","Finished calculating edge features",sep=" "));
 
-    print(paste("[",Sys.time(),"]","Begin predicting edges",sep=" "));
+    print(paste("[",Sys.time(),"]","Began predicting edges",sep=" "));
     pe_out <-
       do.call("predictEdges", c(cict_data_obj, unnamed_args))
     cict_data_obj$model <- pe_out$model
@@ -93,12 +104,13 @@ runCICT <- function(gene_expression_matrix = NULL,
     print(paste("[",Sys.time(),"]","Finished predicting edges",sep=" "));
 
     if(in_format == "config_file") {
-      if(is.null(unnamed_args$results_dir)) {
-        unnamed_args$results_dir = "."
-      }
       write.csv(cict_data_obj$predicted_edges, file = file.path(unnamed_args$results_dir, "predicted_edges.csv"), row.names = FALSE)
       saveRDS(cict_data_obj, file = file.path(unnamed_args$results_dir, "cict_data.Rds"))
+
+      # close connection to log file
+      sink()
     }
+
     return(cict_data_obj)
   }, error = function(e) {
     message(e$message)
