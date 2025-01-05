@@ -1,16 +1,16 @@
-# NEW CRE
 
 
-#Mutual information steady state Multiple measures parallel
+calculateRawEdges <- function(
+	n.workers=5,
+	in_data_obj=NULL,
+	raw_edges=NULL,
+	gene_expression_matrix=NULL,
+	cict_raw_edge_col = 'Spearman',
+	in_format = "separate") {
 
-  #Parallel partition for each measure, multiple measures
 
-calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gene_expression_matrix=NULL, cict_raw_edge_col = 'Spearman',in_format = "separate") {
-	nParallelThreads = 12
-    edgeTypes <- cict_raw_edge_col
-
-
-########## all functions from before start here
+nParallelThreads = 12
+edgeTypes <- cict_raw_edge_col
 
 
 ################################################################################@
