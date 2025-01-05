@@ -1,12 +1,32 @@
-
-
-calculateRawEdges <- function(
-	n.workers=5,
-	in_data_obj=NULL,
-	raw_edges=NULL,
-	gene_expression_matrix=NULL,
-	cict_raw_edge_col = 'Spearman',
-	in_format = "separate") {
+#' calculateRawEdges
+#'
+#' Returns a gene-gene association matrix from a gene expression matrix
+#'
+#' @param in_data_obj CICT list object which includes
+#' gene_expression_matrix, ground_truth, raw_edges, edge_features, model,
+#' model_assessment, and predicted_edges.
+#' @param gene_expression_matrix Data.frame of gene expression where rows are
+#' genes and columns are samples
+#' @param cict_raw_edge_col gene-gene association metric to calculate
+#' @param in_data_obj cict object replacing rcrd that has all of the results
+#' stored as a list
+#' @param in_format String that specifies the input format. Can be 'data_obj',
+#' 'separate', or 'config_file'
+#' @param n.workers Integer. If running parallel, number of threads on which to
+#' run calculations
+#' @return Returns a list consisting of three objects
+#' rcrd: is a list object of intermediary objects
+#' edges: a dataframe of edge objects and CICT features for edges
+#' Vertices: a dataframe of vertices objects and CICT features for vertices
+#' @examples
+#' c(rcrd,edges,vertices) %<-z% prepareEdgeFeatures(Debug=Debug)
+#' @export
+#'
+calculateRawEdges <- function(in_data_obj=NULL,
+                              gene_expression_matrix=NULL,
+							  cict_raw_edge_col = 'Spearman',
+							  in_format = "separate",
+							  n.workers=5) {
 
 
 nParallelThreads = 12
@@ -592,11 +612,9 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
 ########### end here
     # TODO: allow config and throw error if in_format is not valid
     if(in_format == "separate") {
-      dt_edge <- raw_edges
       dt_geneexp <- gene_expression_matrix
     }
     else if (in_format == "data_obj") {
-      dt_edge <- in_data_obj$raw_edges
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
 
