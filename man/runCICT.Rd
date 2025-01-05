@@ -26,9 +26,12 @@ source-target relationship, with the source gene in the column labeled
 
 \item{in_format}{String indicating expected input format. \code{"separate"} if
 passing inputs through \code{gene_expression_matrix} and \code{ground_truth},
-\code{"config"} if passing inputs through \code{config_path}. If using the config
+\code{"config_file"} if passing inputs through \code{config_path}. If using the config
 format, all other arguments passed to the function are ignored except
-\code{config_path}.}
+\code{config_path}, and the resulting predicted edges and CICT data object  will
+be stored as a CSV and .Rds file respectively. Use "results_dir" argument
+in config file to specify where these files should be saved; otherwise,
+they will be saved to the working directory.}
 
 \item{...}{Options to be passed to calculateRawEdges, prepareEdgeFeatures,
 and/or predictEdges}
@@ -42,7 +45,8 @@ in the CICT pipeline. Contains \code{gene_expression_matrix}, \code{ground_truth
 \description{
 Takes a gene expression matrix and a ground truth table, calculates raw
 edges, prepares edge features, and uses a random forest model to predict a
-gene regulatory network.
+gene regulatory network. If in_format is specified as config_path, inputs and
+arguments will come from a YAML config file.
 }
 \examples{
 # From the data folder of the CICTv2 GitHub repo, download and load

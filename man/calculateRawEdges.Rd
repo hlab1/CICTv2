@@ -10,7 +10,8 @@ calculateRawEdges(
   raw_edges = NULL,
   gene_expression_matrix = NULL,
   cict_raw_edge_col = "Spearman",
-  in_format = "separate"
+  in_format = "separate",
+  ...
 )
 }
 \arguments{

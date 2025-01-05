@@ -2,7 +2,8 @@
 #'
 #' Takes a gene expression matrix and a ground truth table, calculates raw
 #' edges, prepares edge features, and uses a random forest model to predict a
-#' gene regulatory network.
+#' gene regulatory network. If in_format is specified as config_path, inputs and
+#' arguments will come from a YAML config file.
 #'
 #' @param gene_expression_matrix The gene expression matrix, where each row
 #'   represents a gene and each column represents a sample. A matrix or Data
@@ -14,9 +15,12 @@
 #' @param config_path Path to the YAML config file, if one is used.
 #' @param in_format String indicating expected input format. `"separate"` if
 #'   passing inputs through `gene_expression_matrix` and `ground_truth`,
-#'   `"config"` if passing inputs through `config_path`. If using the config
+#'   `"config_file"` if passing inputs through `config_path`. If using the config
 #'   format, all other arguments passed to the function are ignored except
-#'   `config_path`.
+#'   `config_path`, and the resulting predicted edges and CICT data object  will
+#'   be stored as a CSV and .Rds file respectively. Use "results_dir" argument
+#'   in config file to specify where these files should be saved; otherwise,
+#'   they will be saved to the working directory.
 #' @param ... Options to be passed to calculateRawEdges, prepareEdgeFeatures,
 #'   and/or predictEdges
 #'
@@ -55,9 +59,9 @@ runCICT <- function(gene_expression_matrix = NULL,
       stop("Failed to create data object")
     }
 
+    # set unnamed args based on input format
     # TODO: once other functions can take both config and input formats, should
     # delete this and change to passing all arguments directly
-    # set unnamed args based on input format
     unnamed_args <- list(...)
     if (in_format == "config_file") {
       # args from ellipses are ignored when using config file
@@ -85,7 +89,7 @@ runCICT <- function(gene_expression_matrix = NULL,
         unnamed_args$results_dir = "."
       }
       write.csv(cict_data_obj$predicted_edges, file = file.path(unnamed_args$results_dir, "predicted_edges.csv"), row.names = FALSE)
-      saveRDS(cict_data_obj, file = file.path(unnamed_args$results_dir, "cict_data.rds"))
+      saveRDS(cict_data_obj, file = file.path(unnamed_args$results_dir, "cict_data.Rds"))
     }
     return(cict_data_obj)
   }, error = function(e) {
