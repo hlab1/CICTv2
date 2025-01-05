@@ -269,7 +269,7 @@ getSimilarityMatrix_MI <- function(ExpressionMatrix, nrows, estimators="pearson"
 	# 	diag(mim) <- diagr
 
 	# }
-	# else 
+	# else
 	if(estimators == "coarse.grained")
 	{
 		DATA <- t(ExpressionMatrix)
@@ -672,7 +672,6 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
                     actualDatasetName, actualDatasetSymbolicPatterns, patterns, numCores)
         {
 
-          print(paste("[",Sys.time(),"]","Processing",sim,"over",actualDatasetName,"...",sep=" "));
           ##Perform similarity/distance step
           firstStepMatrix <- tryCatch({
 
@@ -710,7 +709,6 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
 
             row.names(locMatrix) <- row.names(actualDataset);
             colnames(locMatrix) <- row.names(actualDataset);
-            print(paste("[",Sys.time(),"]","DONE processing",sim,"over",actualDatasetName,"...",sep=" "));
             return(locMatrix);
 
           },error=function(err){

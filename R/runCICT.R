@@ -74,15 +74,23 @@ runCICT <- function(gene_expression_matrix = NULL,
     args <- list(c(cict_data_obj, unnamed_args))
 
     # run pipeline
+    print(paste("[",Sys.time(),"]","Begin calculating raw edge weights",sep=" "));
     cict_data_obj$raw_edges <-
       do.call("calculateRawEdges", c(cict_data_obj, unnamed_args))$raw_edges
+    print(paste("[",Sys.time(),"]","Finished calculating raw edge weights",sep=" "));
+
+    print(paste("[",Sys.time(),"]","Begin calculating edge features",sep=" "));
     cict_data_obj$edge_features <-
       do.call("prepareEdgeFeatures", c(cict_data_obj, unnamed_args))$edge_features
+    print(paste("[",Sys.time(),"]","Finished calculating edge features",sep=" "));
+
+    print(paste("[",Sys.time(),"]","Begin predicting edges",sep=" "));
     pe_out <-
       do.call("predictEdges", c(cict_data_obj, unnamed_args))
     cict_data_obj$model <- pe_out$model
     cict_data_obj$model_assessment <- pe_out$model_assessment
     cict_data_obj$predicted_edges <- pe_out$predicted_edges
+    print(paste("[",Sys.time(),"]","Finished predicting edges",sep=" "));
 
     if(in_format == "config_file") {
       if(is.null(unnamed_args$results_dir)) {
