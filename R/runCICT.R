@@ -84,6 +84,7 @@ runCICT <- function(gene_expression_matrix = NULL,
       if(is.null(unnamed_args$results_dir)) {
         unnamed_args$results_dir = "."
       }
+      write.csv(cict_data_obj$predicted_edges, file = file.path(unnamed_args$results_dir, "predicted_edges.csv"), row.names = FALSE)
       saveRDS(cict_data_obj, file = file.path(unnamed_args$results_dir, "cict_data.rds"))
     }
     return(cict_data_obj)
