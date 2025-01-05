@@ -75,6 +75,8 @@ runCICT <- function(gene_expression_matrix = NULL,
       if(is.null(unnamed_args$results_dir)) {
         unnamed_args$results_dir = "."
       }
+      # create results dir if it doesn't exist
+      suppressWarnings(dir.create(unnamed_args$results_dir))
 
       # if there is an existing log file, clear it
       log_file <- file.path(unnamed_args$results_dir, "log")
