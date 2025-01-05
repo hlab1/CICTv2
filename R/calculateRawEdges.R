@@ -748,7 +748,7 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
       if(nrow(tmp)==0) next
 
       ncol(tmp);nrow(tmp)
-      if(all(  rownames(tmp) %>%as.numeric() %>% is.numeric())){
+      if(suppressWarnings(all(  rownames(tmp) %>%as.numeric() %>% is.numeric()))){
           colnames(tmp) = rownames(actualDataset)
           rownames(tmp) = rownames(actualDataset)
           tmp =tmp %>% mutate(src =rownames(actualDataset)  ) %>% dplyr::select(src,everything())
