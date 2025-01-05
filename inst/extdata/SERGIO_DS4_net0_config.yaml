@@ -1,4 +1,4 @@
 gene_expression_matrix: SERGIO_DS4_net0_gene_expression_matrix.csv
 ground_truth: SERGIO_DS4_net0_ground_truth.csv
 cict_raw_edge_col: Pearson
-file: cict_data.rds
+results_dir: SERGIO_DS4_net0

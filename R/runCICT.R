@@ -81,15 +81,10 @@ runCICT <- function(gene_expression_matrix = NULL,
     cict_data_obj$predicted_edges <- pe_out$predicted_edges
 
     if(in_format == "config_file") {
-      print(unnamed_args$file)
-      # TODO: document that yaml package is needed for config mode, document that files will be saved externally in config mode
-      # saves to working directory by default, add "file" argument to config otherwise
-      if(is.null(unnamed_args$file)) {
-        saveRDS(cict_data_obj, file = "cict_data.rds")
+      if(is.null(unnamed_args$results_dir)) {
+        unnamed_args$results_dir = "."
       }
-      else {
-        saveRDS(cict_data_obj, file = unnamed_args$file)
-      }
+      saveRDS(cict_data_obj, file = file.path(unnamed_args$results_dir, "cict_data.rds"))
     }
     return(cict_data_obj)
   }, error = function(e) {
