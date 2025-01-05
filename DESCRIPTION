@@ -36,7 +36,7 @@ Imports:
     tibble,
     stats,
     utils,
-    PRROC
+    PRROC,
+    PerformanceAnalytics
 Suggests: 
     yaml
-
