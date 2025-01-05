@@ -33,7 +33,7 @@ prepareEdgeFeatures <-
            raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
-           in_format = "separate", 
+           in_format = "separate",
            prior = NULL, ...) {
     # TODO: allow config and throw error if in_format is not valid
     if (in_format == "separate") {
@@ -76,7 +76,7 @@ prepareEdgeFeatures <-
     prior <- as.data.frame(prior)
     # Add a new column "prior" to edge_features
     results6$edge_features$prior <- ifelse(
-    paste(results6$edge_features$src, results6$edge_features$trgt) %in% 
+    paste(results6$edge_features$src, results6$edge_features$trgt) %in%
       paste(prior$src, prior$trgt), 1, 0
   )
   } else {
@@ -531,7 +531,7 @@ calculate_f1 <- function(results2) {
   #    - 'HTR': Harmonized Transition Rate, calculated as (Weight * srctrgtSum) / srctrgtProduct.
   #    - 'EE': Some efficiency measure, calculated as (OcrOut.x^2 * OcrInp.y) / srctrgtSum.
   # 4. A subset of 'dt.edge' is created, containing rows where 'HTR' is NA.
- 
+
   dt.edge = dt.edge %>% dplyr::mutate(srctrgtSum = OcrOut.x + OcrInp.y,
                                       srctrgtProduct = OcrOut.x * OcrInp.y) %>%
     dplyr::mutate(
@@ -613,9 +613,6 @@ calculate_f1 <- function(results2) {
   data.table::setDF(dt.vertices1)
   dt.edge = dt.edge %>% dplyr::left_join(dt.vertices1, by = c("src" = "gene"))
   dt.edge = dt.edge %>% dplyr::left_join(dt.vertices1, by = c("trgt" = "gene"))
-
-  print('dt.edge 4')
-  print(head(dt.edge))
 
   #   Enhance edges conf contrib -----
   # This script processes a data frame `dt.edge` by performing various calculations and transformations.
@@ -1016,7 +1013,6 @@ calculate_f1 <- function(results2) {
     c = sapply(dt.edge, function(x)
       sum(is.infinite(x)))
     c[c > 0]
-    print("X==0 ------------------------------------>")
     b = sapply(dt.edge, function(x)
       sum(x == 0 & !is.na(x)))
     b[b > 0]
@@ -1029,11 +1025,14 @@ calculate_f1 <- function(results2) {
   # 3. Prints a message listing the unique 'src' values that are not found in 'dt.vertices'.
   dt.edge = as.data.frame(dt.edge)
   n.notinVertices = dt.edge %>% dplyr::anti_join(dt.vertices, by = c("src" = "gene"))
-  print(paste0(
-    "!!! nodes:" ,
-    paste(unique(n.notinVertices$src), collapse = ","),
-    "  do not exist in vertices"
-  ))
+  if(length(unique(n.notinVertices$src)) > 0) {
+    print(paste0(
+      "!!! nodes:" ,
+      paste(unique(n.notinVertices$src), collapse = ","),
+      "  do not exist in vertices"
+    ))
+
+  }
 
   # This script processes the 'dt.edge' data frame by adding a new column 'trnsparency'.
   # The 'trnsparency' column is calculated as the ratio of 'conf' to the maximum value of 'conf'.
@@ -1379,7 +1378,7 @@ calculate_f2 <- function (results3) {
 
   #   Add source and target charectristics to edges -----
   dt.edge.BeforeAugmenting = dt.edge
-  
+
   collist = c(
     'MAD',
     'Median',
@@ -1502,4 +1501,4 @@ calculate_f2 <- function (results3) {
       predicted_edges = NULL
     )
   )
-} 
+}

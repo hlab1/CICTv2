@@ -10,6 +10,7 @@ prepareEdgeFeatures(
   gene_expression_matrix = NULL,
   cict_raw_edge_col = "Spearman",
   in_format = "separate",
+  prior = NULL,
   ...
 )
 }

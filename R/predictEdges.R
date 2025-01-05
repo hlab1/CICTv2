@@ -403,6 +403,5 @@ predictEdges <- function(edge_features = NULL,
   {
 
   }
-  print('Data produced successfuly ==================================')
   return(out_data_obj)
 }
