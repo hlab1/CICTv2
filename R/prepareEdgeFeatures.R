@@ -64,9 +64,6 @@ prepareEdgeFeatures <-
     results5 <- results4
     results5$raw_edges <- tibble::as_tibble(backup_raw_edges)
 
-    # Convert prior to a data frame if it is not already
-    prior <- as.data.frame(prior)
-
     # Perform the left join
     results6 <- results5
     if (!is.null(prior)) {
