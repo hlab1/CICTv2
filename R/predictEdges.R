@@ -53,6 +53,7 @@ predictEdges <- function(edge_features = NULL,
                          learning_ratio = 0.8,
                          maxGroundTruth = 500,
                          randomEdgesFoldCausal = 5,
+                         negativeEdgesFoldCausal = 1,
                          exportTrainAndTest = T,
                          returnDat = T,
                          include.negative = 'random',
@@ -70,6 +71,7 @@ predictEdges <- function(edge_features = NULL,
     if (in_format == "data_obj") {
       edge_features <- in_data_obj$edge_features
       ground_truth <- in_data_obj$ground_truth
+    }
   }
 
   # SUBSETS GROUND TRUTH FOR LEARNING AND EVALUATION
@@ -161,6 +163,8 @@ predictEdges <- function(edge_features = NULL,
     nRandomEdges <- nCausalEdges * randomEdgesFoldCausal
     if (include.negative == "random") {
       nNegativeEdges <- nCausalEdges * negativeEdgesFoldCausal
+    } else {
+      nNegativeEdges <- 0
     }
 
     # TODO: Add preset functionality after non-preset conditions are set
@@ -399,6 +403,7 @@ predictEdges <- function(edge_features = NULL,
 
     # Assigns caret model to model slot
     model_info[[length(model_info) + 1]] <- caret.model
+    out_data_obj <- list()
     out_data_obj$model <- model_info
 
     out_data_obj$model_assessment <- NULL
