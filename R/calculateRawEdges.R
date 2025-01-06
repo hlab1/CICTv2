@@ -2,14 +2,9 @@
 #'
 #' Returns a gene-gene association matrix from a gene expression matrix
 #'
-#' @param in_data_obj CICT list object which includes
-#' gene_expression_matrix, ground_truth, raw_edges, edge_features, model,
-#' model_assessment, and predicted_edges.
 #' @param gene_expression_matrix Data.frame of gene expression where rows are
 #' genes and columns are samples
 #' @param cict_raw_edge_col gene-gene association metric to calculate
-#' @param in_data_obj cict object replacing rcrd that has all of the results
-#' stored as a list
 #' @param in_format String that specifies the input format. Can be 'data_obj',
 #' 'separate', or 'config_file'
 #' @param n.workers Integer. If running parallel, number of threads on which to
@@ -22,11 +17,11 @@
 #' c(rcrd,edges,vertices) %<-z% prepareEdgeFeatures(Debug=Debug)
 #' @export
 #'
-calculateRawEdges <- function(in_data_obj=NULL,
-                              gene_expression_matrix=NULL,
+calculateRawEdges <- function(gene_expression_matrix=NULL,
 							  cict_raw_edge_col = 'Spearman',
 							  in_format = "separate",
-							  n.workers=5) {
+							  n.workers=5,
+							  ...) {
 
 
 nParallelThreads = 12

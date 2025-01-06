@@ -8,7 +8,6 @@
 #'
 #' This function prepares edge features from raw edges and a gene expression matrix.
 #'
-#' @param in_data_obj List. Input data object containing necessary data. Default is NULL.
 #' @param raw_edges Data frame. Raw edges data. Default is NULL.
 #' @param gene_expression_matrix Data frame. Gene expression matrix. Default is NULL.
 #' @param cict_raw_edge_col Character. Column name for raw edge calculation. Default is 'Spearman'.
@@ -29,8 +28,7 @@
 #' }
 #' @export
 prepareEdgeFeatures <-
-  function(in_data_obj = NULL,
-           raw_edges = NULL,
+  function(raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
            in_format = "separate",

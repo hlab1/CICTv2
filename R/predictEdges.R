@@ -17,9 +17,6 @@
 #' @param edge_features NEW NAME FOR dt.edge
 #' @param ground_truth NEW NAME for tbl.goldStandard
 #' @param learning_ratio percent of ground truth to be used for learning
-#' @param in_data_obj cict object replacing rcrd that has all of the results stored as a list
-#' @param rcrd A list object that accumulates intermediary objects, results and performance measures and
-#' will be stored as an rds file for later use.
 #' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training.
 #' Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
 #' @param preset.test Defualt is: NA. If provided a path to proper CSV, uses that for training.
@@ -49,7 +46,6 @@
 #'
 predictEdges <- function(edge_features = NULL,
                          ground_truth = NULL,
-                         in_data_obj = NULL,
                          in_format = 'separate',
                          url.preset.train = NA,
                          url.preset.test = NA,
@@ -70,13 +66,6 @@ predictEdges <- function(edge_features = NULL,
                          sample_tfs='random',
                          remove_learning=TRUE,
                          ...) {
-  # PARSE DATA
-  {
-    if (in_format == "data_obj") {
-      edge_features <- in_data_obj$edge_features
-      ground_truth <- in_data_obj$ground_truth
-    }
-  }
 
   # SUBSETS GROUND TRUTH FOR LEARNING AND EVALUATION
   {
@@ -440,7 +429,5 @@ predictEdges <- function(edge_features = NULL,
     assessments <- list(pr, roc)
     out_data_obj$model_assessment <- assessments
   }
-  
-  print('========== Data produced successfuly ==========')
   return(out_data_obj)
 }
