@@ -7,7 +7,6 @@
 runCICT(
   gene_expression_matrix = NULL,
   ground_truth = NULL,
-  in_data_obj = NULL,
   config_path = NULL,
   in_format = "separate",
   ...
@@ -23,17 +22,16 @@ regulatory network for model training and evaluation. Each row represents a
 source-target relationship, with the source gene in the column labeled
 \code{"src"} and the target gene in the column labeled \code{"trgt"}}
 
-\item{in_data_obj}{A list in the CICT data object format. Produced by a CICT
-function. Must contain \code{gene_expression_matrix} and \code{ground_truth} for the
-driver to run.}
-
-\item{config_path}{Path to the YAML config file. Config must contain paths to
-the gene expression matrix and ground truth.}
+\item{config_path}{Path to the YAML config file, if one is used.}
 
 \item{in_format}{String indicating expected input format. \code{"separate"} if
 passing inputs through \code{gene_expression_matrix} and \code{ground_truth},
-\code{"data_obj"} if passing inputs through \code{in_data_obj}, \code{"config"} if passing
-inputs through \code{config_path}.}
+\code{"config_file"} if passing inputs through \code{config_path}. If using the config
+format, all other arguments passed to the function are ignored except
+\code{config_path}, and the resulting predicted edges and CICT data object  will
+be stored as a CSV and .Rds file respectively. Use "results_dir" argument
+in config file to specify where these files should be saved; otherwise,
+they will be saved to the working directory.}
 
 \item{...}{Options to be passed to calculateRawEdges, prepareEdgeFeatures,
 and/or predictEdges}
@@ -47,9 +45,13 @@ in the CICT pipeline. Contains \code{gene_expression_matrix}, \code{ground_truth
 \description{
 Takes a gene expression matrix and a ground truth table, calculates raw
 edges, prepares edge features, and uses a random forest model to predict a
-gene regulatory network. Does not currently work in config mode.
+gene regulatory network. If in_format is specified as config_path, inputs and
+arguments will come from a YAML config file.
 }
 \examples{
+# From the data folder of the CICTv2 GitHub repo, download and load
+# SERGIO_DS4_net0_gene_expression_matrix.rda and
+# SERGIO_DS4_net0_ground_truth.rda
 runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
         ground_truth = SERGIO_DS4_ground_truth)
 }

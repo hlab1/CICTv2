@@ -417,7 +417,7 @@ predictEdges <- function(edge_features = NULL,
 
     out_data_obj$predicted_edges <- preds
   }
-  
+
   # Calculate AUPRC, pAUPRC, AUROC and pAUROC
   {
     if(remove_learning) {
