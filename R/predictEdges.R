@@ -33,6 +33,9 @@
 #' in the learning set relative to the number of causal edges. Default is 5.
 #' @param negativeEdgesFoldCausal Numeric representing the number of negative edges to be included
 #' in the learning set relative to the number of causal edges. Default is 1.
+#' @param remove_learning Removes the learning set from the final predictions for performance
+#' evaluation. Prevents bias when learning set TFs will always have inflated predictive scores.
+#' Default is TRUE.
 #' @return Returns a list consisting of three objects
 #' edges: a dataframe of edge objects and CICT features for edges
 #' Vertices: a dataframe of vertices objects and CICT features for vertices
@@ -65,6 +68,7 @@ predictEdges <- function(edge_features = NULL,
                          predict_on='none',
                          split_ground_truth_by='nodes',
                          sample_tfs='random',
+                         remove_learning=TRUE,
                          ...) {
   # PARSE DATA
   {
@@ -398,8 +402,11 @@ predictEdges <- function(edge_features = NULL,
 
     # Predict on specified edges
     preds <- predict(caret.model, newdata=pred.dat, type='prob')
-    preds$src <- pred.dat$src
-    preds$trgt <- pred.dat$trgt
+    preds <- cbind(pred.dat$src, preds)
+    preds <- cbind(pred.dat$trgt, preds)
+    colnames(preds) <- c("src", "trgt", "FALSE", "Weight")
+    preds <- preds[, c("src", "trgt", "Weight")]
+    preds <- preds[order(preds$Weight, decreasing = TRUE),]
 
     # Assigns caret model to model slot
     model_info[[length(model_info) + 1]] <- caret.model
@@ -413,8 +420,27 @@ predictEdges <- function(edge_features = NULL,
   
   # Calculate AUPRC, pAUPRC, AUROC and pAUROC
   {
+    if(remove_learning) {
+      preds_assess <- preds %>% dplyr::anti_join(y = learning_edges,
+                                                 by = c("src" = "src", "trgt" = "trgt"))
+    }
+    pos_class <- preds_assess %>% dplyr::inner_join(y = eval_edges,
+                                             by = c("src" = "src", "trgt" = "trgt"))
+    if (nrow(pos_class) == 0) {
+      warning("No rows in the evaluation set were found in your predictions. Check gene names.")
+      return(out_data_obj)
+    }
+    neg_class <- preds_assess %>% dplyr::anti_join(y = pos_class,
+                                            by = c("src" = "src", "trgt" = "trgt"))
     
+    roc <- PRROC::roc.curve(scores.class0 = pos_class$Weight,
+                            scores.class1 = neg_class$Weight, curve = TRUE)
+    pr <- PRROC::pr.curve(scores.class0 = pos_class$Weight,
+                          scores.class1 = neg_class$Weight, curve = TRUE)
+    assessments <- list(pr, roc)
+    out_data_obj$model_assessment <- assessments
   }
-  print('Data produced successfuly ==================================')
+  
+  print('========== Data produced successfuly ==========')
   return(out_data_obj)
 }
