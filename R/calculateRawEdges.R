@@ -1,37 +1,32 @@
-# NEW CRE
-
-
-#Mutual information steady state Multiple measures parallel
-
-  #Parallel partition for each measure, multiple measures
-#' Calculate Raw Edges
+#' calculateRawEdges
 #'
-#' This function calculates raw edges using mutual information and other measures in parallel.
+#' Returns a gene-gene association matrix from a gene expression matrix
 #'
-#' @param n.workers Integer. Number of workers for parallel processing. Default is 5.
-#' @param in_data_obj List. Input data object containing necessary data.
-#' @param raw_edges Data frame. Raw edges data.
-#' @param gene_expression_matrix Data frame. Gene expression matrix.
-#' @param cict_raw_edge_col Character. Column name for raw edge calculation. Default is 'Spearman'.
-#' @param in_format Character. Format of the input data. Default is "separate".
-#' @return A list containing the calculated raw edges and other relevant data.
-#' @details This function performs parallel processing to calculate raw edges using mutual information and other measures. It is a modified edition of the code provided by Kuzmanovski et al.
+#' @param gene_expression_matrix Data.frame of gene expression where rows are
+#' genes and columns are samples
+#' @param cict_raw_edge_col gene-gene association metric to calculate
+#' @param in_format String that specifies the input format. Can be 'data_obj',
+#' 'separate', or 'config_file'
+#' @param n.workers Integer. If running parallel, number of threads on which to
+#' run calculations
+#' @return Returns a list consisting of three objects
+#' rcrd: is a list object of intermediary objects
+#' edges: a dataframe of edge objects and CICT features for edges
+#' Vertices: a dataframe of vertices objects and CICT features for vertices
 #' @examples
-#' \dontrun{
-#' # Example usage:
-#' gene_expression_matrix <- read.csv("path/to/gene_expression_matrix.csv")
-#' raw_edges <- read.csv("path/to/raw_edges.csv")
-#' results <- calculateRawEdges(
-#'   n.workers = 5,
-#'   gene_expression_matrix = gene_expression_matrix,
-#'   raw_edges = raw_edges,
-#'   cict_raw_edge_col = 'Spearman'
-#' )
-#' }
+#' c(rcrd,edges,vertices) %<-z% prepareEdgeFeatures(Debug=Debug)
 #' @export
-calculateRawEdges <- function(n.workers=5, in_data_obj=NULL, raw_edges=NULL, gene_expression_matrix=NULL, cict_raw_edge_col = 'Spearman',in_format = "separate", ...) {
-	nParallelThreads = 12
-    edgeTypes <- cict_raw_edge_col
+#'
+calculateRawEdges <- function(gene_expression_matrix=NULL,
+							  cict_raw_edge_col = 'Spearman',
+							  in_format = "separate",
+							  n.workers=5,
+							  ...) {
+
+
+nParallelThreads = 12
+edgeTypes <- cict_raw_edge_col
+
 
 ################################################################################@
 # This is a modified edition of the code provided by Kuzmanovski et al. to
@@ -613,11 +608,9 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
 ########### end here
     # TODO: allow config and throw error if in_format is not valid
     if(in_format == "separate") {
-      dt_edge <- raw_edges
       dt_geneexp <- gene_expression_matrix
     }
     else if (in_format == "data_obj") {
-      dt_edge <- in_data_obj$raw_edges
       dt_geneexp <- in_data_obj$gene_expression_matrix
     }
 

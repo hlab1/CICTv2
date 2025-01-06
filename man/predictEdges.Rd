@@ -6,65 +6,63 @@
 \usage{
 predictEdges(
   edge_features = NULL,
-  gene_expression_matrix = NULL,
   ground_truth = NULL,
-  in_data_obj = NULL,
   in_format = "separate",
-  method = "rf",
-  evaluateUnseenSample = T,
-  evaluateAllEdges = F,
-  Debug = F,
   url.preset.train = NA,
   url.preset.test = NA,
-  minGroundTruth.ratio.learning = 0.3,
+  learning_ratio = 0.8,
   maxGroundTruth = 500,
   randomEdgesFoldCausal = 5,
-  RF_ntrees = 50,
-  RF_max_depth = 20,
+  negativeEdgesFoldCausal = 1,
   exportTrainAndTest = T,
   returnDat = T,
   include.negative = "random",
   remove.tfs = T,
   split.val.tfs = F,
-  learning.params = NA,
-  runOnAllEdges = T,
+  learning_params = NA,
   trainingTarget = "class2",
   tstPercent = 0.3,
-  url.outputFolder = "./cict_output/",
   predict_on = "none",
+  split_ground_truth_by = "nodes",
+  sample_tfs = "random",
+  remove_learning = TRUE,
   ...
 )
 }
 \arguments{
 \item{edge_features}{NEW NAME FOR dt.edge}
 
-\item{gene_expression_matrix}{gene expression matrix not required for this function}
-
 \item{ground_truth}{NEW NAME for tbl.goldStandard}
 
-\item{in_data_obj}{cict object replacing rcrd that has all of the results stored as a list}
+\item{learning_ratio}{percent of ground truth to be used for learning}
 
-\item{method}{Default value is: "CICT", which uses CICT features in a supervised learning. Also can take "RF" (random forest) or "XGB" (xgboost) which these supervised methods on relevance measures}
+\item{randomEdgesFoldCausal}{Numeric representing the number of irrelevant edges to be included
+in the learning set relative to the number of causal edges. Default is 5.}
 
-\item{evaluateUnseenSample}{Defualt is: TRUE, calculates regulatory edges on a subsample of up to 50000 edges.}
+\item{negativeEdgesFoldCausal}{Numeric representing the number of negative edges to be included
+in the learning set relative to the number of causal edges. Default is 1.}
 
-\item{evaluateAllEdges}{Defualt is: FALSE. If TRUE, CICT tries predicting all potential edges in the given network which might take longer time.}
+\item{predict_on}{Default is: 'none'. User can provide strings 'none', 'all', or a vector
+of genes on which the user wants to predict.}
 
-\item{Debug}{If TRUE, function enters debugging mode in critical stops along the exectuion allowing verification of variables and features}
+\item{sample_tfs}{Default is: 'random'. Used only when param split_ground_truth_by is set to 'tfs'.
+User can provide strings 'quartiles' or 'random'. Option 'quartiles' will  randomly sample from each
+quartile of TFs ranked by number of targets. 'random' will randomly sample from the entire list in an unbiased fashion.}
+
+\item{remove_learning}{Removes the learning set from the final predictions for performance
+evaluation. Prevents bias when learning set TFs will always have inflated predictive scores.
+Default is TRUE.}
 
 \item{dt.edge}{CICT edges produced by prepareEdgeFeatures}
 
-\item{rcrd}{A list object that accumulates intermediary objects, results and performance measures and will be stored as an rds file for later use}
+\item{preset.train}{Defualt is: NA. If provided a path to proper CSV, uses that for training.
+Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features}
 
-\item{preset.train}{Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features}
-
-\item{preset.test}{Defualt is: NA. If provided a path to proper CSV, uses that for training. Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features}
-
-\item{predict_all}{Default is: 'none'. User can provide strings 'none', 'all', or a vector of genes on which the user wants to predict.}
+\item{preset.test}{Defualt is: NA. If provided a path to proper CSV, uses that for training.
+Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features}
 }
 \value{
-Returns a list consisted of three objects
-rcrd: is a list object of intermediary objects
+Returns a list consisting of three objects
 edges: a dataframe of edge objects and CICT features for edges
 Vertices: a dataframe of vertices objects and CICT features for vertices
 }
@@ -72,5 +70,9 @@ Vertices: a dataframe of vertices objects and CICT features for vertices
 Implements CICT supervised learning and prediction of regulatory edges. Currently heavily depends on global variables
 }
 \examples{
-c(rcrd,edges,vertices) \%<-z\% prepareEdgeFeatures(Debug=Debug)
+out <- predictEdges(edge_features = SERGIO_DS4_net0_edge_features,
+                    ground_truth = SERGIO_DS4_net0_ground_truth,
+                    in_format = 'separate',
+                    randomEdgesFoldCausal = 5,
+                    learning_ratio = 0.7)
 }

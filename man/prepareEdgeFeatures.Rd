@@ -5,7 +5,6 @@
 \title{Prepare Edge Features}
 \usage{
 prepareEdgeFeatures(
-  in_data_obj = NULL,
   raw_edges = NULL,
   gene_expression_matrix = NULL,
   cict_raw_edge_col = "Spearman",
@@ -15,8 +14,6 @@ prepareEdgeFeatures(
 )
 }
 \arguments{
-\item{in_data_obj}{List. Input data object containing necessary data. Default is NULL.}
-
 \item{raw_edges}{Data frame. Raw edges data. Default is NULL.}
 
 \item{gene_expression_matrix}{Data frame. Gene expression matrix. Default is NULL.}

@@ -8,7 +8,6 @@
 #'
 #' This function prepares edge features from raw edges and a gene expression matrix.
 #'
-#' @param in_data_obj List. Input data object containing necessary data. Default is NULL.
 #' @param raw_edges Data frame. Raw edges data. Default is NULL.
 #' @param gene_expression_matrix Data frame. Gene expression matrix. Default is NULL.
 #' @param cict_raw_edge_col Character. Column name for raw edge calculation. Default is 'Spearman'.
@@ -29,8 +28,7 @@
 #' }
 #' @export
 prepareEdgeFeatures <-
-  function(in_data_obj = NULL,
-           raw_edges = NULL,
+  function(raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
            in_format = "separate",
@@ -65,9 +63,6 @@ prepareEdgeFeatures <-
 
     results5 <- results4
     results5$raw_edges <- tibble::as_tibble(backup_raw_edges)
-
-    # Convert prior to a data frame if it is not already
-    prior <- as.data.frame(prior)
 
     # Perform the left join
     results6 <- results5

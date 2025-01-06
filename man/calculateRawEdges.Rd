@@ -2,50 +2,37 @@
 % Please edit documentation in R/calculateRawEdges.R
 \name{calculateRawEdges}
 \alias{calculateRawEdges}
-\title{Calculate Raw Edges}
+\title{calculateRawEdges}
 \usage{
 calculateRawEdges(
-  n.workers = 5,
-  in_data_obj = NULL,
-  raw_edges = NULL,
   gene_expression_matrix = NULL,
   cict_raw_edge_col = "Spearman",
   in_format = "separate",
+  n.workers = 5,
   ...
 )
 }
 \arguments{
-\item{n.workers}{Integer. Number of workers for parallel processing. Default is 5.}
+\item{gene_expression_matrix}{Data.frame of gene expression where rows are
+genes and columns are samples}
 
-\item{in_data_obj}{List. Input data object containing necessary data.}
+\item{cict_raw_edge_col}{gene-gene association metric to calculate}
 
-\item{raw_edges}{Data frame. Raw edges data.}
+\item{in_format}{String that specifies the input format. Can be 'data_obj',
+'separate', or 'config_file'}
 
-\item{gene_expression_matrix}{Data frame. Gene expression matrix.}
-
-\item{cict_raw_edge_col}{Character. Column name for raw edge calculation. Default is 'Spearman'.}
-
-\item{in_format}{Character. Format of the input data. Default is "separate".}
+\item{n.workers}{Integer. If running parallel, number of threads on which to
+run calculations}
 }
 \value{
-A list containing the calculated raw edges and other relevant data.
+Returns a list consisting of three objects
+rcrd: is a list object of intermediary objects
+edges: a dataframe of edge objects and CICT features for edges
+Vertices: a dataframe of vertices objects and CICT features for vertices
 }
 \description{
-This function calculates raw edges using mutual information and other measures in parallel.
-}
-\details{
-This function performs parallel processing to calculate raw edges using mutual information and other measures. It is a modified edition of the code provided by Kuzmanovski et al.
+Returns a gene-gene association matrix from a gene expression matrix
 }
 \examples{
-\dontrun{
-# Example usage:
-gene_expression_matrix <- read.csv("path/to/gene_expression_matrix.csv")
-raw_edges <- read.csv("path/to/raw_edges.csv")
-results <- calculateRawEdges(
-  n.workers = 5,
-  gene_expression_matrix = gene_expression_matrix,
-  raw_edges = raw_edges,
-  cict_raw_edge_col = 'Spearman'
-)
-}
+c(rcrd,edges,vertices) \%<-z\% prepareEdgeFeatures(Debug=Debug)
 }
