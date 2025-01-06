@@ -1,0 +1,42 @@
+Package: CICTv2
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: What the package does (one paragraph).
+License: CC BY-NC-SA 4.0
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends: 
+    R (>= 2.10)
+LazyData: true
+Imports: 
+    data.table,
+    igraph,
+    magrittr,
+    dplyr,
+    Lmoments,
+    moments,
+    infotheo,
+    digest,
+    tidyr,
+    stringr,
+    hutils,
+    caret,
+    minet,
+    tibble,
+    BiocManager,
+    WGCNA,
+    knitr,
+    plyr,
+    precrec,
+    sn,
+    tibble,
+    stats,
+    utils,
+    PRROC,
+    PerformanceAnalytics
+Suggests: 
+    yaml
