@@ -16,7 +16,6 @@
 #' @param dt.edge CICT edges produced by prepareEdgeFeatures
 #' @param edge_features NEW NAME FOR dt.edge
 #' @param ground_truth NEW NAME for tbl.goldStandard
-#' @param gene_expression_matrix gene expression matrix not required for this function
 #' @param learning_ratio percent of ground truth to be used for learning
 #' @param in_data_obj cict object replacing rcrd that has all of the results stored as a list
 #' @param rcrd A list object that accumulates intermediary objects, results and performance measures and
@@ -35,15 +34,17 @@
 #' @param negativeEdgesFoldCausal Numeric representing the number of negative edges to be included
 #' in the learning set relative to the number of causal edges. Default is 1.
 #' @return Returns a list consisting of three objects
-#' rcrd: is a list object of intermediary objects
 #' edges: a dataframe of edge objects and CICT features for edges
 #' Vertices: a dataframe of vertices objects and CICT features for vertices
 #' @examples
-#' c(rcrd,edges,vertices) %<-z% prepareEdgeFeatures(Debug=Debug)
+#' out <- predictEdges(edge_features = SERGIO_DS4_net0_edge_features,
+#'                     ground_truth = SERGIO_DS4_net0_ground_truth,
+#'                     in_format = 'separate',
+#'                     randomEdgesFoldCausal = 5,
+#'                     learning_ratio = 0.7)
 #' @export
 #'
 predictEdges <- function(edge_features = NULL,
-                         gene_expression_matrix = NULL,
                          ground_truth = NULL,
                          in_data_obj = NULL,
                          in_format = 'separate',
@@ -68,14 +69,7 @@ predictEdges <- function(edge_features = NULL,
   {
     if (in_format == "data_obj") {
       edge_features <- in_data_obj$edge_features
-      gene_expression_matrix <- in_data_obj$gene_expression_matrix
       ground_truth <- in_data_obj$ground_truth
-      out_data_obj <- in_data_obj
-    } else{
-      out_data_obj <- list('edge_features'=edge_features,
-                           'gene_expression_matrix'=gene_expression_matrix,
-                           'ground_truth'=ground_truth)
-    }
   }
 
   # SUBSETS GROUND TRUTH FOR LEARNING AND EVALUATION
