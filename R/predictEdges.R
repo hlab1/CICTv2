@@ -30,6 +30,10 @@
 #' @param sample_tfs Default is: 'random'. Used only when param split_ground_truth_by is set to 'tfs'.
 #' User can provide strings 'quartiles' or 'random'. Option 'quartiles' will  randomly sample from each
 #' quartile of TFs ranked by number of targets. 'random' will randomly sample from the entire list in an unbiased fashion.
+#' @param randomEdgesFoldCausal Numeric representing the number of irrelevant edges to be included
+#' in the learning set relative to the number of causal edges. Default is 5.
+#' @param negativeEdgesFoldCausal Numeric representing the number of negative edges to be included
+#' in the learning set relative to the number of causal edges. Default is 1.
 #' @return Returns a list consisting of three objects
 #' rcrd: is a list object of intermediary objects
 #' edges: a dataframe of edge objects and CICT features for edges
@@ -53,10 +57,9 @@ predictEdges <- function(edge_features = NULL,
                          include.negative = 'random',
                          remove.tfs = T,
                          split.val.tfs = F,
-                         learning.params = NA,
+                         learning_params = NA,
                          trainingTarget = 'class2',
                          tstPercent = 0.3,
-                         url.outputFolder='./cict_output/',
                          predict_on='none',
                          split_ground_truth_by='nodes',
                          sample_tfs='random',
@@ -70,8 +73,8 @@ predictEdges <- function(edge_features = NULL,
       out_data_obj <- in_data_obj
     } else{
       out_data_obj <- list('edge_features'=edge_features,
-        'gene_expression_matrix'=gene_expression_matrix,
-        'ground_truth'=ground_truth)
+                           'gene_expression_matrix'=gene_expression_matrix,
+                           'ground_truth'=ground_truth)
     }
   }
 
@@ -79,9 +82,7 @@ predictEdges <- function(edge_features = NULL,
   {
     ground_truth_tfs <- unique(ground_truth$src)
     n_ground_truth_tfs <- length(ground_truth_tfs)
-    if (split_ground_truth_by=='nodes') {
-      gt_degree <- as.data.frame(table(ground_truth$src)) %>%
-        mutate(quartile = ntile(b, 4))
+    if (split_ground_truth_by == "nodes") {
       n_tfs_learn <- floor(learning_ratio * n_ground_truth_tfs)
       learning_tfs <- sample(ground_truth_tfs, size = n_tfs_learn)
       eval_tfs <- setdiff(ground_truth_tfs, learning_tfs)
@@ -98,18 +99,19 @@ predictEdges <- function(edge_features = NULL,
 
   # LABELS CAUSAL, REVERSE CAUSAL, IRRELEVANTA, AND NEGATIVE EXAMPLES
   {
-    # t1.c is 'CAUSAL' edges and is the intersect of ground truth and the edges
+    # t1.c is 'CAUSAL' edges and is the intersect of the ground truth and the edges
     # from expression data
-    t1.c = ground_truth %>% dplyr::select(src, trgt) %>%
-      dplyr::inner_join(edge_features, by = c("src" = "src", "trgt" = "trgt"))
+    t1.c = edge_features %>%
+      dplyr::inner_join(ground_truth, by = c("src" = "src", "trgt" = "trgt"))
     if (nrow(t1.c) < nrow(ground_truth) / 2)
       warning("More than half of ground truth was not found in edges")
     if (nrow(t1.c) <= 0)
-      print("No causal edge in the groundtruth. Check gene names.")
+      print("No causal edge in the ground truth. Check gene names.")
     t1.c$predicate = "CAUSES"
-
+    
+    # t1.n is 'NEGATIVE' edges to serve as true negative examples
+    # in the learning set
     if (include.negative == 'random') {
-      # t1.n is 'NEGATIVE' edges to serve as true negative examples in the learning set
       t1.n = edge_features %>%
         dplyr::anti_join(ground_truth, by = c("src" = "src", "trgt" = "trgt")) %>%
         dplyr::filter(src %in% ground_truth$src)
@@ -157,21 +159,19 @@ predictEdges <- function(edge_features = NULL,
 
     # Number of causal edges in the ground truth will be the minimum of 'maxGroundTruth'
     # and the learning_ratio multiplied by the number of 'causal' edges in t1.c. If this
-    # value is less than 300, NcausalEdges will be 2x the initial value.
+    # value is less than 300, nCausalEdges will be 2x the initial value.
 
-    # Note that this may bring the value of NcausalEdges HIGHER than maxGroundTruth!!
+    # Note that this may bring the value of nCausalEdges HIGHER than maxGroundTruth!!
 
-    NcausalEdges = min(maxGroundTruth,
-                       nrow(t1.c) * learning_ratio) %>% as.integer()
-    # 300 minimum seems arbitrary...
-    if (NcausalEdges < 300)
-      NcausalEdges = floor(2 * nrow(t1.c) * learning_ratio)
-    NcausalEdges = min(maxGroundTruth, NcausalEdges) %>% as.integer()
-    NrandomEdges = NcausalEdges * randomEdgesFoldCausal
+    nCausalEdges <- nrow(learning_edges)
+    nRandomEdges <- nCausalEdges * randomEdgesFoldCausal
+    if (include.negative == "random") {
+      nNegativeEdges <- nCausalEdges * negativeEdgesFoldCausal
+    }
 
     # TODO: Add preset functionality after non-preset conditions are set
     # If preset is provided, preset.train and preset.test sets are loaded
-    # Otherwise, causal edges and reverse-causal edges are randomly selected with NcausalEdges,
+    # Otherwise, causal edges and reverse-causal edges are randomly selected with nCausalEdges,
     # and random edges are selected at
     if (!(is.na(url.preset.train) | is.na(url.preset.test))) {
       # Load presets
@@ -187,21 +187,20 @@ predictEdges <- function(edge_features = NULL,
       )
     } else{
       t2 = rbind(
-        t1 %>% dplyr::filter(class1 == 'c') %>% dplyr::sample_n(size = NcausalEdges),
-        t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = NrandomEdges)
+        t1 %>% dplyr::inner_join(y = learning_edges, by = c("src" = "src", "trgt" = "trgt")),
+        t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = nRandomEdges)
       )
-
       # If negative, add negative class
       if (include.negative == 'random') {
         t2 = rbind(t2,
-                   t1 %>% dplyr::filter(class1 == 'n') %>% dplyr::sample_n(size = NcausalEdges))
+                   t1 %>% dplyr::filter(class1 == 'n') %>% dplyr::sample_n(size = nCausalEdges))
       }
     }
 
     # t2.complement is everything that is not included in the learning set
     t2.complement = t1  %>%  dplyr::anti_join(t2, by = c("src" = "src","trgt" = "trgt"))
 
-    # Record everything to a log file and in_data_obj object
+    # Record everything to a log file. This should be coordinated with Stella's log file
     msg = sprintf(
       ' Network density= %s, learning set density= %s, \n total edges= %s,
                 learning set=%s, test fraction = %s , \n learning set random= %s, learning set causal edges= %s',
@@ -210,20 +209,19 @@ predictEdges <- function(edge_features = NULL,
       prettyNum(nrow(edge_features), ','),
       prettyNum(nrow(t2), ','),
       tstPercent,
-      round(NrandomEdges, 2),
-      round(NcausalEdges, 2)
+      round(nRandomEdges, 2),
+      round(nRandomEdges, 2)
     )
-    in_data_obj = c(
-      in_data_obj,
-      c(
-        density.net = round(nrow(t1.c) / nrow(edge_features), 4),
-        density.learningset = round(sum(t2$predicate == 'CAUSES') /
+    model_info <- list(
+      "Model training info" = list(
+        "Percent causal" = round(nrow(t1.c) / nrow(edge_features), 4),
+        "Percent causal learning set" = round(sum(t2$predicate == 'CAUSES') /
                                       nrow(t2), 4),
-        edges.total = prettyNum(nrow(edge_features), ','),
-        set.learning = prettyNum(nrow(t2), ','),
-        set.learning.testPcnt = tstPercent,
-        set.learning.rndm = round(NrandomEdges, 2),
-        set.learning.causal = round(NcausalEdges, 2)
+        "Total edges" = prettyNum(nrow(edge_features), ','),
+        "Learning set" = prettyNum(nrow(t2), ','),
+        "Learning set random" = round(nRandomEdges, 2),
+        "Learning set causal" = round(nCausalEdges, 2),
+        "Learning set negative" = round(nNegativeEdges, 2)
       )
     )
   }
@@ -231,14 +229,14 @@ predictEdges <- function(edge_features = NULL,
   # SETS TRAINING PARAMETERS
   {
     # Set the parameters for learning and evaluation
-    if (!is.na(learning.params)) {
-      mdlColNames = learning.params
+    if (!is.na(learning_params)) {
+      mdlColNames <- learning_params
     } else {
-      mdlColNames = colnames(t2)
-      mdlColNames = unique(mdlColNames)
+      mdlColNames <- colnames(t2)
+      mdlColNames <- unique(mdlColNames)
     }
-    mdlColNames = mdlColNames[mdlColNames %in% colnames(t2)]
-    mdlColNames = mdlColNames[!mdlColNames %in% c(
+    mdlColNames <- mdlColNames[mdlColNames %in% colnames(t2)]
+    mdlColNames <- mdlColNames[!mdlColNames %in% c(
       'src',
       'trgt',
       'class1',
@@ -251,11 +249,11 @@ predictEdges <- function(edge_features = NULL,
       'edgeTyp'
     )]
 
-    objectiveColNames = c("class1", "class2")
-    objectiveColNames = objectiveColNames[objectiveColNames %in% colnames(t2)]
+    objectiveColNames <- c("class1", "class2")
+    objectiveColNames <- objectiveColNames[objectiveColNames %in% colnames(t2)]
 
-    evaluationColNames = c("predicate", "src", "trgt", "SUID")
-    evaluationColNames = evaluationColNames[evaluationColNames %in% colnames(t2)]
+    evaluationColNames <- c("predicate", "src", "trgt", "SUID")
+    evaluationColNames <- evaluationColNames[evaluationColNames %in% colnames(t2)]
 
     colnamesToExport = unique(c(
       mdlColNames,
@@ -263,28 +261,27 @@ predictEdges <- function(edge_features = NULL,
       c('srctrgtSum', 'srctrgtProduct')
     ))
     mdlChkColNames = c(evaluationColNames, objectiveColNames, mdlColNames)
+    mdlChkColNames <- mdlChkColNames[mdlChkColNames %in% colnames(t2)]
 
-    mdlChkColNames = mdlChkColNames[mdlChkColNames %in% colnames(t2)]
-    tst1.totalset = t2[, intersect(colnames(t2), unique(c(mdlChkColNames)))]
-    tst1.complement = t2.complement[, intersect(colnames(t2.complement), unique(mdlChkColNames))]
+    tst1.totalset <- as.data.frame(t2)[, mdlChkColNames]
+    tst1.complement <- as.data.frame(t2.complement)[, mdlChkColNames]
 
     # This removes NAs from the totalset. In this dataframe, only 'R', 'directionLogRatio', and
     # 'iRatio' had NA values. Unclear if this should be kept. Should discuss with Carol
     a = sapply(tst1.totalset, function(x)
       sum(is.na(x)))
-    a[a > 0]
-    rp = rep(0, length(a[a > 0]))
+    rp <- rep(0, length(a[a > 0]))
     names(rp) <- names(a[a > 0])
-    as.list(rp)
-    tst1.totalset = replace_na(tst1.totalset, as.list(rp))
+    rp <- as.list(rp)
+    tst1.totalset = tidyr::replace_na(tst1.totalset, rp)
 
     a = sapply(tst1.complement, function(x)
       sum(is.na(x)))
     a[a > 0]
-    rp = rep(0, length(a[a > 0]))
+    rp <- rep(0, length(a[a > 0]))
     names(rp) <- names(a[a > 0])
-    as.list(rp)
-    tst1.complement = replace_na(tst1.complement, as.list(rp))
+    rp <- as.list(rp)
+    tst1.complement = tidyr::replace_na(tst1.complement, rp)
 
     # Checking for nas in the test set
     try({
@@ -293,11 +290,11 @@ predictEdges <- function(edge_features = NULL,
     })
   }
 
-  # PARTITIONS DATA FOR LEARNING SET
+  # PARTITIONS LEARNING SET FOR TRAINING AND TESTING
   {
     ##########################################
     # Creates learning set for random forest training
-    ntrgtClass =  nrow(tst1.totalset[trainingTarget == TRUE,])
+    ntrgtClass <-  nrow(tst1.totalset[trainingTarget == TRUE,])
 
     # If a preset train and test is provided, use that
     # Otherwise, learning sets are randomly partitioned from the entire tst1.tst set
@@ -366,17 +363,13 @@ predictEdges <- function(edge_features = NULL,
   # TRAINS RANDOM FOREST MODEL
   {
     # TRAINING CARET  For Prediction and feature selection ----
-    # MAX_MEM_SIZE not defined
-    # H2OCnn = h2o.init(nthreads = parallel::detectCores(), enable_assertions = TRUE,
-    #                   max_mem_size = '100G',strict_version_check=FALSE, port = port)
-
     if (split.val.tfs) {
-      src.groups <- groupKFold(group = tst1.totalset$src, k = 10)
+      src.groups <- caret::groupKFold(group = tst1.totalset$src, k = 5)
       fit_control <- caret::trainControl(method = "cv",
                                   index = src.groups)
     } else {
       fit_control <- caret::trainControl(method = "cv",
-                                  number = 10)
+                                  number = 5)
     }
 
     # Set up df for training with caret
@@ -402,20 +395,21 @@ predictEdges <- function(edge_features = NULL,
     }
 
     # Train model on caret
-    caret.model <- caret::train(caret.x, caret.y, method = method, trControl = fit_control)
+    caret.model <- caret::train(caret.x, caret.y, method = "rf",
+                                trControl = fit_control)
 
     # Predict on specified edges
     preds <- predict(caret.model, newdata=pred.dat, type='prob')
     preds$src <- pred.dat$src
     preds$trgt <- pred.dat$trgt
-    out_data_obj$predicted_edges <- preds
-    
-    out_data_obj$variable_importance <- caret::varImp(caret.model)
 
     # Assigns caret model to model slot
-    out_data_obj$model <- caret.model
+    model_info[[length(model_info) + 1]] <- caret.model
+    out_data_obj$model <- model_info
 
     out_data_obj$model_assessment <- NULL
+
+    out_data_obj$predicted_edges <- preds
   }
   
   # Calculate AUPRC, pAUPRC, AUROC and pAUROC
