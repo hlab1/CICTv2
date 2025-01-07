@@ -2,7 +2,7 @@
 ^\.Rproj\.user$
 ^dev$
 ^noLog$
-^inst/extdata/SERGIO_DS4_config\.yaml$
+^inst/extdata/SERGIO_DS4_net0_config\.yaml$
 ^inst/extdata/SERGIO_DS4_net0_edge_features\.csv$
 ^inst/extdata/SERGIO_DS4_net0_gene_expression_matrix\.csv$
 ^inst/extdata/SERGIO_DS4_net0_ground_truth\.csv$
