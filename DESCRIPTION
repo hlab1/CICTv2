@@ -12,6 +12,7 @@ RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
 LazyData: true
+biocViews:
 Imports: 
     data.table,
     igraph,
