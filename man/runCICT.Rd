@@ -49,7 +49,7 @@ gene regulatory network. If in_format is specified as config_path, inputs and
 arguments will come from a YAML config file.
 }
 \examples{
-# Download data from the data folder of the CICTv2 GitHub repo
+# Download data from the external data folder of the CICTv2 GitHub repo
 download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv", "SERGIO_DS4_net0_gene_expression_matrix.csv")
 download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_ground_truth.csv", "SERGIO_DS4_net0_ground_truth.csv")
 download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_config.yaml", "SERGIO_DS4_net0_config.yaml")
