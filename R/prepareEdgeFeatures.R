@@ -11,7 +11,6 @@
 #' @param raw_edges Data frame. Raw edges data. Default is NULL.
 #' @param gene_expression_matrix Data frame. Gene expression matrix. Default is NULL.
 #' @param cict_raw_edge_col Character. Column name for raw edge calculation. Default is 'Spearman'.
-#' @param in_format Character. Format of the input data. Can be "separate" or "data_obj". Default is "separate".
 #' @param ... Additional arguments to be passed to other functions.
 #' @return A list containing the prepared edge features and other relevant data.
 #' @details This function processes the raw edges and gene expression matrix to prepare edge features. It supports two input formats: "separate" and "data_obj".
@@ -31,17 +30,10 @@ prepareEdgeFeatures <-
   function(raw_edges = NULL,
            gene_expression_matrix = NULL,
            cict_raw_edge_col = 'Spearman',
-           in_format = "separate",
            prior = NULL, ...) {
     # TODO: allow config and throw error if in_format is not valid
-    if (in_format == "separate") {
-      dt_edge <- raw_edges
-      dt_geneexp <- gene_expression_matrix
-    }
-    else if (in_format == "data_obj") {
-      dt_edge <- in_data_obj$raw_edges
-      dt_geneexp <- in_data_obj$gene_expression_matrix
-    }
+    dt_edge <- raw_edges
+    dt_geneexp <- gene_expression_matrix
     backup_raw_edges <- dt_edge
     # define the hardcoded variables
     earlyThresholdForGraphAnalysis <- 0
