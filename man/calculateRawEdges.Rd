@@ -19,6 +19,8 @@ genes and columns are samples}
 
 \item{n.workers}{Integer. If running parallel, number of threads on which to
 run calculations}
+
+\item{...}{Options to be passed to subfunctions in calculateRawEdges}
 }
 \value{
 A list in the CICT data object format. Contains

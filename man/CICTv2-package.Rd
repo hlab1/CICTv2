@@ -4,12 +4,19 @@
 \name{CICTv2-package}
 \alias{CICTv2}
 \alias{CICTv2-package}
-\title{CICTv2: What the Package Does (One Line, Title Case)}
+\title{CICTv2: Gene Regulatory Network Inference Using Compositions of Transactions}
 \description{
-What the package does (one paragraph).
+CICTv2 is an R implementation of the method "Causal Inference Using Compositions of Transactions (CICT)", which infers gene regulatory interactions from RNA-sequencing data. Regulatory interactions are inferred in three steps, which are represented by three separate functions in this package. First, a gene-gene association measure is calcuated for each gene-gene pair (calcualteRawEdges). Second, higher-order features describing distributions of associations are calcualted for each gene-gene pair (prepareEdgeFeatures). Third, a random forest is trained on the matrix containing both the association measure and higher order features using a ground-truth network, and each gene-gene pair is assigned a probability of interaction (predictEdges).
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Shao-shan Carol Huang \email{ch153@nyu.edu}
+
+Authors:
+\itemize{
+  \item Graeme Vissers \email{gov2004@nyu.edu} (\href{https://orcid.org/0000-0003-1967-0680}{ORCID})
+  \item Vera Vecherskaia \email{vv2228@nyu.edu}
+  \item Stella Zhang \email{syz248@nyu.edu}
+}
 
 }
 \keyword{internal}

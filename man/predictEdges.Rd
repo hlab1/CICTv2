@@ -7,10 +7,7 @@
 predictEdges(
   edge_features = NULL,
   ground_truth = NULL,
-  url.preset.train = NA,
-  url.preset.test = NA,
   learning_ratio = 0.8,
-  maxGroundTruth = 500,
   randomEdgesFoldCausal = 5,
   negativeEdgesFoldCausal = 1,
   exportTrainAndTest = T,
