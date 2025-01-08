@@ -62,12 +62,13 @@ runCICT(gene_expression_matrix = gene_expression_matrix,
 # Config mode:
 runCICT(config_path = "SERGIO_DS4_net0_config.yaml", in_format = "config_file")
 
-# Delete example inputs
+# Reset workspace
 unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
 unlink("SERGIO_DS4_net0_ground_truth.csv")
 unlink("SERGIO_DS4_net0_config.yaml")
-# Delete example outputs
 unlink("SERGIO_DS4_net0/log")
 unlink("SERGIO_DS4_net0/predicted_edges.csv")
 unlink("SERGIO_DS4_net0/cict_data.Rds")
+rm(gene_expression_matrix)
+rm(ground_truth)
 }
