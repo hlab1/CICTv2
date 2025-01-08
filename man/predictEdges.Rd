@@ -7,7 +7,6 @@
 predictEdges(
   edge_features = NULL,
   ground_truth = NULL,
-  in_format = "separate",
   url.preset.train = NA,
   url.preset.test = NA,
   learning_ratio = 0.8,

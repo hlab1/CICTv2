@@ -46,7 +46,6 @@
 #'
 predictEdges <- function(edge_features = NULL,
                          ground_truth = NULL,
-                         in_format = 'separate',
                          url.preset.train = NA,
                          url.preset.test = NA,
                          learning_ratio = 0.8,
@@ -97,7 +96,7 @@ predictEdges <- function(edge_features = NULL,
     if (nrow(t1.c) <= 0)
       print("No causal edge in the ground truth. Check gene names.")
     t1.c$predicate = "CAUSES"
-    
+
     # t1.n is 'NEGATIVE' edges to serve as true negative examples
     # in the learning set
     if (include.negative == 'random') {
@@ -421,7 +420,7 @@ predictEdges <- function(edge_features = NULL,
     }
     neg_class <- preds_assess %>% dplyr::anti_join(y = pos_class,
                                             by = c("src" = "src", "trgt" = "trgt"))
-    
+
     roc <- PRROC::roc.curve(scores.class0 = pos_class$Weight,
                             scores.class1 = neg_class$Weight, curve = TRUE)
     pr <- PRROC::pr.curve(scores.class0 = pos_class$Weight,
