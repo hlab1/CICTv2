@@ -13,9 +13,8 @@
 #'
 #' Implements CICT supervised learning and prediction of regulatory edges. Currently heavily depends on global variables
 #'
-#' @param dt.edge CICT edges produced by prepareEdgeFeatures
-#' @param edge_features NEW NAME FOR dt.edge
-#' @param ground_truth NEW NAME for tbl.goldStandard
+#' @param edge_features CICT edges produced by prepareEdgeFeatures
+#' @param ground_truth Ground truth table
 #' @param learning_ratio percent of ground truth to be used for learning
 #' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training.
 #' Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
@@ -33,24 +32,43 @@
 #' @param remove_learning Removes the learning set from the final predictions for performance
 #' evaluation. Prevents bias when learning set TFs will always have inflated predictive scores.
 #' Default is TRUE.
-#' @return Returns a list consisting of three objects
-#' edges: a dataframe of edge objects and CICT features for edges
-#' Vertices: a dataframe of vertices objects and CICT features for vertices
+#' @return A list in the CICT data object format. Contains `model`,
+#'   `model_assessment`, and `predicted_edges`.
 #' @examples
-#' out <- predictEdges(edge_features = SERGIO_DS4_net0_edge_features,
-#'                     ground_truth = SERGIO_DS4_net0_ground_truth,
-#'                     in_format = 'separate',
-#'                     randomEdgesFoldCausal = 5,
-#'                     learning_ratio = 0.7)
+#' # Download data from the external data folder of the CICTv2 GitHub repo
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv",
+#' "SERGIO_DS4_net0_gene_expression_matrix.csv")
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_ground_truth.csv",
+#' "SERGIO_DS4_net0_ground_truth.csv")
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_edge_features.csv",
+#' "SERGIO_DS4_net0_edge_features.csv")
+#'
+#' gene_expression_matrix <- read.csv(
+#'   "SERGIO_DS4_net0_gene_expression_matrix.csv",
+#'   header = TRUE,
+#'   row.names = 1)
+#' edge_features <- read.table("SERGIO_DS4_net0_edge_features.csv",
+#'   header=TRUE,
+#'   sep = ",")
+#' ground_truth <- read.table("SERGIO_DS4_net0_ground_truth.csv",
+#'   header=TRUE,
+#'   sep = ",")
+#' predictEdges(gene_expression_matrix = gene_expression_matrix,
+#'   ground_truth = ground_truth,
+#'   edge_features = edge_features)
+#'
+#' # Reset workspace
+#' unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
+#' unlink("SERGIO_DS4_net0_edge_features.csv")
+#' unlink("SERGIO_DS4_net0_ground_truth.csv")
+#' rm(gene_expression_matrix)
+#' rm(edge_features)
+#' rm(ground_truth)
 #' @export
 #'
 predictEdges <- function(edge_features = NULL,
                          ground_truth = NULL,
-                         in_format = 'separate',
-                         url.preset.train = NA,
-                         url.preset.test = NA,
                          learning_ratio = 0.8,
-                         maxGroundTruth = 500,
                          randomEdgesFoldCausal = 5,
                          negativeEdgesFoldCausal = 1,
                          exportTrainAndTest = T,
@@ -97,7 +115,7 @@ predictEdges <- function(edge_features = NULL,
     if (nrow(t1.c) <= 0)
       print("No causal edge in the ground truth. Check gene names.")
     t1.c$predicate = "CAUSES"
-    
+
     # t1.n is 'NEGATIVE' edges to serve as true negative examples
     # in the learning set
     if (include.negative == 'random') {
@@ -146,12 +164,6 @@ predictEdges <- function(edge_features = NULL,
         shared_name = paste0(src, "-", trgt)
       )
 
-    # Number of causal edges in the ground truth will be the minimum of 'maxGroundTruth'
-    # and the learning_ratio multiplied by the number of 'causal' edges in t1.c. If this
-    # value is less than 300, nCausalEdges will be 2x the initial value.
-
-    # Note that this may bring the value of nCausalEdges HIGHER than maxGroundTruth!!
-
     nCausalEdges <- nrow(learning_edges)
     nRandomEdges <- nCausalEdges * randomEdgesFoldCausal
     if (include.negative == "random") {
@@ -164,28 +176,14 @@ predictEdges <- function(edge_features = NULL,
     # If preset is provided, preset.train and preset.test sets are loaded
     # Otherwise, causal edges and reverse-causal edges are randomly selected with nCausalEdges,
     # and random edges are selected at
-    if (!(is.na(url.preset.train) | is.na(url.preset.test))) {
-      # Load presets
-      preset.train <- read.csv(url.preset.train)
-      preset.test <- read.csv(url.preset.test)
-      names(preset.test)[1:2] <- c('src', 'trgt')
-      names(preset.train)[1:2] <- c('src', 'trgt')
-      t2 = rbind(
-        preset.train %>% dplyr::select(src, trgt) %>%
-          dplyr::inner_join(t1, by = c("src" = "src", "trgt" = "trgt")),
-        preset.test %>% dplyr::select(src, trgt) %>%
-          dplyr::inner_join(t1, by = c("src" = "src", "trgt" = "trgt"))
-      )
-    } else{
-      t2 = rbind(
-        t1 %>% dplyr::inner_join(y = learning_edges, by = c("src" = "src", "trgt" = "trgt")),
-        t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = nRandomEdges)
-      )
-      # If negative, add negative class
-      if (include.negative == 'random') {
-        t2 = rbind(t2,
-                   t1 %>% dplyr::filter(class1 == 'n') %>% dplyr::sample_n(size = nCausalEdges))
-      }
+    t2 = rbind(
+      t1 %>% dplyr::inner_join(y = learning_edges, by = c("src" = "src", "trgt" = "trgt")),
+      t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = nRandomEdges)
+    )
+    # If negative, add negative class
+    if (include.negative == 'random') {
+      t2 = rbind(t2,
+                  t1 %>% dplyr::filter(class1 == 'n') %>% dplyr::sample_n(size = nCausalEdges))
     }
 
     # t2.complement is everything that is not included in the learning set
@@ -287,31 +285,18 @@ predictEdges <- function(edge_features = NULL,
     # Creates learning set for random forest training
     ntrgtClass <-  nrow(tst1.totalset[trainingTarget == TRUE,])
 
-    # If a preset train and test is provided, use that
-    # Otherwise, learning sets are randomly partitioned from the entire tst1.tst set
-    if (!(is.na(url.preset.train) | is.na(url.preset.test))) {
-      print('Using preset test and preset train')
-      tst <-
-        preset.train %>% dplyr::inner_join(preset.test, by = c('src', 'trgt'))
-      tst1.tst =  preset.test %>% dplyr::select(src, trgt) %>%
-        dplyr::inner_join(tst1.totalset, by = c("src" = "src", "trgt" = "trgt"))
-      tst1.train = tst1.totalset %>% dplyr::anti_join(tst1.tst, by = c("src" =
-                                                                  "src", "trgt" = "trgt"))
-
-    } else{
-      while (TRUE) {
-        set.seed(as.integer(runif(1, 1, 10000)))
-        spltIdx = as.vector(caret::createDataPartition(
-          1:nrow(tst1.totalset),
-          p = (1 - tstPercent),
-          list = FALSE,
-          times = 1
-        ))
-        tst1.train = tst1.totalset[spltIdx,]
-        tst1.tst = tst1.totalset[-spltIdx,]
-        if (nrow(tst1.tst[trainingTarget == TRUE,]) >= (tstPercent - 0.01) * ntrgtClass)
-          break
-      }
+    while (TRUE) {
+      set.seed(as.integer(runif(1, 1, 10000)))
+      spltIdx = as.vector(caret::createDataPartition(
+        1:nrow(tst1.totalset),
+        p = (1 - tstPercent),
+        list = FALSE,
+        times = 1
+      ))
+      tst1.train = tst1.totalset[spltIdx,]
+      tst1.tst = tst1.totalset[-spltIdx,]
+      if (nrow(tst1.tst[trainingTarget == TRUE,]) >= (tstPercent - 0.01) * ntrgtClass)
+        break
     }
 
     tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T,]
@@ -421,7 +406,7 @@ predictEdges <- function(edge_features = NULL,
     }
     neg_class <- preds_assess %>% dplyr::anti_join(y = pos_class,
                                             by = c("src" = "src", "trgt" = "trgt"))
-    
+
     roc <- PRROC::roc.curve(scores.class0 = pos_class$Weight,
                             scores.class1 = neg_class$Weight, curve = TRUE)
     pr <- PRROC::pr.curve(scores.class0 = pos_class$Weight,

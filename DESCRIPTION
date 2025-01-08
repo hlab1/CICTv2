@@ -1,17 +1,29 @@
 Package: CICTv2
-Title: What the Package Does (One Line, Title Case)
+Title: Gene Regulatory Network Inference Using Compositions of Transactions
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: CC BY-NC-SA 4.0
+Authors@R: c(
+    person("Shao-shan Carol", "Huang", email="ch153@nyu.edu", role = c("cre")),
+    person("Graeme", "Vissers", email="gov2004@nyu.edu", role = c("aut"),
+           comment = c(ORCID = "0000-0003-1967-0680")),
+    person("Vera", "Vecherskaia", email="vv2228@nyu.edu", role = c("aut")
+           comment = c(ORCID = "0009-0002-5852-4504")),
+    person("Stella", "Zhang", email="syz248@nyu.edu", role = c("aut"),
+           comment = c(ORCID = "0009-0006-1474-5144")))
+Description: CICTv2 is an R implementation of the method "Causal Inference Using Compositions of Transactions (CICT)",
+    which infers gene regulatory interactions from RNA-sequencing data. Regulatory interactions are inferred in three
+    steps, which are represented by three separate functions in this package. First, a gene-gene association measure
+    is calcuated for each gene-gene pair (calcualteRawEdges). Second, higher-order features describing distributions
+    of associations are calcualted for each gene-gene pair (prepareEdgeFeatures). Third, a random forest is trained on
+    the matrix containing both the association measure and higher order features using a ground-truth network, and each
+    gene-gene pair is assigned a probability of interaction (predictEdges).
+License: CC BY-NC-SA 4.0 + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
 LazyData: true
+biocViews:
 Imports: 
     data.table,
     igraph,
@@ -29,11 +41,8 @@ Imports:
     tibble,
     BiocManager,
     WGCNA,
-    knitr,
     plyr,
-    precrec,
     sn,
-    tibble,
     stats,
     utils,
     PRROC,

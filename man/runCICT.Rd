@@ -39,8 +39,8 @@ and/or predictEdges}
 \value{
 A list in the CICT data object format, with the data from each step
 in the CICT pipeline. Contains \code{gene_expression_matrix}, \code{ground_truth},
-\code{raw_edges}, \code{edge_features}, \code{model}, \code{model_assessment},
-\code{predicted_edges}, and potentially other data.
+\code{raw_edges}, \code{edge_features}, \code{model}, \code{model_assessment}, and
+\code{predicted_edges}.
 }
 \description{
 Takes a gene expression matrix and a ground truth table, calculates raw
@@ -49,9 +49,26 @@ gene regulatory network. If in_format is specified as config_path, inputs and
 arguments will come from a YAML config file.
 }
 \examples{
-# From the data folder of the CICTv2 GitHub repo, download and load
-# SERGIO_DS4_net0_gene_expression_matrix.rda and
-# SERGIO_DS4_net0_ground_truth.rda
-runCICT(gene_expression_matrix = SERGIO_DS4_gene_expression_matrix,
-        ground_truth = SERGIO_DS4_ground_truth)
+# Download data from the external data folder of the CICTv2 GitHub repo
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv", "SERGIO_DS4_net0_gene_expression_matrix.csv")
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_ground_truth.csv", "SERGIO_DS4_net0_ground_truth.csv")
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_config.yaml", "SERGIO_DS4_net0_config.yaml")
+# Separate inputs mode:
+gene_expression_matrix <- read.csv("SERGIO_DS4_net0_gene_expression_matrix.csv", header = TRUE, row.names = 1)
+ground_truth <- read.table("SERGIO_DS4_net0_ground_truth.csv",  header=TRUE, sep = ",")
+runCICT(gene_expression_matrix = gene_expression_matrix,
+        ground_truth = ground_truth)
+
+# Config mode:
+runCICT(config_path = "SERGIO_DS4_net0_config.yaml", in_format = "config_file")
+
+# Reset workspace
+unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
+unlink("SERGIO_DS4_net0_ground_truth.csv")
+unlink("SERGIO_DS4_net0_config.yaml")
+unlink("SERGIO_DS4_net0/log")
+unlink("SERGIO_DS4_net0/predicted_edges.csv")
+unlink("SERGIO_DS4_net0/cict_data.Rds")
+rm(gene_expression_matrix)
+rm(ground_truth)
 }

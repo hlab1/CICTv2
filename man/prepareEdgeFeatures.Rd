@@ -8,7 +8,6 @@ prepareEdgeFeatures(
   raw_edges = NULL,
   gene_expression_matrix = NULL,
   cict_raw_edge_col = "Spearman",
-  in_format = "separate",
   prior = NULL,
   ...
 )
@@ -19,8 +18,6 @@ prepareEdgeFeatures(
 \item{gene_expression_matrix}{Data frame. Gene expression matrix. Default is NULL.}
 
 \item{cict_raw_edge_col}{Character. Column name for raw edge calculation. Default is 'Spearman'.}
-
-\item{in_format}{Character. Format of the input data. Can be "separate" or "data_obj". Default is "separate".}
 
 \item{...}{Additional arguments to be passed to other functions.}
 }
@@ -34,14 +31,19 @@ This function prepares edge features from raw edges and a gene expression matrix
 This function processes the raw edges and gene expression matrix to prepare edge features. It supports two input formats: "separate" and "data_obj".
 }
 \examples{
-\dontrun{
-# Example usage:
-raw_edges <- read.csv("path/to/raw_edges.csv")
-gene_expression_matrix <- read.csv("path/to/gene_expression_matrix.csv")
-edge_features <- prepareEdgeFeatures(
-  raw_edges = raw_edges,
-  gene_expression_matrix = gene_expression_matrix,
-  cict_raw_edge_col = 'Spearman'
-)
-}
+# Download data from the external data folder of the CICTv2 GitHub repo
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv",
+"SERGIO_DS4_net0_gene_expression_matrix.csv")
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_raw_edges.csv",
+"SERGIO_DS4_net0_raw_edges.csv")
+gene_expression_matrix <- read.csv("SERGIO_DS4_net0_gene_expression_matrix.csv", header = TRUE, row.names = 1)
+raw_edges <- read.table("SERGIO_DS4_net0_raw_edges.csv",  header=TRUE, sep = ",")
+prepareEdgeFeatures(gene_expression_matrix = gene_expression_matrix,
+        raw_edges = raw_edges, cict_raw_edge_col = "Pearson")
+
+# Reset workspace
+unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
+unlink("SERGIO_DS4_net0_raw_edges.csv")
+rm(gene_expression_matrix)
+rm(raw_edges)
 }

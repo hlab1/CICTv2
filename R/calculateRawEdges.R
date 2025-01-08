@@ -5,21 +5,25 @@
 #' @param gene_expression_matrix Data.frame of gene expression where rows are
 #' genes and columns are samples
 #' @param cict_raw_edge_col gene-gene association metric to calculate
-#' @param in_format String that specifies the input format. Can be 'data_obj',
-#' 'separate', or 'config_file'
 #' @param n.workers Integer. If running parallel, number of threads on which to
 #' run calculations
-#' @return Returns a list consisting of three objects
-#' rcrd: is a list object of intermediary objects
-#' edges: a dataframe of edge objects and CICT features for edges
-#' Vertices: a dataframe of vertices objects and CICT features for vertices
+#' @param ... Options to be passed to subfunctions in calculateRawEdges
+#' @return A list in the CICT data object format. Contains
+#'   `gene_expression_matrix` and `raw_edges`.
 #' @examples
-#' c(rcrd,edges,vertices) %<-z% prepareEdgeFeatures(Debug=Debug)
+#' # Download data from the external data folder of the CICTv2 GitHub repo
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv", "SERGIO_DS4_net0_gene_expression_matrix.csv")
+#' gene_expression_matrix <- read.csv("SERGIO_DS4_net0_gene_expression_matrix.csv", header = TRUE, row.names = 1)
+#'
+#' calculateRawEdges(gene_expression_matrix = gene_expression_matrix)
+#'
+#' # Reset workspace
+#' unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
+#' rm(gene_expression_matrix)
 #' @export
 #'
 calculateRawEdges <- function(gene_expression_matrix=NULL,
 							  cict_raw_edge_col = 'Spearman',
-							  in_format = "separate",
 							  n.workers=5,
 							  ...) {
 
@@ -607,12 +611,7 @@ getScorredMatrix <- function(SimilarityMatrix, scorrer="MRNET", aracne_eps=0){
 
 ########### end here
     # TODO: allow config and throw error if in_format is not valid
-    if(in_format == "separate") {
-      dt_geneexp <- gene_expression_matrix
-    }
-    else if (in_format == "data_obj") {
-      dt_geneexp <- in_data_obj$gene_expression_matrix
-    }
+    dt_geneexp <- gene_expression_matrix
 
     #outFolder = dirname (url.data)
     actualDataset <- dt_geneexp

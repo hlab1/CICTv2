@@ -7,11 +7,7 @@
 predictEdges(
   edge_features = NULL,
   ground_truth = NULL,
-  in_format = "separate",
-  url.preset.train = NA,
-  url.preset.test = NA,
   learning_ratio = 0.8,
-  maxGroundTruth = 500,
   randomEdgesFoldCausal = 5,
   negativeEdgesFoldCausal = 1,
   exportTrainAndTest = T,
@@ -30,9 +26,9 @@ predictEdges(
 )
 }
 \arguments{
-\item{edge_features}{NEW NAME FOR dt.edge}
+\item{edge_features}{CICT edges produced by prepareEdgeFeatures}
 
-\item{ground_truth}{NEW NAME for tbl.goldStandard}
+\item{ground_truth}{Ground truth table}
 
 \item{learning_ratio}{percent of ground truth to be used for learning}
 
@@ -53,8 +49,6 @@ quartile of TFs ranked by number of targets. 'random' will randomly sample from 
 evaluation. Prevents bias when learning set TFs will always have inflated predictive scores.
 Default is TRUE.}
 
-\item{dt.edge}{CICT edges produced by prepareEdgeFeatures}
-
 \item{preset.train}{Defualt is: NA. If provided a path to proper CSV, uses that for training.
 Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features}
 
@@ -62,17 +56,40 @@ Useful for sensitivity analysis as well as comparision with other methods on sim
 Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features}
 }
 \value{
-Returns a list consisting of three objects
-edges: a dataframe of edge objects and CICT features for edges
-Vertices: a dataframe of vertices objects and CICT features for vertices
+A list in the CICT data object format. Contains \code{model},
+\code{model_assessment}, and \code{predicted_edges}.
 }
 \description{
 Implements CICT supervised learning and prediction of regulatory edges. Currently heavily depends on global variables
 }
 \examples{
-out <- predictEdges(edge_features = SERGIO_DS4_net0_edge_features,
-                    ground_truth = SERGIO_DS4_net0_ground_truth,
-                    in_format = 'separate',
-                    randomEdgesFoldCausal = 5,
-                    learning_ratio = 0.7)
+# Download data from the external data folder of the CICTv2 GitHub repo
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv",
+"SERGIO_DS4_net0_gene_expression_matrix.csv")
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_ground_truth.csv",
+"SERGIO_DS4_net0_ground_truth.csv")
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_edge_features.csv",
+"SERGIO_DS4_net0_edge_features.csv")
+
+gene_expression_matrix <- read.csv(
+  "SERGIO_DS4_net0_gene_expression_matrix.csv",
+  header = TRUE,
+  row.names = 1)
+edge_features <- read.table("SERGIO_DS4_net0_edge_features.csv",
+  header=TRUE,
+  sep = ",")
+ground_truth <- read.table("SERGIO_DS4_net0_ground_truth.csv",
+  header=TRUE,
+  sep = ",")
+predictEdges(gene_expression_matrix = gene_expression_matrix,
+  ground_truth = ground_truth,
+  edge_features = edge_features)
+
+# Reset workspace
+unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
+unlink("SERGIO_DS4_net0_edge_features.csv")
+unlink("SERGIO_DS4_net0_ground_truth.csv")
+rm(gene_expression_matrix)
+rm(edge_features)
+rm(ground_truth)
 }
