@@ -39,8 +39,8 @@ and/or predictEdges}
 \value{
 A list in the CICT data object format, with the data from each step
 in the CICT pipeline. Contains \code{gene_expression_matrix}, \code{ground_truth},
-\code{raw_edges}, \code{edge_features}, \code{model}, \code{model_assessment},
-\code{predicted_edges}, and potentially other data.
+\code{raw_edges}, \code{edge_features}, \code{model}, \code{model_assessment}, and
+\code{predicted_edges}.
 }
 \description{
 Takes a gene expression matrix and a ground truth table, calculates raw
