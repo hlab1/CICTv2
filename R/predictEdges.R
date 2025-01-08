@@ -13,9 +13,8 @@
 #'
 #' Implements CICT supervised learning and prediction of regulatory edges. Currently heavily depends on global variables
 #'
-#' @param dt.edge CICT edges produced by prepareEdgeFeatures
-#' @param edge_features NEW NAME FOR dt.edge
-#' @param ground_truth NEW NAME for tbl.goldStandard
+#' @param edge_features CICT edges produced by prepareEdgeFeatures
+#' @param ground_truth Ground truth table
 #' @param learning_ratio percent of ground truth to be used for learning
 #' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training.
 #' Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
@@ -33,9 +32,8 @@
 #' @param remove_learning Removes the learning set from the final predictions for performance
 #' evaluation. Prevents bias when learning set TFs will always have inflated predictive scores.
 #' Default is TRUE.
-#' @return Returns a list consisting of three objects
-#' edges: a dataframe of edge objects and CICT features for edges
-#' Vertices: a dataframe of vertices objects and CICT features for vertices
+#' @return A list in the CICT data object format. Contains `model`,
+#'   `model_assessment`, and `predicted_edges`.
 #' @examples
 #' # Download data from the external data folder of the CICTv2 GitHub repo
 #' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv",
