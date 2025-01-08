@@ -7,7 +7,6 @@
 calculateRawEdges(
   gene_expression_matrix = NULL,
   cict_raw_edge_col = "Spearman",
-  in_format = "separate",
   n.workers = 5,
   ...
 )
@@ -18,21 +17,24 @@ genes and columns are samples}
 
 \item{cict_raw_edge_col}{gene-gene association metric to calculate}
 
-\item{in_format}{String that specifies the input format. Can be 'data_obj',
-'separate', or 'config_file'}
-
 \item{n.workers}{Integer. If running parallel, number of threads on which to
 run calculations}
 }
 \value{
-Returns a list consisting of three objects
-rcrd: is a list object of intermediary objects
-edges: a dataframe of edge objects and CICT features for edges
-Vertices: a dataframe of vertices objects and CICT features for vertices
+A list in the CICT data object format. Contains
+\code{gene_expression_matrix} and \code{raw_edges}.
 }
 \description{
 Returns a gene-gene association matrix from a gene expression matrix
 }
 \examples{
-c(rcrd,edges,vertices) \%<-z\% prepareEdgeFeatures(Debug=Debug)
+# Download data from the external data folder of the CICTv2 GitHub repo
+download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv", "SERGIO_DS4_net0_gene_expression_matrix.csv")
+gene_expression_matrix <- read.csv("SERGIO_DS4_net0_gene_expression_matrix.csv", header = TRUE, row.names = 1)
+
+calculateRawEdges(gene_expression_matrix = gene_expression_matrix)
+
+# Reset workspace
+unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
+rm(gene_expression_matrix)
 }
