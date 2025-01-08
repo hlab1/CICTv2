@@ -17,5 +17,6 @@
 #' @importFrom utils capture.output
 #' @importFrom utils head
 #' @importFrom utils read.csv
+#' @importFrom utils write.csv
 ## usethis namespace: end
 NULL
