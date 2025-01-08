@@ -61,10 +61,7 @@
 #'
 predictEdges <- function(edge_features = NULL,
                          ground_truth = NULL,
-                         url.preset.train = NA,
-                         url.preset.test = NA,
                          learning_ratio = 0.8,
-                         maxGroundTruth = 500,
                          randomEdgesFoldCausal = 5,
                          negativeEdgesFoldCausal = 1,
                          exportTrainAndTest = T,
@@ -160,12 +157,6 @@ predictEdges <- function(edge_features = NULL,
         shared_name = paste0(src, "-", trgt)
       )
 
-    # Number of causal edges in the ground truth will be the minimum of 'maxGroundTruth'
-    # and the learning_ratio multiplied by the number of 'causal' edges in t1.c. If this
-    # value is less than 300, nCausalEdges will be 2x the initial value.
-
-    # Note that this may bring the value of nCausalEdges HIGHER than maxGroundTruth!!
-
     nCausalEdges <- nrow(learning_edges)
     nRandomEdges <- nCausalEdges * randomEdgesFoldCausal
     if (include.negative == "random") {
@@ -178,28 +169,14 @@ predictEdges <- function(edge_features = NULL,
     # If preset is provided, preset.train and preset.test sets are loaded
     # Otherwise, causal edges and reverse-causal edges are randomly selected with nCausalEdges,
     # and random edges are selected at
-    if (!(is.na(url.preset.train) | is.na(url.preset.test))) {
-      # Load presets
-      preset.train <- read.csv(url.preset.train)
-      preset.test <- read.csv(url.preset.test)
-      names(preset.test)[1:2] <- c('src', 'trgt')
-      names(preset.train)[1:2] <- c('src', 'trgt')
-      t2 = rbind(
-        preset.train %>% dplyr::select(src, trgt) %>%
-          dplyr::inner_join(t1, by = c("src" = "src", "trgt" = "trgt")),
-        preset.test %>% dplyr::select(src, trgt) %>%
-          dplyr::inner_join(t1, by = c("src" = "src", "trgt" = "trgt"))
-      )
-    } else{
-      t2 = rbind(
-        t1 %>% dplyr::inner_join(y = learning_edges, by = c("src" = "src", "trgt" = "trgt")),
-        t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = nRandomEdges)
-      )
-      # If negative, add negative class
-      if (include.negative == 'random') {
-        t2 = rbind(t2,
-                   t1 %>% dplyr::filter(class1 == 'n') %>% dplyr::sample_n(size = nCausalEdges))
-      }
+    t2 = rbind(
+      t1 %>% dplyr::inner_join(y = learning_edges, by = c("src" = "src", "trgt" = "trgt")),
+      t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = nRandomEdges)
+    )
+    # If negative, add negative class
+    if (include.negative == 'random') {
+      t2 = rbind(t2,
+                  t1 %>% dplyr::filter(class1 == 'n') %>% dplyr::sample_n(size = nCausalEdges))
     }
 
     # t2.complement is everything that is not included in the learning set
@@ -301,31 +278,18 @@ predictEdges <- function(edge_features = NULL,
     # Creates learning set for random forest training
     ntrgtClass <-  nrow(tst1.totalset[trainingTarget == TRUE,])
 
-    # If a preset train and test is provided, use that
-    # Otherwise, learning sets are randomly partitioned from the entire tst1.tst set
-    if (!(is.na(url.preset.train) | is.na(url.preset.test))) {
-      print('Using preset test and preset train')
-      tst <-
-        preset.train %>% dplyr::inner_join(preset.test, by = c('src', 'trgt'))
-      tst1.tst =  preset.test %>% dplyr::select(src, trgt) %>%
-        dplyr::inner_join(tst1.totalset, by = c("src" = "src", "trgt" = "trgt"))
-      tst1.train = tst1.totalset %>% dplyr::anti_join(tst1.tst, by = c("src" =
-                                                                  "src", "trgt" = "trgt"))
-
-    } else{
-      while (TRUE) {
-        set.seed(as.integer(runif(1, 1, 10000)))
-        spltIdx = as.vector(caret::createDataPartition(
-          1:nrow(tst1.totalset),
-          p = (1 - tstPercent),
-          list = FALSE,
-          times = 1
-        ))
-        tst1.train = tst1.totalset[spltIdx,]
-        tst1.tst = tst1.totalset[-spltIdx,]
-        if (nrow(tst1.tst[trainingTarget == TRUE,]) >= (tstPercent - 0.01) * ntrgtClass)
-          break
-      }
+    while (TRUE) {
+      set.seed(as.integer(runif(1, 1, 10000)))
+      spltIdx = as.vector(caret::createDataPartition(
+        1:nrow(tst1.totalset),
+        p = (1 - tstPercent),
+        list = FALSE,
+        times = 1
+      ))
+      tst1.train = tst1.totalset[spltIdx,]
+      tst1.tst = tst1.totalset[-spltIdx,]
+      if (nrow(tst1.tst[trainingTarget == TRUE,]) >= (tstPercent - 0.01) * ntrgtClass)
+        break
     }
 
     tst1.totalset.tfs <- tst1.totalset[tst1.totalset$class2 == T,]

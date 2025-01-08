@@ -7,6 +7,7 @@
 #' @param cict_raw_edge_col gene-gene association metric to calculate
 #' @param n.workers Integer. If running parallel, number of threads on which to
 #' run calculations
+#' @param ... Options to be passed to subfunctions in calculateRawEdges
 #' @return A list in the CICT data object format. Contains
 #'   `gene_expression_matrix` and `raw_edges`.
 #' @examples

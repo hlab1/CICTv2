@@ -7,15 +7,7 @@ Authors@R:
     person("Vera", "Vecherskaia", "vv2228@nyu.edu", role = c("aut", "cre"))
     person("Stella", "Zhang", "syz248@nyu.edu", role = c("aut", "cre"))
     person("Shao-shan Carol", "Huang", role = c("aut", "cre"))
-Description: CICTv2 is an R implementation of the method "Causal Inference Using
-Compositions of Transactions (CICT)", which infers gene regulatory interactions from
-RNA-sequencing data. Regulatory interactions are inferred in three steps, which are
-represented by three separate functions in this package. First, a gene-gene association
-measure is calcuated for each gene-gene pair (calcualteRawEdges). Second, higher-order
-features describing distributions of associations are calcualted for each gene-gene pair.
-(prepareEdgeFeatures). Third, a random forest is trained on the matrix containing both the
-association measure and higher order features using a ground-truth network, and each
-gene-gene pair is assigned a probability of interaction (predictEdges).
+Description: CICTv2 is an R implementation of the method "Causal Inference Using Compositions of Transactions (CICT)", which infers gene regulatory interactions from RNA-sequencing data. Regulatory interactions are inferred in three steps, which are represented by three separate functions in this package. First, a gene-gene association measure is calcuated for each gene-gene pair (calcualteRawEdges). Second, higher-order features describing distributions of associations are calcualted for each gene-gene pair (prepareEdgeFeatures). Third, a random forest is trained on the matrix containing both the association measure and higher order features using a ground-truth network, and each gene-gene pair is assigned a probability of interaction (predictEdges).
 License: CC BY-NC-SA 4.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
