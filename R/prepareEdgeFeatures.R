@@ -16,8 +16,10 @@
 #' @details This function processes the raw edges and gene expression matrix to prepare edge features. It supports two input formats: "separate" and "data_obj".
 #' @examples
 #' # Download data from the external data folder of the CICTv2 GitHub repo
-#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv", "SERGIO_DS4_net0_gene_expression_matrix.csv")
-#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_raw_edges.csv", "SERGIO_DS4_net0_raw_edges.csv")
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv",
+#' "SERGIO_DS4_net0_gene_expression_matrix.csv")
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_raw_edges.csv",
+#' "SERGIO_DS4_net0_raw_edges.csv")
 
 #' gene_expression_matrix <- read.csv("SERGIO_DS4_net0_gene_expression_matrix.csv", header = TRUE, row.names = 1)
 #' raw_edges <- read.table("SERGIO_DS4_net0_raw_edges.csv",  header=TRUE, sep = ",")
