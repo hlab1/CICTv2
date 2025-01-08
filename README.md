@@ -10,7 +10,7 @@ remotes::install_github("hlab1/CICTv2")
 # Getting started with CICT
 
 ## 1. Loading test data
-Test data includes a gene expression dataset and ground-truth network from the SERGIO single-cell simulator benchmarking set (https://doi.org/10.1016/j.cels.2020.08.003). This data can be found as rdata files under `./data` or as csv files in `./inst/extdata`. We have also included an example config file in `./inst/extdata`.
+Test data includes a gene expression dataset and ground-truth network from the SERGIO single-cell simulator benchmarking set (https://doi.org/10.1016/j.cels.2020.08.003). This data can be found as csv files in `./inst/extdata`. We have also included an example config file in `./inst/extdata`.
 
 ## 2. Running CICT
 ### Running CICT with separate R inputs
