@@ -4,7 +4,8 @@ Version: 0.0.0.9000
 Authors@R: 
     person("Graeme", "Vissers", , "gov2004@nyu.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1967-0680"))
-    person("Vera", "Vecherskaia", "vv2228@nyu.edu", role = c("aut", "cre"))
+    person("Vera", "Vecherskaia", "vv2228@nyu.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0002-5852-4504"))
     person("Stella", "Zhang", "syz248@nyu.edu", role = c("aut", "cre"))
     person("Shao-shan Carol", "Huang", role = c("aut", "cre"))
 Description: CICTv2 is an R implementation of the method "Causal Inference Using
