@@ -72,14 +72,21 @@ download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/in
 download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_ground_truth.csv",
 "SERGIO_DS4_net0_ground_truth.csv")
 download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_edge_features.csv",
-"SERGIO_DS4_net0_edge_features.csv") # Separate inputs mode:
-gene_expression_matrix <-
-read.csv("SERGIO_DS4_net0_gene_expression_matrix.csv", header = TRUE,
-row.names = 1) edge_features <-
-read.table("SERGIO_DS4_net0_edge_features.csv",  header=TRUE, sep = ",")
-ground_truth <- read.table("SERGIO_DS4_net0_ground_truth.csv",  header=TRUE,
-sep = ",") predictEdges(gene_expression_matrix = gene_expression_matrix,
-ground_truth = ground_truth, edge_features = edge_features)
+"SERGIO_DS4_net0_edge_features.csv")
+
+gene_expression_matrix <- read.csv(
+  "SERGIO_DS4_net0_gene_expression_matrix.csv",
+  header = TRUE,
+  row.names = 1)
+edge_features <- read.table("SERGIO_DS4_net0_edge_features.csv",
+  header=TRUE,
+  sep = ",")
+ground_truth <- read.table("SERGIO_DS4_net0_ground_truth.csv",
+  header=TRUE,
+  sep = ",")
+predictEdges(gene_expression_matrix = gene_expression_matrix,
+  ground_truth = ground_truth,
+  edge_features = edge_features)
 
 # Reset workspace
 unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
