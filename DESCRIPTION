@@ -5,7 +5,8 @@ Authors@R: c(
     person("Shao-shan Carol", "Huang", email="ch153@nyu.edu", role = c("cre")),
     person("Graeme", "Vissers", email="gov2004@nyu.edu", role = c("aut"),
            comment = c(ORCID = "0000-0003-1967-0680")),
-    person("Vera", "Vecherskaia", email="vv2228@nyu.edu", role = c("aut")),
+    person("Vera", "Vecherskaia", email="vv2228@nyu.edu", role = c("aut")
+           comment = c(ORCID = "0009-0002-5852-4504")),
     person("Stella", "Zhang", email="syz248@nyu.edu", role = c("aut"),
            comment = c(ORCID = "0009-0006-1474-5144")))
 Description: CICTv2 is an R implementation of the method "Causal Inference Using Compositions of Transactions (CICT)",
