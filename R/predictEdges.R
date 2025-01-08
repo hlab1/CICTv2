@@ -37,11 +37,28 @@
 #' edges: a dataframe of edge objects and CICT features for edges
 #' Vertices: a dataframe of vertices objects and CICT features for vertices
 #' @examples
-#' out <- predictEdges(edge_features = SERGIO_DS4_net0_edge_features,
-#'                     ground_truth = SERGIO_DS4_net0_ground_truth,
-#'                     in_format = 'separate',
-#'                     randomEdgesFoldCausal = 5,
-#'                     learning_ratio = 0.7)
+#' # Download data from the external data folder of the CICTv2 GitHub repo
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_gene_expression_matrix.csv",
+#' "SERGIO_DS4_net0_gene_expression_matrix.csv")
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_ground_truth.csv",
+#' "SERGIO_DS4_net0_ground_truth.csv")
+#' download.file("https://raw.githubusercontent.com/hlab1/CICTv2/refs/heads/main/inst/extdata/SERGIO_DS4_net0_edge_features.csv",
+#' "SERGIO_DS4_net0_edge_features.csv") # Separate inputs mode:
+#' gene_expression_matrix <-
+#' read.csv("SERGIO_DS4_net0_gene_expression_matrix.csv", header = TRUE,
+#' row.names = 1) edge_features <-
+#' read.table("SERGIO_DS4_net0_edge_features.csv",  header=TRUE, sep = ",")
+#' ground_truth <- read.table("SERGIO_DS4_net0_ground_truth.csv",  header=TRUE,
+#' sep = ",") predictEdges(gene_expression_matrix = gene_expression_matrix,
+#' ground_truth = ground_truth, edge_features = edge_features)
+#'
+#' # Reset workspace
+#' unlink("SERGIO_DS4_net0_gene_expression_matrix.csv")
+#' unlink("SERGIO_DS4_net0_edge_features.csv")
+#' unlink("SERGIO_DS4_net0_ground_truth.csv")
+#' rm(gene_expression_matrix)
+#' rm(edge_features)
+#' rm(ground_truth)
 #' @export
 #'
 predictEdges <- function(edge_features = NULL,
