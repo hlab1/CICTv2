@@ -14,7 +14,7 @@ Description: CICTv2 is an R implementation of the method "Causal Inference Using
     of associations are calcualted for each gene-gene pair (prepareEdgeFeatures). Third, a random forest is trained on
     the matrix containing both the association measure and higher order features using a ground-truth network, and each
     gene-gene pair is assigned a probability of interaction (predictEdges).
-License: CC BY-NC-SA 4.0
+License: CC BY-NC-SA 4.0 + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
