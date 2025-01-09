@@ -9,13 +9,13 @@
 CICTv2 is an R implementation of the method "Causal Inference Using Compositions of Transactions (CICT)", which infers gene regulatory interactions from RNA-sequencing data. Regulatory interactions are inferred in three steps, which are represented by three separate functions in this package. First, a gene-gene association measure is calcuated for each gene-gene pair (calcualteRawEdges). Second, higher-order features describing distributions of associations are calcualted for each gene-gene pair (prepareEdgeFeatures). Third, a random forest is trained on the matrix containing both the association measure and higher order features using a ground-truth network, and each gene-gene pair is assigned a probability of interaction (predictEdges).
 }
 \author{
-\strong{Maintainer}: Shao-shan Carol Huang \email{ch153@nyu.edu}
+\strong{Maintainer}: Shao-shan Carol Huang \email{s.c.huang@nyu.edu} (\href{https://orcid.org/0000-0001-7811-0398}{ORCID})
 
 Authors:
 \itemize{
   \item Graeme Vissers \email{gov2004@nyu.edu} (\href{https://orcid.org/0000-0003-1967-0680}{ORCID})
-  \item Vera Vecherskaia \email{vv2228@nyu.edu}
-  \item Stella Zhang \email{syz248@nyu.edu}
+  \item Vera Vecherskaia \email{vv2228@nyu.edu} (\href{https://orcid.org/0009-0002-5852-4504}{ORCID})
+  \item Stella Zhang \email{syz248@nyu.edu} (\href{https://orcid.org/0009-0006-1474-5144}{ORCID})
 }
 
 }
