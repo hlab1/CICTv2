@@ -1,37 +1,69 @@
-#########################################################################################@
+#####################################################################
 # © 2024 Graeme Vissers
-# predict_edges.R takes edge_features and sets up the following
-# - The train set
-# - The test set
-# runRF.R then trains a random forest model using parameters specified by the user
-# with the caret R package for machine learning.
-#########################################################################################@
-
-#Method could be CICT, and RF or XGB which will only use the basic non CICT features
+# predict_edges.R takes edge_features and a ground truth dataset to
+# set up the learning and evaluation sets. It then trains a random forest
+# model using parameters specified by the user with the caret R package for
+# machine learning.
+#####################################################################
 
 #' predictEdges
 #'
-#' Implements CICT supervised learning and prediction of regulatory edges. Currently heavily depends on global variables
+#' Implements CICT supervised learning and prediction of regulatory edges.
 #'
 #' @param edge_features CICT edges produced by prepareEdgeFeatures
 #' @param ground_truth Ground truth table
 #' @param learning_ratio percent of ground truth to be used for learning
-#' @param preset.train Defualt is: NA. If provided a path to proper CSV, uses that for training.
-#' Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
-#' @param preset.test Defualt is: NA. If provided a path to proper CSV, uses that for training.
-#' Useful for sensitivity analysis as well as comparision with other methods on similar set of edges/features
-#' @param predict_on Default is: 'none'. User can provide strings 'none', 'all', or a vector
-#' of genes on which the user wants to predict.
-#' @param sample_tfs Default is: 'random'. Used only when param split_ground_truth_by is set to 'tfs'.
-#' User can provide strings 'quartiles' or 'random'. Option 'quartiles' will  randomly sample from each
-#' quartile of TFs ranked by number of targets. 'random' will randomly sample from the entire list in an unbiased fashion.
-#' @param randomEdgesFoldCausal Numeric representing the number of irrelevant edges to be included
-#' in the learning set relative to the number of causal edges. Default is 5.
-#' @param negativeEdgesFoldCausal Numeric representing the number of negative edges to be included
-#' in the learning set relative to the number of causal edges. Default is 1.
-#' @param remove_learning Removes the learning set from the final predictions for performance
-#' evaluation. Prevents bias when learning set TFs will always have inflated predictive scores.
-#' Default is TRUE.
+#' @param preset_train Defualt is: NA. If provided a path to proper CSV, uses
+#' that for training. Useful for sensitivity analysis as well as comparision
+#' with other methods on similar set of edges/features
+#' @param preset_test If provided a path to proper CSV, uses that for training.
+#' Useful for sensitivity analysis as well as comparision with other methods on
+#' similar set of edges/features. Defualt is: NA.
+#' @param predict_on String or vector of strings to determine which genes to use
+#' for prediction. User can provide strings 'none', 'all', or a vector of genes
+#' on which the user wants to predict. Default is 'none'.
+#' @param sample_tfs Default is: 'random'. Used only when param
+#' split_ground_truth by is set to 'tfs'. User can provide strings 'quartiles'
+#' or 'random'. Option 'quartiles' will  randomly sample from each quartile of
+#' TFs ranked by number of targets. 'random' will randomly sample from the
+#' entire list in an unbiased fashion.
+#' @param random_fold_causal Numeric representing the number of irrelevant edges
+#' to be included in the learning set relative to the number of causal edges.
+#' Default is 5.
+#' @param negative_fold_causal Numeric representing the number of negative edges
+#' to be included in the learning set relative to the number of causal edges.
+#' Default is 1.
+#' @param export_train_test A boolean value to determine whether the train and
+#' test subsets of the learning set will be saved. Only used if
+#' partition_learning is set to "split". If TRUE, the train and test sets will
+#' be saved as CSV files in the specified result folder.
+#' @param remove_learning Removes the learning set from the final predictions
+#' for performance evaluation. Prevents bias when learning set TFs will always
+#' have inflated predictive scores. Default is TRUE.
+#' @param include_negative A string to determine how negative example edges will
+#' be included in the learning set. If set to "random", src-trgt pairs in which
+#' the src IS included in the ground truth and the trgt is NOT included in the
+#' ground truth will be randomly added to the learning set at a rate of
+#' (negative_fold_causal * number of causal edges). If set to "shuffle", the
+#' negative set will be determined by maintaing the src genes in the ground
+#' truth and randomly shuffling their trgts. Default is "random".
+#' @param tst_percent Numeric which determines the percentage of the learning
+#' set to be used for testing. Only used if partition_learning is set to
+#' "split". Default is 0.3.
+#' @param partition_learning String that determines how the learning set will
+#' be partitioned. If set to "split", the learning set will be randomly split
+#' into a train and test set at a rate set by tst_percent. If set to
+#' "cross_val", the learning set will be split into train and test sets
+#' using cross validation methods provided by the caret package.
+#' @param split_ground_truth_by String that determines how the ground truth
+#' will be partitioned into learning and evaluation sets. If set to "nodes",
+#' then the ground truth will be split by the "src" genes, and only unseen "src"
+#' genes will be in the evaluation set. If set to "edges", the ground truth will
+#' be split src-trgt pairs, and only unseen src-trgt edges will be in the
+#' evaluation set. Due to the nature of the edge_features dataset, it is highly
+#' recommended that this parameter is set to "nodes". Default is "nodes".
+#' @param training_target String that determines which column will be the
+#' response variable during model training. Default is "class2".
 #' @return A list in the CICT data object format. Contains `model`,
 #'   `model_assessment`, and `predicted_edges`.
 #' @examples
@@ -69,20 +101,18 @@
 predictEdges <- function(edge_features = NULL,
                          ground_truth = NULL,
                          learning_ratio = 0.8,
-                         randomEdgesFoldCausal = 5,
-                         negativeEdgesFoldCausal = 1,
-                         exportTrainAndTest = T,
-                         returnDat = T,
-                         include.negative = 'random',
-                         remove.tfs = T,
+                         random_fold_causal = 5,
+                         negative_fold_causal = 1,
+                         export_train_test = T,
+                         include_negative = 'random',
                          split.val.tfs = F,
                          learning_params = NA,
-                         trainingTarget = 'class2',
-                         tstPercent = 0.3,
+                         tst_percent = 0.3,
                          predict_on='none',
                          split_ground_truth_by='nodes',
                          sample_tfs='random',
                          remove_learning=TRUE,
+                         training_target="class2",
                          ...) {
 
   # SUBSETS GROUND TRUTH FOR LEARNING AND EVALUATION
@@ -118,7 +148,7 @@ predictEdges <- function(edge_features = NULL,
 
     # t1.n is 'NEGATIVE' edges to serve as true negative examples
     # in the learning set
-    if (include.negative == 'random') {
+    if (include_negative == 'random') {
       t1.n = edge_features %>%
         dplyr::anti_join(ground_truth, by = c("src" = "src", "trgt" = "trgt")) %>%
         dplyr::filter(src %in% ground_truth$src)
@@ -130,7 +160,7 @@ predictEdges <- function(edge_features = NULL,
     t1.rnd = edge_features %>%
       dplyr::anti_join(t1.c, by = c("src" = "src", "trgt" = "trgt"))
 
-    if (include.negative == 'random') {
+    if (include_negative == 'random') {
       t1.rnd = t1.rnd %>% dplyr::anti_join(t1.n, by = c("src" = "src", "trgt" = "trgt"))
     }
     t1.rnd$predicate = "IRRELEVANTA"
@@ -141,7 +171,7 @@ predictEdges <- function(edge_features = NULL,
     # 3. All other edges that are in rawEdges and NOT in the gt or its reverse
     t1 = rbind(t1.c, t1.rnd)
 
-    if (include.negative == 'random') {
+    if (include_negative == 'random') {
       t1 = rbind(t1, t1.n)
     }
 
@@ -165,15 +195,15 @@ predictEdges <- function(edge_features = NULL,
       )
 
     nCausalEdges <- nrow(learning_edges)
-    nRandomEdges <- nCausalEdges * randomEdgesFoldCausal
-    if (include.negative == "random") {
-      nNegativeEdges <- nCausalEdges * negativeEdgesFoldCausal
+    nRandomEdges <- nCausalEdges * random_fold_causal
+    if (include_negative == "random") {
+      nNegativeEdges <- nCausalEdges * negative_fold_causal
     } else {
       nNegativeEdges <- 0
     }
 
     # TODO: Add preset functionality after non-preset conditions are set
-    # If preset is provided, preset.train and preset.test sets are loaded
+    # If preset is provided, preset_train and preset_test sets are loaded
     # Otherwise, causal edges and reverse-causal edges are randomly selected with nCausalEdges,
     # and random edges are selected at
     t2 = rbind(
@@ -181,7 +211,7 @@ predictEdges <- function(edge_features = NULL,
       t1 %>% dplyr::filter(class1 == 'ir') %>% dplyr::sample_n(size = nRandomEdges)
     )
     # If negative, add negative class
-    if (include.negative == 'random') {
+    if (include_negative == 'random') {
       t2 = rbind(t2,
                   t1 %>% dplyr::filter(class1 == 'n') %>% dplyr::sample_n(size = nCausalEdges))
     }
@@ -197,7 +227,7 @@ predictEdges <- function(edge_features = NULL,
       round(sum(t2$predicate == 'CAUSES') / nrow(t2), 4),
       prettyNum(nrow(edge_features), ','),
       prettyNum(nrow(t2), ','),
-      tstPercent,
+      tst_percent,
       round(nRandomEdges, 2),
       round(nRandomEdges, 2)
     )
@@ -283,19 +313,19 @@ predictEdges <- function(edge_features = NULL,
   {
     ##########################################
     # Creates learning set for random forest training
-    ntrgtClass <-  nrow(tst1.totalset[trainingTarget == TRUE,])
+    ntrgtClass <-  nrow(tst1.totalset[training_target == TRUE,])
 
     while (TRUE) {
       set.seed(as.integer(runif(1, 1, 10000)))
       spltIdx = as.vector(caret::createDataPartition(
         1:nrow(tst1.totalset),
-        p = (1 - tstPercent),
+        p = (1 - tst_percent),
         list = FALSE,
         times = 1
       ))
       tst1.train = tst1.totalset[spltIdx,]
       tst1.tst = tst1.totalset[-spltIdx,]
-      if (nrow(tst1.tst[trainingTarget == TRUE,]) >= (tstPercent - 0.01) * ntrgtClass)
+      if (nrow(tst1.tst[training_target == TRUE,]) >= (tst_percent - 0.01) * ntrgtClass)
         break
     }
 
@@ -304,7 +334,7 @@ predictEdges <- function(edge_features = NULL,
 
     # Save train and test sets
     # TODO: think about output folder name and if we should create it or throw an error
-    if (exportTrainAndTest) {
+    if (export_train_test) {
       # try({
       #   if (!dir.exists(url.outputFolder))
       #     dir.create(url.outputFolder)
@@ -349,7 +379,7 @@ predictEdges <- function(edge_features = NULL,
     }
 
     # Set up df for training with caret
-    caret.y = as.factor(as.data.frame(tst1.totalset)[, trainingTarget])
+    caret.y = as.factor(as.data.frame(tst1.totalset)[, training_target])
     caret.x = as.data.frame(tst1.totalset)[, c('src', 'trgt', mdlColNames)]
 
     # Set up unknown df for pedictions
