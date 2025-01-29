@@ -60,13 +60,13 @@ prepareEdgeFeatures <-
     results4 <- calculate_f2(results3)
 
     results5 <- results4
-    results5$raw_edges <- tibble::as_tibble(backup_raw_edges)
+    #results5$raw_edges <- tibble::as_tibble(backup_raw_edges)
 
     # Perform the left join
     results6 <- results5
     if (!is.null(prior)) {
       # Check if prior is a data frame and has the correct columns
-      if (is.data.frame(prior) && all(c("src", "trgt") %in% colnames(prior)) && all(sapply(prior[, -c(1, 2)], is.numeric))) {
+      if (is.data.frame(prior) & all(c("src", "trgt") %in% colnames(prior)) & all(sapply(prior[, -c(1, 2)], is.numeric))) {
       # Perform the left join
       results6$edge_features <- dplyr::left_join(results5$edge_features, prior, by = c("src", "trgt"))
       } else {
