@@ -771,12 +771,15 @@ if (nrow(n.itm.e) == 0) {
     #new cols paste0(colnames(n.itm.e),collapse="','")
     #c('efMImm','ewMImm','efMIempirical','ewMIempirical','efMIshrink','ewMIshrink','Pearson','Spearman','Kendall','Manhattan','Euclidean','L10Norm')
 
-    return (list(gene_expression_matrix = actualDataset,
-                           ground_truth = NULL,
-                           raw_edges = n.itm.e,
-                           edge_features = NULL,
-                           model = NULL,
-                           model_assessment = NULL,
-                           predicted_edges = NULL))
+    # #return (list(gene_expression_matrix = actualDataset,
+    #                        ground_truth = NULL,
+    #                        raw_edges = n.itm.e,
+    #                        edge_features = NULL,
+    #                        model = NULL,
+    #                        model_assessment = NULL,
+    #                        predicted_edges = NULL))
+
+	raw_edges = n.itm.e
+	return (raw_edges)
   }
   }
