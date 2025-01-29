@@ -1484,15 +1484,18 @@ calculate_f2 <- function (results3) {
   #   Correct field names x denotes source and y denotes target ----
   names(dt.edge) <- gsub("_x", ".x", names(dt.edge), fixed = TRUE)
   names(dt.edge) <- gsub("_y", ".y", names(dt.edge), fixed = TRUE)
-  return (
-    list(
-      gene_expression_matrix = dt.geneexp,
-      ground_truth = NULL,
-      raw_edges = dt.edge,
-      edge_features = dt.edge,
-      model = NULL,
-      model_assessment = NULL,
-      predicted_edges = NULL
-    )
+  # return (
+  #   list(
+  #     gene_expression_matrix = dt.geneexp,
+  #     ground_truth = NULL,
+  #     raw_edges = dt.edge,
+  #     edge_features = dt.edge,
+  #     model = NULL,
+  #     model_assessment = NULL,
+  #     predicted_edges = NULL
+  #   )
+  # )
+  edge_features = dt.edge
+  return (edge_features    
   )
 }
