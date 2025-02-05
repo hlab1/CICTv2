@@ -64,19 +64,19 @@ prepareEdgeFeatures <-
 
     # Perform the left join
     results6 <- results5
+    print(colnames(results5))
+     print(head(results5$dt.edge))
     if (!is.null(prior)) {
+      print(head(prior))
       # Check if prior is a data frame and has the correct columns
       if (is.data.frame(prior) & all(c("src", "trgt") %in% colnames(prior)) & all(sapply(prior[, -c(1, 2)], is.numeric))) {
       # Perform the left join
-      results6$edge_features <- dplyr::left_join(results5$edge_features, prior, by = c("src", "trgt"))
+      results6 <- dplyr::left_join(results5, prior, by = c("src", "trgt"))
       } else {
       message("prior cannot be joined, please check formatting")
       results6 <- results5
       }
-    } else {
-      results6 <- results5
-      results6$edge_features <- results5$edge_features
-    }
+    } 
   return(results6)
   }
 
