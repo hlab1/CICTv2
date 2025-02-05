@@ -779,7 +779,7 @@ if (nrow(n.itm.e) == 0) {
     #                        model_assessment = NULL,
     #                        predicted_edges = NULL))
 
-	raw_edges = n.itm.e
+	raw_edges = as.data.frame(n.itm.e)
 	return (raw_edges)
   }
   }
