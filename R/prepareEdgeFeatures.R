@@ -64,10 +64,9 @@ prepareEdgeFeatures <-
 
     # Perform the left join
     results6 <- results5
-    print(colnames(results5))
-     print(head(results5$dt.edge))
+ 
     if (!is.null(prior)) {
-      print(head(prior))
+
       # Check if prior is a data frame and has the correct columns
       if (is.data.frame(prior) & all(c("src", "trgt") %in% colnames(prior)) & all(sapply(prior[, -c(1, 2)], is.numeric))) {
       # Perform the left join
